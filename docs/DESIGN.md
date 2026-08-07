@@ -205,7 +205,7 @@ Any column of digits gets `font-variant-numeric: tabular-nums`.
 
 ## 4. Layout
 
-**Three panes.** A 52px icon rail, a fluid content column, and a 340px agent panel.
+**Three panes.** A collapsible rail, a fluid content column, and a 340px agent panel.
 The agent panel hides on creator screens (Coach) where you're reviewing the agent
 rather than talking to it; the grid collapses to two columns.
 
@@ -216,6 +216,17 @@ rather than talking to it; the grid collapses to two columns.
 │    │ content (max ~66ch prose)│ (contextual)  │
 └────┴──────────────────────────┴───────────────┘
 ```
+
+**The rail has two states.** Collapsed it is 52px of glyphs — fast for someone who
+already knows the app, and the default. Expanded it is 232px and earns the space by
+explaining itself: grouped headings, a label, and a one-line hint saying what each
+destination is *for* ("what's due, and what to try next"). The preference persists per
+browser. Counts — recall due, drafts waiting — render as a chip when expanded and a
+dot when collapsed, so the rail can pull you toward work without being read.
+
+This matters more than it sounds: the glyph-only rail is unteachable, and a new member
+should never have to click five icons to learn the product. Expanding is the
+onboarding.
 
 - Content padding `20px 24px`; card padding `14px`; card header/footer `11px 14px`.
 - Gap between sibling blocks: `12px` inside a group, `16–22px` between groups.

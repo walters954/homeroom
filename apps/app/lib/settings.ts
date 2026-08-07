@@ -54,16 +54,34 @@ export const BRANDING_DEFAULTS: BrandingSettings = {
   accent: "#0F766E",
 };
 
-/** Readable text colour on the accent, by relative luminance. */
-export function accentInk(hex: string): string {
+const INK_DARK = "#14161A";
+const INK_LIGHT = "#FFFFFF";
+
+export function luminance(hex: string): number {
   const h = hex.replace("#", "");
   const full =
     h.length === 3 ? h.split("").map((c) => c + c).join("") : h.padEnd(6, "0");
   const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255);
   const lin = (c: number) =>
     c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  const L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-  return L > 0.45 ? "#14161A" : "#FFFFFF";
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+export function contrastRatio(a: string, b: string): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * Readable text on the accent. Compare actual contrast against both inks
+ * rather than thresholding luminance — a mid-bright accent like #FF6B2B
+ * scores 2.9:1 on white but 6.3:1 on near-black, and the naive version
+ * picked white.
+ */
+export function accentInk(hex: string): string {
+  return contrastRatio(hex, INK_LIGHT) >= contrastRatio(hex, INK_DARK)
+    ? INK_LIGHT
+    : INK_DARK;
 }
 
 const HEX = /^#?[0-9a-fA-F]{6}$/;
