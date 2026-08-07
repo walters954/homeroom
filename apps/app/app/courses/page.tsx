@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@homeroom/db";
+import { EmptyState } from "@/components/empty-state";
 import { getCurrentUser } from "@/lib/session";
 
 export const metadata = { title: "Courses" };
@@ -36,9 +37,22 @@ export default async function CoursesPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="mb-8 text-3xl font-bold tracking-tight">Courses</h1>
-      {courses.length === 0 && (
-        <p className="text-dim">No courses published yet.</p>
-      )}
+      {courses.length === 0 &&
+        (user?.role === "ADMIN" ? (
+          <EmptyState
+            glyph="▷"
+            title="No courses yet"
+            body="A course holds sections, lessons and the exercises that prove them. Create one, add a lesson, drop in its transcript — the agent drafts the rest."
+            actionLabel="Create your first course"
+            actionHref="/admin"
+          />
+        ) : (
+          <EmptyState
+            glyph="▷"
+            title="Nothing published yet"
+            body="Your instructor hasn't published a course here yet. You'll get an email the moment the first lesson goes live."
+          />
+        ))}
       <div className="grid gap-6 sm:grid-cols-2">
         {courses.map((course) => {
           const total = course.sections.reduce(

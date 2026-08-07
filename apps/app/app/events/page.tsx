@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@homeroom/db";
 import { createEvent } from "@/lib/actions/events";
+import { EmptyState } from "@/components/empty-state";
 import { getCurrentUser } from "@/lib/session";
 
 export const metadata = { title: "Events" };
@@ -47,7 +48,15 @@ export default async function EventsPage() {
           <EventRow key={e.id} event={e} />
         ))}
         {upcoming.length === 0 && (
-          <p className="text-sm text-dim">No upcoming events.</p>
+          <EmptyState
+            glyph="◉"
+            title="Nothing scheduled"
+            body={
+              user?.role === "ADMIN"
+                ? "Office hours are where the stuck get unstuck. Schedule one against whatever people are failing most — the recording becomes a lesson afterwards."
+                : "No live sessions on the calendar right now. You'll be emailed when one is announced."
+            }
+          />
         )}
       </section>
 

@@ -141,7 +141,7 @@ export default async function AdminCoursePage({
                         <span className="text-acc">transcript ✓</span>
                       )}
                       {!lesson.published && (
-                        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">
+                        <span className="rounded bg-warn-soft px-1.5 py-0.5 text-warn">
                           draft
                         </span>
                       )}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@homeroom/db";
 import { createSpace } from "@/lib/actions/community";
+import { EmptyState } from "@/components/empty-state";
 import { getCurrentUser } from "@/lib/session";
 
 export const metadata = { title: "Community" };
@@ -37,10 +38,20 @@ export default async function CommunityPage() {
             </li>
           </Link>
         ))}
-        {spaces.length === 0 && (
-          <li className="px-4 py-3 text-sm text-dim">No spaces yet.</li>
-        )}
+
       </ul>
+
+      {spaces.length === 0 && (
+        <EmptyState
+          glyph="◇"
+          title="No spaces yet"
+          body={
+            user?.role === "ADMIN"
+              ? "Spaces are where members compare notes. One general space is usually enough to start — you can split it later once traffic tells you how."
+              : "The community hasn't opened yet. Check back soon."
+          }
+        />
+      )}
 
       {user?.role === "ADMIN" && (
         <section className="mt-10 rounded-lg border border-line p-5">

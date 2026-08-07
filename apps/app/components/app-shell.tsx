@@ -1,15 +1,28 @@
 import Link from "next/link";
+import { db } from "@homeroom/db";
 import { getCurrentUser } from "@/lib/session";
 import { getBranding } from "@/lib/settings";
-import { RailLink } from "./rail-link";
+import { Rail, type RailGroup } from "./rail";
 import { SignOutButton } from "./sign-out-button";
 
 /**
- * Console shell (docs/DESIGN.md §4): a narrow icon rail, then the page. The
- * rail is the only persistent navigation — pages own everything else.
+ * Console shell (docs/DESIGN.md §4). The rail is the only persistent
+ * navigation; it collapses to glyphs and expands to explain itself.
  */
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const [user, branding] = await Promise.all([getCurrentUser(), getBranding()]);
+
+  // Counts pull you toward work — recall that's due, drafts waiting.
+  const [recallDue, draftsWaiting] = user
+    ? await Promise.all([
+        db.recallItem.count({
+          where: { userId: user.id, dueAt: { lte: new Date() } },
+        }),
+        user.role === "ADMIN"
+          ? db.agentSuggestion.count({ where: { status: "PENDING" } })
+          : Promise.resolve(0),
+      ])
+    : [0, 0];
 
   const initials = branding.schoolName
     .split(/\s+/)
@@ -18,63 +31,110 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
     .join("")
     .toUpperCase();
 
-  return (
-    <div className="grid min-h-screen grid-cols-[52px_minmax(0,1fr)]">
-      <nav className="flex flex-col items-center gap-1 border-r border-line bg-panel py-3">
-        <Link
-          href="/"
-          aria-label={branding.schoolName}
-          className="mb-3 grid h-[26px] w-[26px] place-items-center rounded-[7px] bg-acc font-mono text-[11px] font-bold text-acc-ink"
-        >
-          {branding.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={branding.logoUrl} alt="" className="h-full w-full rounded-[7px] object-cover" />
-          ) : (
-            initials
-          )}
-        </Link>
+  const groups: RailGroup[] = [];
 
-        {/* The practice loop is the front door; the catalog is the fallback. */}
-        <RailLink href="/today" label="Today" glyph="●" />
-        <RailLink href="/capability" label="Capability" glyph="▤" />
-        <RailLink href="/recall" label="Recall" glyph="↻" />
-        <span className="my-1 h-px w-6 bg-line" />
-        <RailLink href="/courses" label="Courses" glyph="▷" />
-        <RailLink href="/community" label="Community" glyph="◇" />
-        <RailLink href="/events" label="Events" glyph="◉" />
-        {user?.role === "ADMIN" && (
-          <>
-            <span className="my-1 h-px w-6 bg-line" />
-            <RailLink href="/admin" label="Admin" glyph="◎" />
-            <RailLink href="/admin/coach" label="Coach" glyph="◈" />
-            <RailLink href="/admin/suggestions" label="Agent queue" glyph="✎" />
-          </>
+  if (user) {
+    groups.push({
+      title: "Practice",
+      items: [
+        {
+          href: "/today",
+          label: "Today",
+          glyph: "●",
+          hint: "One next thing, chosen for you",
+        },
+        {
+          href: "/recall",
+          label: "Recall",
+          glyph: "↻",
+          hint: "Quick checks on what you'd forget",
+          badge: recallDue || undefined,
+        },
+        {
+          href: "/capability",
+          label: "Capability",
+          glyph: "▤",
+          hint: "What you've proven, and what's shaky",
+        },
+      ],
+    });
+  }
+
+  groups.push({
+    title: "School",
+    items: [
+      { href: "/courses", label: "Courses", glyph: "▷", hint: "Lessons and their exercises" },
+      { href: "/community", label: "Community", glyph: "◇", hint: "Questions and discussion" },
+      { href: "/events", label: "Events", glyph: "◉", hint: "Live sessions and recordings" },
+    ],
+  });
+
+  if (user?.role === "ADMIN") {
+    groups.push({
+      title: "Teach",
+      items: [
+        { href: "/admin", label: "Admin", glyph: "◎", hint: "Courses, members, settings" },
+        {
+          href: "/admin/coach",
+          label: "Coach",
+          glyph: "◈",
+          hint: "Where people are actually stuck",
+        },
+        {
+          href: "/admin/suggestions",
+          label: "Agent queue",
+          glyph: "✎",
+          hint: "Drafts waiting on your approval",
+          badge: draftsWaiting || undefined,
+        },
+      ],
+    });
+  }
+
+  const brand = (
+    <Link
+      href={user ? "/today" : "/"}
+      aria-label={branding.schoolName}
+      className="flex min-w-0 items-center gap-2"
+    >
+      <span className="grid h-[26px] w-[26px] shrink-0 place-items-center overflow-hidden rounded-[7px] bg-acc font-mono text-[11px] font-bold text-acc-ink">
+        {branding.logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={branding.logoUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          initials
         )}
+      </span>
+      <span className="hr-rail-name truncate text-[13px] font-semibold">
+        {branding.schoolName}
+      </span>
+    </Link>
+  );
 
-        <div className="mt-auto flex flex-col items-center gap-2">
-          {user ? (
-            <>
-              <span
-                title={user.name}
-                className="grid h-[26px] w-[26px] place-items-center rounded-full bg-soft text-[10px] font-bold text-dim"
-              >
-                {user.name.slice(0, 2).toUpperCase()}
-              </span>
-              <SignOutButton />
-            </>
-          ) : (
-            <Link
-              href="/sign-in"
-              className="grid h-[31px] w-[31px] place-items-center rounded-[7px] text-[13px] text-dim hover:bg-soft"
-              title="Sign in"
-            >
-              →
-            </Link>
-          )}
-        </div>
-      </nav>
+  const footer = user ? (
+    <>
+      <span
+        title={user.name}
+        className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-full bg-soft text-[10px] font-bold text-dim"
+      >
+        {user.name.slice(0, 2).toUpperCase()}
+      </span>
+      <SignOutButton />
+    </>
+  ) : (
+    <Link
+      href="/sign-in"
+      title="Sign in"
+      className="grid h-[31px] w-[31px] place-items-center rounded-[7px] text-[13px] text-dim hover:bg-soft"
+    >
+      →
+    </Link>
+  );
 
-      <div className="min-w-0">{children}</div>
+  return (
+    <div className="flex min-h-screen">
+      <Rail groups={groups} brand={brand} footer={footer} />
+      <div className="flex min-w-0 flex-1">{children}</div>
     </div>
   );
 }

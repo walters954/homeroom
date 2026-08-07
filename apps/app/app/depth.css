@@ -84,3 +84,6 @@ body > * {
 @media (prefers-reduced-motion: reduce) {
   body { background-attachment: scroll; }
 }
+
+/* The school name only earns its space when the rail is expanded. */
+nav[data-expanded="false"] .hr-rail-name { display: none; }

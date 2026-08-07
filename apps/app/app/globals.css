@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./depth.css";
 
 /* ---------------------------------------------------------------------------
    Homeroom design tokens — see docs/DESIGN.md
