@@ -38,6 +38,14 @@ pnpm db:migrate
 pnpm dev
 ```
 
+The `apps/agent` eve runtime requires **Node 24** (`nvm use`, see `.nvmrc`); the
+Next.js app runs on Node 22+. Build them separately if your default is older:
+
+```bash
+pnpm turbo run build --filter=@homeroom/app     # any recent Node
+pnpm turbo run build --filter=@homeroom/agent   # Node 24
+```
+
 ## Status
 
 Early scaffold. Built in the open; first production school is [Revenue Engineer](https://www.cloudcodeacademy.com/) migrating off Circle. See [docs/PLAN.md](docs/PLAN.md) for the full design.

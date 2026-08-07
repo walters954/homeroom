@@ -1,0 +1,6 @@
+.vercel
+.env*.local
+
+# eve build artifacts
+.eve/
+.output/
