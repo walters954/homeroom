@@ -11,7 +11,8 @@
     "studio": "prisma studio",
     "seed:practice": "node --env-file=.env prisma/seed-practice.ts",
     "build": "prisma generate",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.7.0"
