@@ -10,6 +10,22 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  databaseHooks: {
+    user: {
+      create: {
+        // First user to register owns the school.
+        after: async (user) => {
+          const count = await db.user.count();
+          if (count === 1) {
+            await db.user.update({
+              where: { id: user.id },
+              data: { role: "ADMIN" },
+            });
+          }
+        },
+      },
+    },
+  },
   user: {
     additionalFields: {
       role: {

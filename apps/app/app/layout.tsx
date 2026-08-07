@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SiteNav } from "@/components/site-nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-white text-zinc-900 antialiased">
+        <SiteNav />
         {children}
       </body>
     </html>
