@@ -62,13 +62,15 @@ ${lesson.transcript.text.slice(0, 60000)}`,
     seoDescription: string;
   }>(text);
 
+  const draft = parsed ?? {
+    bodyMarkdown: text,
+    seoTitle: null,
+    seoDescription: null,
+  };
   await db.agentSuggestion.create({
     data: {
       type: "LESSON_DRAFT",
-      payload: (parsed
-        ? { lessonId, ...parsed }
-        : { lessonId, bodyMarkdown: text, seoTitle: null, seoDescription: null })
-        as Prisma.InputJsonValue,
+      payload: { lessonId, ...draft } as Prisma.InputJsonValue,
       evidence: {
         lessonId,
         lessonTitle: lesson.title,

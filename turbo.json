@@ -13,7 +13,10 @@
     "SLACK_WEBHOOK_URL",
     "AI_GATEWAY_API_KEY",
     "ANTHROPIC_API_KEY",
-    "OPENAI_API_KEY"
+    "OPENAI_API_KEY",
+    "TUTOR_MODEL",
+    "EMAIL_FROM",
+    "CRON_SECRET"
   ],
   "tasks": {
     "build": {
