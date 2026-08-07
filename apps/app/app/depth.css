@@ -1,0 +1,86 @@
+/* ---------------------------------------------------------------------------
+   Depth — the difference between "a dark rectangle" and a product.
+
+   Two effects, both derived from the school's accent so they re-theme for
+   free: a pair of soft washes anchoring the top-right and bottom-left, and a
+   very faint grid for the IDE/terminal register the audience lives in. This
+   mirrors the Revenue Engineer marketing site so crossing from revenueeng.com
+   to learn.revenueeng.com doesn't feel like changing products.
+
+   Kept in its own file so the token layer in globals.css stays legible.
+   --------------------------------------------------------------------------- */
+
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(
+      ellipse 62% 48% at 82% -4%,
+      color-mix(in srgb, var(--acc) 10%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 46% 42% at -6% 104%,
+      color-mix(in srgb, var(--acc) 6%, transparent),
+      transparent 62%
+    );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Light surfaces need a fraction of the wash or it reads as a stain. */
+:root:not([data-surface="dark"]) body {
+  background-image:
+    radial-gradient(
+      ellipse 62% 48% at 82% -4%,
+      color-mix(in srgb, var(--acc) 5%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 46% 42% at -6% 104%,
+      color-mix(in srgb, var(--acc) 3%, transparent),
+      transparent 60%
+    );
+}
+
+/* Grid overlay. Fixed, non-interactive, behind everything. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 46px 46px;
+  /* Fade the grid out toward the bottom so it reads as texture, not a table. */
+  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 88%);
+}
+
+:root {
+  --grid-line: rgba(20, 22, 26, 0.028);
+}
+[data-surface="dark"] {
+  --grid-line: rgba(250, 250, 250, 0.022);
+}
+
+/* Content sits above the texture. */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Surfaces get a hairline lift so cards separate from the ground rather than
+   relying on the border alone. */
+[data-surface="dark"] .hr-card {
+  box-shadow:
+    0 1px 0 0 rgba(250, 250, 250, 0.03) inset,
+    0 1px 2px rgba(0, 0, 0, 0.28);
+}
+:root:not([data-surface="dark"]) .hr-card {
+  box-shadow: 0 1px 2px rgba(20, 22, 26, 0.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { background-attachment: scroll; }
+}
