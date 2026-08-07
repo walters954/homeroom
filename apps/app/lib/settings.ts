@@ -60,6 +60,42 @@ export async function getBranding(): Promise<BrandingSettings> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+export interface NotificationSettings {
+  /** Slack channel ID for platform notifications (via Vercel Connect). */
+  slackChannel: string;
+}
+
+const NOTIFICATIONS_KEY = "notifications";
+
+export async function getNotificationSettings(): Promise<NotificationSettings> {
+  try {
+    const row = await db.setting.findUnique({
+      where: { key: NOTIFICATIONS_KEY },
+    });
+    const stored = (row?.value ?? {}) as Partial<NotificationSettings>;
+    return { slackChannel: stored.slackChannel ?? "" };
+  } catch {
+    return { slackChannel: "" };
+  }
+}
+
+export async function saveNotificationSettings(
+  value: NotificationSettings,
+): Promise<void> {
+  await db.setting.upsert({
+    where: { key: NOTIFICATIONS_KEY },
+    create: {
+      key: NOTIFICATIONS_KEY,
+      value: value as unknown as Prisma.InputJsonValue,
+    },
+    update: { value: value as unknown as Prisma.InputJsonValue },
+  });
+}
+
 export async function saveBranding(value: BrandingSettings): Promise<void> {
   await db.setting.upsert({
     where: { key: BRANDING_KEY },

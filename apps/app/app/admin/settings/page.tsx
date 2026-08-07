@@ -1,7 +1,16 @@
 import Link from "next/link";
-import { updateAiModels, updateBranding } from "@/lib/actions/settings";
-import { getAiModels, getBranding } from "@/lib/settings";
+import {
+  updateAiModels,
+  updateBranding,
+  updateNotifications,
+} from "@/lib/actions/settings";
+import {
+  getAiModels,
+  getBranding,
+  getNotificationSettings,
+} from "@/lib/settings";
 import { requireAdmin } from "@/lib/session";
+import { listSlackChannels, slackConnected } from "@/lib/slack";
 
 export const metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -18,7 +27,12 @@ const MODEL_OPTIONS = [
 
 export default async function AdminSettingsPage() {
   await requireAdmin();
-  const [models, branding] = await Promise.all([getAiModels(), getBranding()]);
+  const [models, branding, notifications, channels] = await Promise.all([
+    getAiModels(),
+    getBranding(),
+    getNotificationSettings(),
+    slackConnected() ? listSlackChannels() : Promise.resolve([]),
+  ]);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -120,6 +134,44 @@ export default async function AdminSettingsPage() {
             Save
           </button>
         </form>
+      </section>
+
+      <section className="mt-8 rounded-lg border border-zinc-200 p-5">
+        <h2 className="mb-1 text-lg font-semibold">Slack notifications</h2>
+        <p className="mb-4 text-sm text-zinc-500">
+          {slackConnected()
+            ? "Connected through Vercel Connect — no Slack secret is stored here. Pick the channel for new lessons, posts, events, and subscriptions."
+            : "Not connected. Set SLACK_CONNECTOR_ID (Vercel Connect) or SLACK_WEBHOOK_URL to enable."}
+        </p>
+        {slackConnected() && (
+          <form
+            action={updateNotifications}
+            className="flex flex-col gap-3 text-sm"
+          >
+            <label className="flex flex-col gap-1 font-medium">
+              Channel
+              <select
+                name="slackChannel"
+                defaultValue={notifications.slackChannel}
+                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+              >
+                <option value="">— none (notifications off) —</option>
+                {channels.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    #{c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="text-xs text-zinc-400">
+              Invite the app to a private channel first, or it can only post to
+              public ones. Saving sends a test message.
+            </p>
+            <button className="self-start rounded-md bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700">
+              Save &amp; send test
+            </button>
+          </form>
+        )}
       </section>
 
       <p className="mt-6 text-xs text-zinc-400">

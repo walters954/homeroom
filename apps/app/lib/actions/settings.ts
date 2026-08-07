@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "../session";
-import { saveAiModels, saveBranding } from "../settings";
+import { postToSlack } from "../notify";
+import {
+  saveAiModels,
+  saveBranding,
+  saveNotificationSettings,
+} from "../settings";
 
 export async function updateAiModels(formData: FormData) {
   await requireAdmin();
@@ -10,6 +15,18 @@ export async function updateAiModels(formData: FormData) {
   const complex = String(formData.get("complex") ?? "").trim();
   if (!simple || !complex) return;
   await saveAiModels({ simple, complex });
+  revalidatePath("/admin/settings");
+}
+
+export async function updateNotifications(formData: FormData) {
+  await requireAdmin();
+  const slackChannel = String(formData.get("slackChannel") ?? "").trim();
+  await saveNotificationSettings({ slackChannel });
+  if (slackChannel) {
+    await postToSlack(
+      "✅ Connected. New lessons, community posts, events, and subscriptions will land here.",
+    );
+  }
   revalidatePath("/admin/settings");
 }
 

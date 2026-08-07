@@ -5,11 +5,23 @@
 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-/** Slack incoming-webhook notification (SLACK_WEBHOOK_URL). */
+/**
+ * Slack notification. Prefers Vercel Connect (no stored secret, channel
+ * chosen in admin settings); falls back to a classic incoming webhook.
+ */
 export async function postToSlack(text: string): Promise<void> {
-  const url = process.env.SLACK_WEBHOOK_URL;
-  if (!url) return;
   try {
+    const { slackConnected, postSlackMessage } = await import("./slack");
+    if (slackConnected()) {
+      const { getNotificationSettings } = await import("./settings");
+      const { slackChannel } = await getNotificationSettings();
+      if (slackChannel) {
+        await postSlackMessage(slackChannel, text);
+        return;
+      }
+    }
+    const url = process.env.SLACK_WEBHOOK_URL;
+    if (!url) return;
     await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
