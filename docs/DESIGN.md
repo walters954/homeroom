@@ -89,9 +89,15 @@ built into.
 
 ### Structure
 
-Neutrals, semantics, and the brand accent are three separate systems. **A school
-re-themes the accent only** — that's why a re-theme can never break contrast or
-change what a color means.
+A school theme has **two** parts: a *surface mode* (light or dark ground) and an
+*accent set*. Semantics are never re-themed. Homeroom owns the scale, spacing and
+type in every theme, which is why a re-brand can't break rhythm or change what a
+colour means.
+
+> **Correction (Aug 2026):** an earlier draft of this doc said schools override the
+> accent only, and listed dark mode as a non-goal. Both were wrong. Revenue Engineer
+> ships dark as its default because the audience lives in dark IDEs — the same
+> reasoning that chose Console. Dark is a first-class surface mode, not a later add.
 
 ```css
 /* Neutrals — Homeroom's, never overridden */
@@ -106,12 +112,38 @@ change what a color means.
 --fail:      #B3261E;  --fail-soft: #FDECEA;   /* failing test, error pattern */
 --warn:      #B45309;  --warn-soft: #FEF3E2;   /* shaky skill, due for recall */
 
-/* Brand accent — the only tokens a school overrides */
+/* Brand accent */
 --acc:      #0F766E;   /* primary actions, active nav, progress fill */
 --acc-soft: #E6F2F0;   /* accent backgrounds, proven tags */
 --acc-ink:  #FFFFFF;   /* text on --acc */
 --acc-deep: #0B564F;   /* hover/pressed on --acc */
 ```
+
+### Revenue Engineer (the first school)
+
+Sourced from `revenue-eng-nextjs/src/app/globals.css`. Dark is its default — the
+site hardcodes `class="dark"` on `<html>`.
+
+```css
+/* brand */
+--brand-orange:#FF6B2B;  --brand-steel:#1A1A2E;  --brand-steel-2:#16213E;
+--brand-blue:#4A9EFF;    --brand-green:#00D68F;
+--brand-red:#E84545;     --brand-slate:#8892A0;
+
+/* dark surface (default) */
+--bg:#1A1A2E; --panel:#1F1F3A; --soft:#252544;
+--line:rgba(250,250,250,.10); --ink:#FAFAFA; --dim:#8892A0;
+--acc:#FF6B2B; --acc-soft:rgba(255,107,43,.14); --acc-ink:#1A1A2E; --acc-deep:#E45A1E;
+--fail:#E84545; --warn:#4A9EFF; --ok:#00D68F;
+
+/* light surface */
+--bg:#FAFAFA; --panel:#FFFFFF; --soft:#F0F0F3;
+--line:rgba(26,26,46,.12); --ink:#1A1A2E; --dim:#8892A0;
+```
+
+Note RE maps **blue** to attention and **green** to success, where Homeroom's
+default uses amber and the accent. Keep the *meaning* fixed and let the hue move:
+`--warn` is "shaky / due" regardless of which colour a school assigns it.
 
 ### Rules
 
@@ -136,11 +168,21 @@ Nowhere else.
 
 ## 3. Typography
 
-No webfonts. The Artifact/CSP environment blocks font CDNs and a silent fallback is
-worse than a considered system stack.
+**In the app**, match Revenue Engineer so the marketing site and the LMS read as one
+product across the `revenueeng.com` → `learn.revenueeng.com` boundary:
+
+```ts
+// next/font/google — self-hosted at build time, no CDN request
+import { Inter, JetBrains_Mono } from "next/font/google";
+const sans = Inter({ variable: "--font-sans", subsets: ["latin"] });
+const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"] });
+```
+
+**In mockups and Artifacts**, fall back to system stacks — the CSP there blocks font
+CDNs and a silent fallback is worse than a considered stack:
 
 ```css
---font-ui:   ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+--font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 ```
 
@@ -180,6 +222,20 @@ rather than talking to it; the grid collapses to two columns.
 - Radius: `7px` controls, `9–11px` surfaces. Nothing fully rounded except avatars.
 - Prose caps at ~66ch. Tables and code get `overflow-x: auto` on their own container.
 - Below 940px everything stacks to one column.
+
+---
+
+## 4b. Component library
+
+Match Revenue Engineer's shadcn setup so components are portable between the two
+codebases and visually continuous for a member crossing from the marketing site:
+
+```json
+{ "style": "base-nova", "baseColor": "neutral", "cssVariables": true,
+  "iconLibrary": "lucide", "rsc": true, "tsx": true }
+```
+
+Radius follows RE's scale: `--radius: 0.5rem` with `sm/md/lg/xl` derived from it.
 
 ---
 
@@ -232,11 +288,15 @@ Write from the learner's side of the screen.
 
 An admin sets brand in `/admin/settings`. The implementation contract:
 
-1. Store `accent`, `accentSoft`, `accentInk`, `accentDeep` in the `branding` setting.
-2. Emit them as CSS custom properties on the app root — never inline per component.
-3. Validate contrast on save and refuse a combination that fails; offer a corrected
-   `accentSoft`/`accentInk` rather than shipping an unreadable UI.
-4. Everything else — neutrals, semantics, type, spacing — is not configurable.
+1. Store a `surface` mode (`light` | `dark`) and the accent set (`accent`,
+   `accentSoft`, `accentInk`, `accentDeep`) in the `branding` setting. A school may
+   also override the semantic hues (`fail`, `warn`, `ok`) — RE assigns blue to
+   attention and green to success — but never their *meaning*.
+2. Emit them as CSS custom properties on the app root; never inline per component.
+   Every component reads tokens, so no component needs to know the theme.
+3. Validate contrast on save (4.5:1 text, 3:1 UI edges) and refuse or auto-correct a
+   failing pair rather than shipping an unreadable UI.
+4. Type scale, spacing, radius, and layout are not configurable.
 
 Deliberate: schools get identity, not a theme engine. A creator cannot make Homeroom
 look broken, and every Homeroom instance stays recognizably the same product.
@@ -255,7 +315,6 @@ look broken, and every Homeroom instance stays recognizably the same product.
 
 ## 9. Non-goals
 
-Dark mode is not a launch requirement (add it token-level when it comes — the
-structure already supports it). No gradients, no glassmorphism, no illustration
+No gradients, no glassmorphism, no illustration
 system, no emoji as UI. No leaderboards or XP: the research is clear that they drive
 return behavior without producing competence, and Homeroom measures competence.
