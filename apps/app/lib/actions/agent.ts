@@ -2,7 +2,7 @@
 
 import { db, type Prisma } from "@homeroom/db";
 import { revalidatePath } from "next/cache";
-import { defaultModel, makeAnthropic } from "../ai";
+import { makeAnthropic, modelFor } from "../ai";
 import { APP_URL, postToSlack, sendEmail } from "../notify";
 import { requireAdmin } from "../session";
 
@@ -19,7 +19,7 @@ function extractJson<T>(text: string): T | null {
 async function askClaude(prompt: string): Promise<string> {
   const client = makeAnthropic();
   const response = await client.messages.create({
-    model: defaultModel(),
+    model: await modelFor("complex"),
     max_tokens: 8192,
     messages: [{ role: "user", content: prompt }],
   });

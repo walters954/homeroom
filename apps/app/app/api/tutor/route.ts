@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { db, type Prisma } from "@homeroom/db";
-import { defaultModel, makeAnthropic } from "@/lib/ai";
+import { makeAnthropic, modelFor } from "@/lib/ai";
 import { buildGrounding } from "@/lib/tutor/grounding";
 import { getCurrentUser } from "@/lib/session";
 
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
 
   const client = makeAnthropic();
   const stream = client.messages.stream({
-    model: defaultModel(),
+    model: await modelFor("simple"),
     max_tokens: 4096,
     output_config: { effort: "low" },
     system: [

@@ -23,6 +23,21 @@ export function defaultModel(): string {
   );
 }
 
+export type AiTask = "simple" | "complex";
+
+/**
+ * Resolve the model for a task from admin settings (/admin/settings).
+ * Without gateway auth, non-Anthropic slugs can't be served — fall back to
+ * the direct-API default.
+ */
+export async function modelFor(task: AiTask): Promise<string> {
+  if (process.env.TUTOR_MODEL) return process.env.TUTOR_MODEL;
+  if (!gatewayAuth()) return "claude-opus-5";
+  const { getAiModels } = await import("./settings");
+  const models = await getAiModels();
+  return task === "simple" ? models.simple : models.complex;
+}
+
 export function makeAnthropic(): Anthropic {
   const auth = gatewayAuth();
   if (auth) {
