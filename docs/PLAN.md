@@ -4,11 +4,19 @@ This document is the shared understanding the project started from (August 2026)
 
 ## Thesis
 
-Homeroom is an open-source, agent-first course + community platform — the Kajabi/Teachable/Circle alternative where an AI agent is the operating model, not a feature. Borrowing trycompai/crm's founding inversion: **the LMS is where the teaching agent keeps its notes.** The agent ingests every video transcript and lesson, tutors students in context, drafts content and announcements for the creator's approval, tracks progress, and participates in the community. The creator supervises queues instead of doing platform admin.
+Homeroom is an open-source, agent-first course + community platform **for technical courses** — the Kajabi/Teachable/Circle alternative where an AI agent is the operating model, not a feature. Borrowing trycompai/crm's founding inversion: **the LMS is where the teaching agent keeps its notes.** The agent ingests every video transcript and lesson, tutors students in context, drafts content and announcements for the creator's approval, tracks progress, and participates in the community. The creator supervises queues instead of doing platform admin.
 
 Market context (researched Aug 2026): no open-source project bundles courses + community at production maturity (CourseLit and LearnHouse are beta/alpha); nothing open or closed is agent-first — Circle's AI Agents are a paid answer-bot upsell. All three incumbents had 2025–26 pricing shocks that broke creator trust.
 
 **First proof: Revenue Engineer migrates off Circle onto Homeroom. v1 is done when Circle is canceled.**
+
+## Niche (decided Aug 2026)
+
+Positioning narrows to **technical courses** — Salesforce development, GTM engineering, AI coding tools — while the schema stays subject-agnostic. Reasons: general open-source LMSs already exist (CourseLit, LearnHouse, ClassroomIO, Moodle, Open edX) and none are agent-first; a self-hosted AGPL Next.js app selects for a technical audience anyway; and the niche produces a concrete roadmap instead of an abstract claim.
+
+What the niche adds: code-aware lesson content, in-browser exercises, test-verified knowledge checks, and a tutor grounded in the lesson's repo as well as its transcript. What it rules out: SCORM, compliance reporting, certificates-for-HR, seat management.
+
+**Visual direction:** Console — dense, keyboard-forward, agent as a permanent pane, near-white with a single teal accent. Chosen because the audience lives in Linear/Vercel/GitHub-shaped tools all day.
 
 ## Product decisions
 
@@ -53,4 +61,13 @@ Four jobs, all grounded in the transcript + lesson corpus, with evidence discipl
 5. **Community + events** — spaces/posts/reactions, public share pages, events + RSVPs + ICS + reminder cron, Resend, Slack webhooks, Kit sync ✅
 6. **Content-ops + engagement queues** — lesson drafts + announcements from transcripts, nudge suggestions, approval queue ✅
 
-**Next:** migrate Revenue Engineer (Vimeo uploads from Drive raws, transcripts, curriculum rebuild, members), deploy to Vercel, cancel Circle. Later: eve-based durable agent ops, Whisper fallback for caption-less video, pgvector retrieval, Discord + two-way Slack sync, AI quizzes.
+7. **Member lifecycle** — password reset, email verification, magic-link invites, admin members with comp/revoke ✅
+8. **Deployed** — learn.revenueeng.com, one Vercel project with the eve agent mounted same-origin ✅
+
+**Backlog now lives in GitHub Issues**, labelled by area (learner / creator / agent / platform / design) and track:
+
+- `track:launch` — what blocks cancelling Circle: Stripe live cutover, lesson reordering, shadcn adoption, Console direction
+- `track:technical-courses` — the niche: code-aware lessons, in-browser editor, test-verified exercises, repo-grounded tutor
+- `track:later` — Whisper fallback, pgvector retrieval, eve consolidation, Discord/two-way Slack, AI quizzes, search, analytics
+
+**Next:** migrate Revenue Engineer (Vimeo uploads from Drive raws, transcripts, curriculum rebuild, members), then cancel Circle.

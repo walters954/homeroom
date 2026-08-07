@@ -4,6 +4,8 @@
 
 The agent ingests every video transcript and lesson, tutors students in context (with citations), drafts content and announcements for the creator's approval, tracks member progress, and participates in the community. The creator supervises queues instead of doing platform admin.
 
+Because the courses are technical, the roadmap is too: code as first-class lesson content, exercises learners complete in the browser, tests that actually verify a submission, and a tutor grounded in the lesson's repo rather than only its transcript. Explicit non-goals: SCORM, compliance reporting, HR seat management — the enterprise-LMS features that bloat every competitor.
+
 ## What Homeroom is
 
 - **Headless-first** — Homeroom owns the logged-in experience: courses, lessons, community, events, accounts, billing. Your marketing site stays yours; Homeroom serves public, SEO-indexed catalog, lesson-preview, post, and event pages.
