@@ -16,6 +16,22 @@ Positioning narrows to **technical courses** — Salesforce development, GTM eng
 
 What the niche adds: code-aware lesson content, in-browser exercises, test-verified knowledge checks, and a tutor grounded in the lesson's repo as well as its transcript. What it rules out: SCORM, compliance reporting, certificates-for-HR, seat management.
 
+## The product model: a practice operating system
+
+Learning products people say actually work don't behave like an LMS. They run a short repeated loop — **attempt something real → immediate specific feedback → visible progress → return at the right time** — and Homeroom is built around that loop rather than around a video library.
+
+Concretely, this changes what the software is:
+
+- **The attempt is the unit of progress, not the lesson.** Video demotes to support material for an attempt; nothing advances by clicking "mark complete".
+- **Feedback is immediate and specific** — failing tests plus a tutor that read *your* code, with a hint ladder that unlocks with effort. Revealing the solution costs the "proven" mark.
+- **One next-best action** on return, chosen from what you've proven and what you're about to forget — not a catalog to browse.
+- **Spaced recall** after a skill is proven (≈ day 2 / 7 / 30), tightening on a miss.
+- **Progress means demonstrated capability** — proven / shaky / untested with evidence and recency — not percent complete.
+- **Worked solutions unlock only after a genuine pass**, shown beside the learner's own version and other members'.
+- **The creator coaches from evidence**: first-attempt pass rate, average attempts, clustered error patterns — which distinguishes an unclear exercise from a productively hard one.
+
+Guardrail, taken from the same research: gamification drives return behaviour but not competence. Streaks count days you *attempted* something, never days you logged in, and leaderboards stay out.
+
 **Visual direction:** Console — dense, keyboard-forward, agent as a permanent pane, near-white with a single teal accent. Chosen because the audience lives in Linear/Vercel/GitHub-shaped tools all day.
 
 ## Product decisions
