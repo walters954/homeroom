@@ -16,12 +16,11 @@ The agent ingests every video transcript and lesson, tutors students in context 
 
 ## Stack
 
-Turborepo + pnpm · Next.js (App Router) · NestJS · Prisma + Neon Postgres · Better Auth · [eve](https://github.com/vercel/eve) (durable agent runtime) · Tailwind 4
+Turborepo + pnpm · Next.js (App Router) · Prisma + Neon Postgres · Better Auth · [eve](https://github.com/vercel/eve) (durable agent runtime) · Tailwind 4
 
 ```
-apps/app/       Next.js frontend            (port 3000)
-apps/api/       NestJS API                  (port 3001)
-apps/agent/     eve teaching agent
+apps/app/       Next.js app + mounted eve agent (port 3000)
+apps/agent/     eve agent definition (tools, skills, schedules)
 packages/db/    Prisma schema & client
 packages/auth/  Better Auth configuration
 packages/ui/    Shared UI components

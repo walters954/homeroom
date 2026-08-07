@@ -31,7 +31,7 @@ Four jobs, all grounded in the transcript + lesson corpus, with evidence discipl
 
 ## Architecture
 
-- **Monorepo:** Turborepo + pnpm on Node — `apps/app` (Next.js), `apps/api` (NestJS), `apps/agent` (eve), `packages/db` (Prisma → Neon), `packages/auth` (Better Auth), `packages/ui`, `packages/env`.
+- **Monorepo:** Turborepo + pnpm on Node — `apps/app` (Next.js, with the eve agent mounted same-origin via `withEve`), `apps/agent` (eve agent definition), `packages/db` (Prisma → Neon), `packages/auth` (Better Auth), `packages/ui`, `packages/env`.
 - **Single-tenant:** one deployment = one school. Creator owns their Neon DB and Stripe account. Future business = managed single-tenant hosting (the Ghost model); creators can export and leave anytime.
 - **Video:** `VideoSource` abstraction — Vimeo, YouTube, Mux per lesson. Revenue Engineer starts on Vimeo; Mux is a config change. Transcript pipeline is host-independent: pull captions if available, else Whisper on the raw file; stored on the lesson, indexed for the agent.
 - **License:** AGPL-3.0. Fallback names considered: Commonplace, Primer.
