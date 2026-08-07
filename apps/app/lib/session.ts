@@ -25,17 +25,3 @@ export async function requireAdmin(): Promise<User> {
   return user;
 }
 
-/**
- * Can this user open this lesson's full content?
- * Entitlement enforcement (products/subscriptions) arrives with checkout;
- * until then any signed-in member can access published content.
- */
-export function canAccessLesson(
-  user: User | null,
-  lesson: { published: boolean; isPublicPreview: boolean },
-): boolean {
-  if (user?.role === "ADMIN") return true;
-  if (!lesson.published) return false;
-  if (lesson.isPublicPreview) return true;
-  return user !== null;
-}

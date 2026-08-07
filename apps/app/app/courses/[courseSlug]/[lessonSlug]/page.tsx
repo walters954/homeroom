@@ -6,7 +6,8 @@ import { Markdown } from "@/components/markdown";
 import { TutorFloater } from "@/components/tutor-floater";
 import { VideoEmbed } from "@/components/video-embed";
 import { toggleLessonComplete } from "@/lib/actions/progress";
-import { canAccessLesson, getCurrentUser } from "@/lib/session";
+import { getCourseAccess, lessonAccessible } from "@/lib/access";
+import { getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -60,9 +61,10 @@ export default async function LessonPage({
   if (!data) notFound();
   const { course, lesson, prev, next } = data;
 
-  if (!canAccessLesson(user, lesson)) {
+  const access = await getCourseAccess(user, course.id);
+  if (!lessonAccessible(user, lesson, access.hasAccess)) {
     if (!user) redirect(`/sign-in`);
-    notFound();
+    redirect(`/courses/${course.slug}`);
   }
 
   const progress = user

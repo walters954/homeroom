@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@homeroom/db";
 import type { Metadata } from "next";
-import { canAccessLesson, getCurrentUser } from "@/lib/session";
+import { formatPrice, getCourseAccess, lessonAccessible } from "@/lib/access";
+import { getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,8 @@ export default async function CoursePage({
   if (!course) notFound();
   if (!course.published && user?.role !== "ADMIN") notFound();
 
+  const access = await getCourseAccess(user, course.id);
+
   const completedIds = new Set<string>();
   if (user) {
     const progress = await db.lessonProgress.findMany({
@@ -63,7 +66,29 @@ export default async function CoursePage({
       {course.description && (
         <p className="mt-3 text-zinc-600">{course.description}</p>
       )}
-      {!user && (
+      {!access.hasAccess && access.product && (
+        <div className="mt-4 flex items-center justify-between rounded-lg bg-zinc-50 p-4">
+          <p className="text-sm text-zinc-600">
+            <span className="font-semibold text-zinc-900">
+              {access.product.name}
+            </span>{" "}
+            · {formatPrice(access.product)}
+            {access.product.trialDays > 0 &&
+              ` · ${access.product.trialDays}-day free trial`}
+          </p>
+          <a
+            href={
+              user
+                ? `/api/checkout?productId=${access.product.id}`
+                : "/sign-up"
+            }
+            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+          >
+            {access.product.trialDays > 0 ? "Start free trial" : "Subscribe"}
+          </a>
+        </div>
+      )}
+      {!user && !access.product && (
         <p className="mt-4 rounded-lg bg-zinc-50 p-4 text-sm text-zinc-600">
           <Link href="/sign-up" className="font-medium underline">
             Create an account
@@ -80,7 +105,11 @@ export default async function CoursePage({
             </h2>
             <ul className="divide-y divide-zinc-100 rounded-lg border border-zinc-200">
               {visibleLessons(section.lessons).map((lesson) => {
-                const accessible = canAccessLesson(user, lesson);
+                const accessible = lessonAccessible(
+                  user,
+                  lesson,
+                  access.hasAccess,
+                );
                 const row = (
                   <li className="flex items-center justify-between px-4 py-3 text-sm">
                     <span className="flex items-center gap-2">

@@ -5,7 +5,22 @@ import { getCurrentUser } from "@/lib/session";
 
 export const maxDuration = 120;
 
-const MODEL = process.env.TUTOR_MODEL ?? "claude-opus-5";
+// Model calls route through Vercel AI Gateway when AI_GATEWAY_API_KEY is set
+// (keys live in the gateway); direct Anthropic API otherwise.
+const useGateway = Boolean(process.env.AI_GATEWAY_API_KEY);
+const MODEL =
+  process.env.TUTOR_MODEL ??
+  (useGateway ? "anthropic/claude-opus-5" : "claude-opus-5");
+
+function makeClient() {
+  if (useGateway) {
+    return new Anthropic({
+      apiKey: process.env.AI_GATEWAY_API_KEY,
+      baseURL: "https://ai-gateway.vercel.sh",
+    });
+  }
+  return new Anthropic();
+}
 
 const SYSTEM_PROMPT = `You are the tutor for this school, built into its course platform (Homeroom). Students ask you questions while watching lessons.
 
@@ -58,14 +73,11 @@ export async function POST(request: Request) {
     content: m.content,
   }));
 
-  const client = new Anthropic();
-  const stream = client.beta.messages.stream({
+  const client = makeClient();
+  const stream = client.messages.stream({
     model: MODEL,
     max_tokens: 4096,
     output_config: { effort: "low" },
-    betas: ["server-side-fallback-2026-07-01"],
-    // Safety-classifier refusals retry on Anthropic's recommended fallback model.
-    fallbacks: "default",
     system: [
       {
         type: "text",
@@ -80,7 +92,7 @@ export async function POST(request: Request) {
         content: `# Course material for this question\n${grounding.contextText}\n\n# Student question\n${message}`,
       },
     ],
-  } as Parameters<typeof client.beta.messages.stream>[0]);
+  });
 
   const conversationId = conversation.id;
   const encoder = new TextEncoder();

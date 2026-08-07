@@ -15,7 +15,12 @@ export default async function AdminPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-8 text-3xl font-bold tracking-tight">Admin</h1>
+      <h1 className="mb-2 text-3xl font-bold tracking-tight">Admin</h1>
+      <p className="mb-8 text-sm text-zinc-500">
+        <Link href="/admin/products" className="underline hover:text-zinc-900">
+          Products &amp; pricing
+        </Link>
+      </p>
 
       <section className="mb-10">
         <h2 className="mb-3 text-lg font-semibold">Courses</h2>

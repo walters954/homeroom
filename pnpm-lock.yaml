@@ -100,6 +100,9 @@ importers:
       react-markdown:
         specifier: ^10.0.0
         version: 10.1.0(@types/react@19.2.18)(react@19.2.8)
+      stripe:
+        specifier: ^22.4.0
+        version: 22.4.0(@types/node@22.20.1)
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4.1.0
@@ -2602,6 +2605,15 @@ packages:
   strip-bom@3.0.0:
     resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
     engines: {node: '>=4'}
+
+  stripe@22.4.0:
+    resolution: {integrity: sha512-LVJ+tcSYeqOSnXr3i+Kz2tZ7y0crLLdP2uwD/4wccrmEVyn0g/Heo0pF7as7rxS/sOjJzrb1lxgZY0Y0Dx1pSA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/node': '>=18'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   strtok3@10.3.5:
     resolution: {integrity: sha512-ki4hZQfh5rX0QDLLkOCj+h+CVNkqmp/CMf8v8kZpkNVK6jGQooMytqzLZYUVYIZcFZ6yDB70EfD8POcFXiF5oA==}
@@ -5394,6 +5406,10 @@ snapshots:
       ansi-regex: 5.0.1
 
   strip-bom@3.0.0: {}
+
+  stripe@22.4.0(@types/node@22.20.1):
+    optionalDependencies:
+      '@types/node': 22.20.1
 
   strtok3@10.3.5:
     dependencies:

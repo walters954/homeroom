@@ -103,6 +103,9 @@ model Product {
   description     String?
   stripeProductId String?  @unique
   stripePriceId   String?
+  priceCents      Int      @default(0)
+  currency        String   @default("usd")
+  interval        String   @default("month")
   trialDays       Int      @default(0)
   active          Boolean  @default(true)
   createdAt       DateTime @default(now())
