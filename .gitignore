@@ -19,3 +19,4 @@ dist/
 # prisma
 packages/db/generated/
 .vercel
+.env*.local

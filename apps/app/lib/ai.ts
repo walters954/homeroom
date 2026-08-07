@@ -1,22 +1,33 @@
 import Anthropic from "@anthropic-ai/sdk";
 
 /**
- * Model calls route through Vercel AI Gateway when AI_GATEWAY_API_KEY is set
- * (provider keys live in the gateway); direct Anthropic API otherwise.
+ * Model calls route through Vercel AI Gateway (provider keys live in the
+ * gateway). Auth, in order: explicit AI_GATEWAY_API_KEY, else the Vercel
+ * deployment's OIDC token (injected automatically on Vercel — no key to
+ * manage). Falls back to the direct Anthropic API when neither exists.
  */
-export const useGateway = Boolean(process.env.AI_GATEWAY_API_KEY);
+function gatewayAuth(): { apiKey?: string; authToken?: string } | null {
+  if (process.env.AI_GATEWAY_API_KEY) {
+    return { apiKey: process.env.AI_GATEWAY_API_KEY };
+  }
+  if (process.env.VERCEL_OIDC_TOKEN) {
+    return { authToken: process.env.VERCEL_OIDC_TOKEN };
+  }
+  return null;
+}
 
 export function defaultModel(): string {
   return (
     process.env.TUTOR_MODEL ??
-    (useGateway ? "anthropic/claude-opus-5" : "claude-opus-5")
+    (gatewayAuth() ? "anthropic/claude-opus-5" : "claude-opus-5")
   );
 }
 
 export function makeAnthropic(): Anthropic {
-  if (useGateway) {
+  const auth = gatewayAuth();
+  if (auth) {
     return new Anthropic({
-      apiKey: process.env.AI_GATEWAY_API_KEY,
+      ...auth,
       baseURL: "https://ai-gateway.vercel.sh",
     });
   }
