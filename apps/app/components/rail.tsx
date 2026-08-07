@@ -53,7 +53,7 @@ export function Rail({
     <nav
       aria-label="Main"
       data-expanded={expanded}
-      className={`flex shrink-0 flex-col border-r border-line bg-panel py-3 transition-[width] duration-150 ${
+      className={`sticky top-0 flex h-screen shrink-0 flex-col border-r border-line bg-panel py-3 transition-[width] duration-150 ${
         expanded ? "w-[232px] px-3" : "w-[52px] items-center px-0"
       }`}
     >

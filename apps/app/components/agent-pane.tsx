@@ -97,7 +97,7 @@ export function AgentPane({
 
   if (!open) {
     return (
-      <aside className="hidden shrink-0 border-l border-line bg-panel lg:block">
+      <aside className="sticky top-0 hidden h-screen shrink-0 border-l border-line bg-panel lg:block">
         <button
           onClick={() => setOpen(true)}
           aria-label="Show tutor"
@@ -113,7 +113,7 @@ export function AgentPane({
   }
 
   return (
-    <aside className="hidden w-[340px] shrink-0 flex-col border-l border-line bg-panel lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-[340px] shrink-0 flex-col border-l border-line bg-panel lg:flex">
       <div className="flex items-center gap-2 border-b border-line px-4 py-3">
         <span aria-hidden className="h-[7px] w-[7px] rounded-full bg-acc" />
         <h2 className="text-[12.5px] font-semibold">Tutor</h2>
