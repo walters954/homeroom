@@ -46,9 +46,11 @@ Four jobs, all grounded in the transcript + lesson corpus, with evidence discipl
 
 ## Build order
 
-1. **Skeleton** — monorepo, auth, schema, deployed shell ← *scaffolded*
-2. **Courses + video + transcripts** — Vimeo VideoSource, lesson pages, progress, transcript ingest
-3. **Agent core** — eve runtime, corpus indexing, in-lesson tutor floater
-4. **Checkout** — Stripe subscriptions + trials, entitlement gating, public catalog/SEO pages
-5. **Community + events** — spaces/posts/reactions/profiles, event pages, Resend, Slack webhooks, Kit sync
-6. **Content-ops + engagement queues** — then migrate Revenue Engineer, cancel Circle
+1. **Skeleton** — monorepo, auth, schema, deployed shell ✅
+2. **Courses + video + transcripts** — Vimeo VideoSource, lesson pages, progress, transcript ingest ✅
+3. **Agent core** — tutor floater grounded on the transcript corpus (streaming, via Vercel AI Gateway) ✅
+4. **Checkout** — Stripe subscriptions + trials, entitlement gating, subscribe CTAs ✅
+5. **Community + events** — spaces/posts/reactions, public share pages, events + RSVPs + ICS + reminder cron, Resend, Slack webhooks, Kit sync ✅
+6. **Content-ops + engagement queues** — lesson drafts + announcements from transcripts, nudge suggestions, approval queue ✅
+
+**Next:** migrate Revenue Engineer (Vimeo uploads from Drive raws, transcripts, curriculum rebuild, members), deploy to Vercel, cancel Circle. Later: eve-based durable agent ops, Whisper fallback for caption-less video, pgvector retrieval, Discord + two-way Slack sync, AI quizzes.

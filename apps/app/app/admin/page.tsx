@@ -20,6 +20,10 @@ export default async function AdminPage() {
         <Link href="/admin/products" className="underline hover:text-zinc-900">
           Products &amp; pricing
         </Link>
+        {" · "}
+        <Link href="/admin/suggestions" className="underline hover:text-zinc-900">
+          Agent suggestions
+        </Link>
       </p>
 
       <section className="mb-10">

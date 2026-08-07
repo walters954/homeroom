@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { db } from "@homeroom/db";
 import { PullTranscriptButton } from "@/components/pull-transcript-button";
 import { VideoEmbed } from "@/components/video-embed";
+import {
+  draftAnnouncement,
+  draftLessonFromTranscript,
+} from "@/lib/actions/agent";
 import { deleteLesson, updateLesson } from "@/lib/actions/courses";
 import { saveManualTranscript } from "@/lib/actions/transcripts";
 import { requireAdmin } from "@/lib/session";
@@ -203,6 +207,32 @@ export default async function AdminLessonPage({
             Save pasted transcript
           </button>
         </form>
+      </section>
+
+      <section className="mb-10 rounded-lg border border-zinc-200 p-5">
+        <h2 className="mb-1 text-lg font-semibold">Agent</h2>
+        <p className="mb-4 text-sm text-zinc-500">
+          Drafts land in the{" "}
+          <Link href="/admin/suggestions" className="underline">
+            suggestion queue
+          </Link>{" "}
+          for your approval — the agent never publishes directly.
+        </p>
+        <div className="flex gap-2">
+          <form action={draftLessonFromTranscript.bind(null, lesson.id, courseId)}>
+            <button
+              disabled={!lesson.transcript}
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100 disabled:opacity-40"
+            >
+              ✍️ Draft lesson from transcript
+            </button>
+          </form>
+          <form action={draftAnnouncement.bind(null, lesson.id, courseId)}>
+            <button className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100">
+              📣 Draft announcement email
+            </button>
+          </form>
+        </div>
       </section>
 
       <form action={deleteLesson.bind(null, lesson.id, courseId)}>
