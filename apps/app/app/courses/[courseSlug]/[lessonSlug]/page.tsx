@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { db } from "@homeroom/db";
 import type { Metadata } from "next";
 import { Markdown } from "@/components/markdown";
+import { TutorFloater } from "@/components/tutor-floater";
 import { VideoEmbed } from "@/components/video-embed";
 import { toggleLessonComplete } from "@/lib/actions/progress";
 import { canAccessLesson, getCurrentUser } from "@/lib/session";
@@ -132,6 +133,8 @@ export default async function LessonPage({
           )}
         </div>
       </div>
+
+      {user && <TutorFloater lessonId={lesson.id} />}
     </main>
   );
 }

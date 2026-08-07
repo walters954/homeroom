@@ -16,6 +16,7 @@ const schema = z.object({
 
   AI_GATEWAY_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
+  TUTOR_MODEL: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
 
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),

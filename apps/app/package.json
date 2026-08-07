@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
     "@homeroom/auth": "workspace:*",
     "@homeroom/db": "workspace:*",
     "@homeroom/env": "workspace:*",
