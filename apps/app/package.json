@@ -16,6 +16,7 @@
     "@homeroom/ui": "workspace:*",
     "@vercel/connect": "^0.6.1",
     "better-auth": "^1.2.0",
+    "eve": "^0.31.3",
     "next": "^16.3.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

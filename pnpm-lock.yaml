@@ -17,6 +17,9 @@ importers:
 
   apps/agent:
     dependencies:
+      '@homeroom/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@homeroom/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -90,10 +93,13 @@ importers:
         version: link:../../packages/ui
       '@vercel/connect':
         specifier: ^0.6.1
-        version: 0.6.1(ai@7.0.56(zod@4.4.3))(better-auth@1.6.26(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(next@16.3.0(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prisma@6.19.3(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(eve@0.31.2(ai@7.0.56(zod@4.4.3))(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2))
+        version: 0.6.1(ai@7.0.56(zod@4.4.3))(better-auth@1.6.26(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(next@16.3.0(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prisma@6.19.3(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(eve@0.31.3(ai@7.0.56(zod@4.4.3))(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2))
       better-auth:
         specifier: ^1.2.0
         version: 1.6.26(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(next@16.3.0(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prisma@6.19.3(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      eve:
+        specifier: ^0.31.3
+        version: 0.31.3(ai@7.0.56(zod@4.4.3))(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2)
       next:
         specifier: ^16.3.0
         version: 16.3.0(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1735,6 +1741,26 @@ packages:
 
   eve@0.31.2:
     resolution: {integrity: sha512-Ve26qtui3DTYYkA6xkWIEi9gviCpGkXfxfqgcdQMFt5JoWghhHUPYSFToZd47tz6dl4Np4o+QcO67Ng/A1FZ7g==}
+    engines: {node: '>=24'}
+    hasBin: true
+    peerDependencies:
+      '@opentelemetry/api': ^1.0.0
+      ai: ^7.0.38
+      braintrust: ^3.0.0
+      just-bash: ^3.0.0
+      microsandbox: ^0.5.0
+    peerDependenciesMeta:
+      '@opentelemetry/api':
+        optional: true
+      braintrust:
+        optional: true
+      just-bash:
+        optional: true
+      microsandbox:
+        optional: true
+
+  eve@0.31.3:
+    resolution: {integrity: sha512-/ae8kfsVLGoy68BU+7uNEkXeEQzOHWaXi0Q+Fj5oA2On5POcU0DGR9AnZlOaDQoFLoEtMxRnR1urTw4H0U2O7Q==}
     engines: {node: '>=24'}
     hasBin: true
     peerDependencies:
@@ -3861,13 +3887,13 @@ snapshots:
     dependencies:
       execa: 5.1.1
 
-  '@vercel/connect@0.6.1(ai@7.0.56(zod@4.4.3))(better-auth@1.6.26(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(next@16.3.0(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prisma@6.19.3(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(eve@0.31.2(ai@7.0.56(zod@4.4.3))(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2))':
+  '@vercel/connect@0.6.1(ai@7.0.56(zod@4.4.3))(better-auth@1.6.26(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(next@16.3.0(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prisma@6.19.3(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(eve@0.31.3(ai@7.0.56(zod@4.4.3))(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2))':
     dependencies:
       '@vercel/oidc': 3.8.2
     optionalDependencies:
       ai: 7.0.56(zod@4.4.3)
       better-auth: 1.6.26(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(next@16.3.0(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prisma@6.19.3(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      eve: 0.31.2(ai@7.0.56(zod@4.4.3))(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2)
+      eve: 0.31.3(ai@7.0.56(zod@4.4.3))(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2)
 
   '@vercel/oidc@3.2.0': {}
 
@@ -4378,6 +4404,51 @@ snapshots:
   etag@1.8.1: {}
 
   eve@0.31.2(ai@7.0.56(zod@4.4.3))(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2):
+    dependencies:
+      ai: 7.0.56(zod@4.4.3)
+      nitro: 3.0.260610-beta(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2)
+      undici: 8.9.0
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@netlify/blobs'
+      - '@netlify/runtime'
+      - '@planetscale/database'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/functions'
+      - '@vercel/kv'
+      - '@vercel/queue'
+      - aws4fetch
+      - better-sqlite3
+      - chokidar
+      - dotenv
+      - drizzle-orm
+      - giget
+      - idb-keyval
+      - ioredis
+      - jiti
+      - lru-cache
+      - miniflare
+      - mongodb
+      - mysql2
+      - rollup
+      - sqlite3
+      - uploadthing
+      - vite
+      - wrangler
+      - xml2js
+      - zephyr-agent
+
+  eve@0.31.3(ai@7.0.56(zod@4.4.3))(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2):
     dependencies:
       ai: 7.0.56(zod@4.4.3)
       nitro: 3.0.260610-beta(chokidar@4.0.3)(dotenv@16.6.1)(giget@2.0.0)(jiti@2.7.0)(lru-cache@11.5.2)

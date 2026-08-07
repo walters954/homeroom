@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withEve } from "eve/next";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -14,4 +15,6 @@ const nextConfig: NextConfig = {
   ],
 };
 
-export default nextConfig;
+// Mounts the eve agent (apps/agent) same-origin at /eve/v1/*: one Vercel
+// project, one deploy, no cross-service auth.
+export default withEve(nextConfig, { eveRoot: "../agent" });
