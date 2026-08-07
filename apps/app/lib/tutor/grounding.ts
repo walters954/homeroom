@@ -12,7 +12,7 @@ export interface GroundingContext {
   sources: GroundingSource[];
 }
 
-const CURRENT_LESSON_CHAR_CAP = 14000;
+const CURRENT_LESSON_CHAR_CAP = 60000;
 const EXCERPT_CHARS = 600;
 
 /**

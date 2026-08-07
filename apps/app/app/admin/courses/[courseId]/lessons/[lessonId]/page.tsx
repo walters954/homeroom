@@ -197,14 +197,23 @@ export default async function AdminLessonPage({
           action={saveManualTranscript.bind(null, lesson.id, courseId)}
           className="flex flex-col gap-2"
         >
+          <label className="text-sm font-medium">
+            Upload a transcript file (.vtt, .srt, .txt)
+            <input
+              type="file"
+              name="file"
+              accept=".vtt,.srt,.txt,text/plain"
+              className="mt-1 block w-full text-xs text-zinc-500 file:mr-3 file:rounded-md file:border file:border-zinc-300 file:bg-white file:px-3 file:py-1.5 file:text-xs file:hover:bg-zinc-100"
+            />
+          </label>
           <textarea
             name="transcript"
             rows={5}
-            placeholder="Or paste a transcript here (plain text or WebVTT)…"
+            placeholder="…or paste a transcript here (plain text, WebVTT, or SRT)"
             className="rounded-md border border-zinc-300 px-3 py-2 font-mono text-xs"
           />
           <button className="self-start rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100">
-            Save pasted transcript
+            Save transcript
           </button>
         </form>
       </section>

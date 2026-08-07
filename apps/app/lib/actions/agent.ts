@@ -16,10 +16,13 @@ function extractJson<T>(text: string): T | null {
   }
 }
 
-async function askClaude(prompt: string): Promise<string> {
+async function askClaude(
+  prompt: string,
+  task: "simple" | "complex" = "complex",
+): Promise<string> {
   const client = makeAnthropic();
   const response = await client.messages.create({
-    model: await modelFor("complex"),
+    model: await modelFor(task),
     max_tokens: 8192,
     messages: [{ role: "user", content: prompt }],
   });
@@ -27,6 +30,35 @@ async function askClaude(prompt: string): Promise<string> {
     .filter((b) => b.type === "text")
     .map((b) => b.text)
     .join("");
+}
+
+// ~150k tokens — fits comfortably in the 1M-context models we route to.
+const SINGLE_SHOT_CHAR_CAP = 600_000;
+const CHUNK_CHARS = 200_000;
+
+/**
+ * For transcripts beyond the single-shot cap, fan out: sub-calls extract
+ * teaching notes per chunk in parallel (cheap model), and the final draft
+ * is written from the combined notes (best model).
+ */
+async function transcriptForDrafting(text: string): Promise<string> {
+  if (text.length <= SINGLE_SHOT_CHAR_CAP) return text;
+
+  const chunks: string[] = [];
+  for (let i = 0; i < text.length; i += CHUNK_CHARS) {
+    chunks.push(text.slice(i, i + CHUNK_CHARS));
+  }
+  const notes = await Promise.all(
+    chunks.map((chunk, i) =>
+      askClaude(
+        `You are summarizing part ${i + 1} of ${chunks.length} of a long lesson-video transcript. Extract detailed teaching notes IN ORDER: every concept taught, key explanations in the instructor's own phrasing, examples used, and rough position (early/middle/late in this part). Be thorough — these notes replace the transcript for drafting. Output plain text notes only.\n\nTRANSCRIPT PART:\n${chunk}`,
+        "simple",
+      ),
+    ),
+  );
+  return notes
+    .map((n, i) => `--- Notes from part ${i + 1} of ${chunks.length} ---\n${n}`)
+    .join("\n\n");
 }
 
 /** Content ops: draft lesson body + SEO from the transcript → suggestion queue. */
@@ -41,6 +73,7 @@ export async function draftLessonFromTranscript(
   });
   if (!lesson?.transcript) return;
 
+  const material = await transcriptForDrafting(lesson.transcript.text);
   const text = await askClaude(
     `You are the teaching agent for an online school. Below is the transcript of the video for the lesson "${lesson.title}" (course: ${lesson.section.course.title}).
 
@@ -53,7 +86,7 @@ Use ONLY what the transcript contains — never invent content the instructor di
 Return ONLY a JSON object: {"bodyMarkdown": "...", "seoTitle": "...", "seoDescription": "..."}
 
 TRANSCRIPT:
-${lesson.transcript.text.slice(0, 60000)}`,
+${material}`,
   );
 
   const parsed = extractJson<{
@@ -102,7 +135,7 @@ Draft a short announcement email to members (3 short paragraphs max, warm and di
 Return ONLY a JSON object: {"subject": "...", "bodyHtml": "<p>...</p>"}
 
 LESSON SUMMARY:
-${lesson.transcript ? lesson.transcript.text.slice(0, 8000) : ((lesson.body as { markdown?: string } | null)?.markdown ?? lesson.title)}`,
+${lesson.transcript ? lesson.transcript.text.slice(0, 100_000) : ((lesson.body as { markdown?: string } | null)?.markdown ?? lesson.title)}`,
   );
 
   const parsed = extractJson<{ subject: string; bodyHtml: string }>(text);

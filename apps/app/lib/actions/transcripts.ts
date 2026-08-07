@@ -57,16 +57,23 @@ export async function pullVimeoTranscript(
   };
 }
 
-/** Store a manually pasted transcript (plain text or VTT). */
+/** Store a provided transcript: uploaded file (.vtt/.srt/.txt) or pasted text. */
 export async function saveManualTranscript(
   lessonId: string,
   courseId: string,
   formData: FormData,
 ): Promise<void> {
   await requireAdmin();
-  const raw = String(formData.get("transcript") ?? "").trim();
+  let raw = "";
+  const file = formData.get("file");
+  if (file instanceof File && file.size > 0) {
+    raw = (await file.text()).trim();
+  }
+  if (!raw) raw = String(formData.get("transcript") ?? "").trim();
   if (!raw) return;
 
+  // SRT is close enough to VTT for our parser: "," ms separators and index
+  // lines are tolerated, so both go through the timed-caption path.
   const isVtt = raw.startsWith("WEBVTT") || raw.includes("-->");
   const parsed = isVtt ? parseVtt(raw) : { text: raw, segments: null };
   const segments = parsed.segments
