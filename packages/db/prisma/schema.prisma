@@ -17,15 +17,15 @@ enum Role {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  role          Role      @default(MEMBER)
+  role          Role     @default(MEMBER)
   bio           String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   sessions           Session[]
   accounts           Account[]
@@ -36,6 +36,9 @@ model User {
   reactions          Reaction[]
   eventRsvps         EventRsvp[]
   tutorConversations TutorConversation[]
+  submissions        Submission[]
+  skillStates        SkillState[]
+  recallItems        RecallItem[]
 
   @@map("user")
 }
@@ -177,6 +180,7 @@ model Course {
 
   sections     Section[]
   entitlements Entitlement[]
+  skills       Skill[]
 }
 
 model Section {
@@ -215,6 +219,7 @@ model Lesson {
   transcript  Transcript?
   attachments Attachment[]
   progress    LessonProgress[]
+  exercises   Exercise[]
 
   @@unique([sectionId, slug])
   @@index([sectionId, order])
@@ -285,19 +290,19 @@ model Space {
 }
 
 model Post {
-  id            String   @id @default(cuid())
-  spaceId       String
-  authorId      String
-  title         String?
+  id        String   @id @default(cuid())
+  spaceId   String
+  authorId  String
+  title     String?
   /// Rich text body (TipTap/ProseMirror JSON) — supports images, links, embeds
-  body          Json
+  body      Json
   /// Shareable public URL, opt-in per post
-  isPublic      Boolean  @default(false)
-  pinned        Boolean  @default(false)
+  isPublic  Boolean  @default(false)
+  pinned    Boolean  @default(false)
   /// True when authored by the Homeroom agent
-  byAgent       Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  byAgent   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   space    Space     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -346,9 +351,9 @@ enum RsvpStatus {
 }
 
 model Event {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   title         String
-  slug          String   @unique
+  slug          String    @unique
   /// Rich description (images, links)
   body          Json?
   coverImageUrl String?
@@ -357,11 +362,11 @@ model Event {
   /// Zoom/Meet/etc. — shown to members near start time
   joinUrl       String?
   /// Shareable public event page (SEO)
-  isPublic      Boolean  @default(true)
+  isPublic      Boolean   @default(true)
   /// Set when the 24h reminder email has been sent
   remindedAt    DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   rsvps EventRsvp[]
 
@@ -447,6 +452,148 @@ model TutorMessage {
   conversation TutorConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@index([conversationId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Practice loop: skill -> exercise -> submission -> skill state -> spaced recall
+// Video teaches; the attempt proves it. Progress advances on a genuine pass,
+// never on "mark complete".
+// ---------------------------------------------------------------------------
+
+enum SkillStatus {
+  PROVEN
+  SHAKY
+  UNTESTED
+}
+
+enum ExerciseLanguage {
+  APEX
+  SQL
+  TYPESCRIPT
+  JAVASCRIPT
+  PYTHON
+  OTHER
+}
+
+/// A capability a member can prove — the unit Capability and Recall report on.
+model Skill {
+  id          String  @id @default(cuid())
+  courseId    String
+  course      Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  order       Int     @default(0)
+
+  exercises       Exercise[]
+  states          SkillState[]
+  recallQuestions RecallQuestion[]
+  recallItems     RecallItem[]
+
+  @@index([courseId, order])
+}
+
+model Exercise {
+  id       String  @id @default(cuid())
+  /// The concept video this proves, if any
+  lessonId String?
+  lesson   Lesson? @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  skillId  String
+  skill    Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  title  String
+  slug   String @unique
+  /// Markdown: what to build
+  prompt String
+
+  language        ExerciseLanguage @default(OTHER)
+  /// [{ path, contents }]
+  starterFiles    Json
+  /// Shown only after a genuine pass
+  solutionFiles   Json?
+  /// ["nudge", "mechanism", "full solution"] — the last rung costs the proven mark
+  hints           Json
+  /// [{ name, description }] — execution comes later (GitHub issue #7)
+  testSpec        Json
+  /// What the gap between their pass and the reference version costs them
+  differenceNotes String?
+  /// Timecode in the paired lesson that explains this, e.g. 705 (seconds)
+  lessonTimecode  Int?
+  order           Int              @default(0)
+  published       Boolean          @default(false)
+
+  submissions Submission[]
+
+  @@index([skillId, order])
+}
+
+model Submission {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  files            Json
+  passed           Boolean  @default(false)
+  /// [{ name, passed, message }]
+  testResults      Json
+  hintsUsed        Int      @default(0)
+  solutionRevealed Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  @@index([userId, exerciseId])
+}
+
+/// The agent's standing assessment of one member on one skill.
+model SkillState {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  status        SkillStatus @default(UNTESTED)
+  provenCount   Int         @default(0)
+  attemptCount  Int         @default(0)
+  lastProvenAt  DateTime?
+  everUsedHints Boolean     @default(false)
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([userId, skillId])
+}
+
+model RecallQuestion {
+  id      String @id @default(cuid())
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  prompt         String
+  /// ["A text", "B text", "C text"]
+  options        Json
+  correctIndex   Int
+  sourceLessonId String?
+  sourceTimecode Int?
+  createdAt      DateTime @default(now())
+
+  @@index([skillId])
+}
+
+/// Spaced schedule per member per skill: 2 -> 7 -> 30 -> 90, capped at 180.
+model RecallItem {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  dueAt        DateTime
+  intervalDays Int      @default(2)
+  streak       Int      @default(0)
+  lastResult   Boolean?
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, skillId])
+  @@index([userId, dueAt])
 }
 
 // ---------------------------------------------------------------------------

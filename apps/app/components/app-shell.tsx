@@ -34,6 +34,11 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           )}
         </Link>
 
+        {/* The practice loop is the front door; the catalog is the fallback. */}
+        <RailLink href="/today" label="Today" glyph="●" />
+        <RailLink href="/capability" label="Capability" glyph="▤" />
+        <RailLink href="/recall" label="Recall" glyph="↻" />
+        <span className="my-1 h-px w-6 bg-line" />
         <RailLink href="/courses" label="Courses" glyph="▷" />
         <RailLink href="/community" label="Community" glyph="◇" />
         <RailLink href="/events" label="Events" glyph="◉" />
@@ -41,6 +46,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           <>
             <span className="my-1 h-px w-6 bg-line" />
             <RailLink href="/admin" label="Admin" glyph="◎" />
+            <RailLink href="/admin/coach" label="Coach" glyph="◈" />
             <RailLink href="/admin/suggestions" label="Agent queue" glyph="✎" />
           </>
         )}

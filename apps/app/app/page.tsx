@@ -1,9 +1,15 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/session";
 import { getBranding } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  // One next action beats a catalog: signed-in members land on the loop.
+  const user = await getCurrentUser();
+  if (user) redirect("/today");
+
   const branding = await getBranding();
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-2xl flex-col items-start justify-center gap-6 px-6">

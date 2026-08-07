@@ -9,6 +9,7 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "studio": "prisma studio",
+    "seed:practice": "node --env-file=.env prisma/seed-practice.ts",
     "build": "prisma generate",
     "typecheck": "tsc --noEmit"
   },
