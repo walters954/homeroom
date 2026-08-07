@@ -1,0 +1,455 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth (Better Auth manages these tables; extra fields: role, bio)
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          Role      @default(MEMBER)
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions           Session[]
+  accounts           Account[]
+  subscriptions      Subscription[]
+  lessonProgress     LessonProgress[]
+  posts              Post[]
+  comments           Comment[]
+  reactions          Reaction[]
+  eventRsvps         EventRsvp[]
+  tutorConversations TutorConversation[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// ---------------------------------------------------------------------------
+// Commerce: products -> entitlements -> courses; Stripe subscriptions + trials
+// ---------------------------------------------------------------------------
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String?
+  stripeProductId String?  @unique
+  stripePriceId   String?
+  trialDays       Int      @default(0)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  entitlements  Entitlement[]
+  subscriptions Subscription[]
+}
+
+/// Which courses a product unlocks.
+model Entitlement {
+  id        String  @id @default(cuid())
+  productId String
+  courseId  String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  course    Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, courseId])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String
+  productId            String
+  stripeCustomerId     String
+  stripeSubscriptionId String             @unique
+  status               SubscriptionStatus
+  trialEndsAt          DateTime?
+  currentPeriodEnd     DateTime?
+  canceledAt           DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Curriculum: Course -> Section -> Lesson (+ transcript, attachments, progress)
+// ---------------------------------------------------------------------------
+
+enum VideoProvider {
+  VIMEO
+  YOUTUBE
+  MUX
+  NONE
+}
+
+enum TranscriptSource {
+  CAPTIONS
+  WHISPER
+  MANUAL
+}
+
+model Course {
+  id             String   @id @default(cuid())
+  title          String
+  slug           String   @unique
+  description    String?
+  coverImageUrl  String?
+  published      Boolean  @default(false)
+  /// Public, SEO-indexed catalog page for this course
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sections     Section[]
+  entitlements Entitlement[]
+}
+
+model Section {
+  id       String @id @default(cuid())
+  courseId String
+  title    String
+  order    Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  lessons Lesson[]
+
+  @@index([courseId, order])
+}
+
+model Lesson {
+  id              String        @id @default(cuid())
+  sectionId       String
+  title           String
+  slug            String
+  order           Int
+  /// Rich text body (TipTap/ProseMirror JSON)
+  body            Json?
+  videoProvider   VideoProvider @default(NONE)
+  /// Provider-specific video id (Vimeo id, YouTube id, Mux playback id)
+  videoId         String?
+  durationSeconds Int?
+  published       Boolean       @default(false)
+  /// Publicly viewable lesson preview page (SEO)
+  isPublicPreview Boolean       @default(false)
+  seoTitle        String?
+  seoDescription  String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  section     Section          @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  transcript  Transcript?
+  attachments Attachment[]
+  progress    LessonProgress[]
+
+  @@unique([sectionId, slug])
+  @@index([sectionId, order])
+}
+
+model Attachment {
+  id       String @id @default(cuid())
+  lessonId String
+  name     String
+  url      String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+/// First-class: the agent's grounding corpus.
+model Transcript {
+  id        String           @id @default(cuid())
+  lessonId  String           @unique
+  text      String
+  /// Timed segments: [{ start, end, text }]
+  segments  Json?
+  source    TranscriptSource
+  language  String           @default("en")
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model LessonProgress {
+  id                  String    @id @default(cuid())
+  userId              String
+  lessonId            String
+  completedAt         DateTime?
+  lastPositionSeconds Int       @default(0)
+  updatedAt           DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Community: spaces -> posts -> comments + reactions
+// ---------------------------------------------------------------------------
+
+enum SpaceVisibility {
+  PUBLIC
+  MEMBERS
+}
+
+enum ReactionTarget {
+  POST
+  COMMENT
+}
+
+model Space {
+  id          String          @id @default(cuid())
+  name        String
+  slug        String          @unique
+  description String?
+  order       Int             @default(0)
+  visibility  SpaceVisibility @default(MEMBERS)
+  createdAt   DateTime        @default(now())
+
+  posts Post[]
+}
+
+model Post {
+  id            String   @id @default(cuid())
+  spaceId       String
+  authorId      String
+  title         String?
+  /// Rich text body (TipTap/ProseMirror JSON) — supports images, links, embeds
+  body          Json
+  /// Shareable public URL, opt-in per post
+  isPublic      Boolean  @default(false)
+  pinned        Boolean  @default(false)
+  /// True when authored by the Homeroom agent
+  byAgent       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  space    Space     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@index([spaceId, createdAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  body      Json
+  byAgent   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+}
+
+model Reaction {
+  id         String         @id @default(cuid())
+  targetType ReactionTarget
+  targetId   String
+  userId     String
+  emoji      String
+  createdAt  DateTime       @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([targetType, targetId, userId, emoji])
+  @@index([targetType, targetId])
+}
+
+// ---------------------------------------------------------------------------
+// Events: native event pages, RSVPs, reminders; webinar runs elsewhere
+// ---------------------------------------------------------------------------
+
+enum RsvpStatus {
+  GOING
+  NOT_GOING
+  MAYBE
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  /// Rich description (images, links)
+  body          Json?
+  coverImageUrl String?
+  startsAt      DateTime
+  endsAt        DateTime?
+  /// Zoom/Meet/etc. — shown to members near start time
+  joinUrl       String?
+  /// Shareable public event page (SEO)
+  isPublic      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  rsvps EventRsvp[]
+
+  @@index([startsAt])
+}
+
+model EventRsvp {
+  id        String     @id @default(cuid())
+  eventId   String
+  userId    String
+  status    RsvpStatus @default(GOING)
+  createdAt DateTime   @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+// ---------------------------------------------------------------------------
+// Agent: suggestion queue (weak evidence suggests; the creator approves)
+// and tutor conversations (the in-lesson floater)
+// ---------------------------------------------------------------------------
+
+enum SuggestionType {
+  LESSON_DRAFT
+  ANNOUNCEMENT
+  COMMUNITY_REPLY
+  NUDGE_EMAIL
+  SEO_META
+  QUIZ
+}
+
+enum SuggestionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AgentSuggestion {
+  id         String           @id @default(cuid())
+  type       SuggestionType
+  status     SuggestionStatus @default(PENDING)
+  /// The proposed artifact (draft body, email copy, reply text, ...)
+  payload    Json
+  /// What the agent observed that justifies the suggestion (lesson ids,
+  /// transcript excerpts, progress data) — never a guess
+  evidence   Json
+  createdAt  DateTime         @default(now())
+  resolvedAt DateTime?
+
+  @@index([status, createdAt])
+}
+
+model TutorConversation {
+  id        String   @id @default(cuid())
+  userId    String
+  /// Lesson context the floater was opened on (null = global Ask page)
+  lessonId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages TutorMessage[]
+
+  @@index([userId, updatedAt])
+}
+
+enum TutorRole {
+  USER
+  ASSISTANT
+}
+
+model TutorMessage {
+  id             String    @id @default(cuid())
+  conversationId String
+  role           TutorRole
+  content        String
+  /// Lesson ids / transcript segments cited in the answer
+  citations      Json?
+  createdAt      DateTime  @default(now())
+
+  conversation TutorConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Misc
+// ---------------------------------------------------------------------------
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
