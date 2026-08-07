@@ -14,6 +14,12 @@ export async function SiteNav() {
           <Link href="/courses" className="text-sm text-zinc-600 hover:text-zinc-900">
             Courses
           </Link>
+          <Link href="/community" className="text-sm text-zinc-600 hover:text-zinc-900">
+            Community
+          </Link>
+          <Link href="/events" className="text-sm text-zinc-600 hover:text-zinc-900">
+            Events
+          </Link>
           {user?.role === "ADMIN" && (
             <Link href="/admin" className="text-sm text-zinc-600 hover:text-zinc-900">
               Admin

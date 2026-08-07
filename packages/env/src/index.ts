@@ -10,6 +10,8 @@ const schema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
   RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
+  CRON_SECRET: z.string().optional(),
   VIMEO_ACCESS_TOKEN: z.string().optional(),
   KIT_API_KEY: z.string().optional(),
   SLACK_WEBHOOK_URL: z.string().url().optional(),

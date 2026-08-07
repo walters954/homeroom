@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 import { db, type SubscriptionStatus } from "@homeroom/db";
+import { kitSubscribe, postToSlack } from "@/lib/notify";
 import { stripe } from "@/lib/stripe";
 
 const STATUS_MAP: Record<string, SubscriptionStatus> = {
@@ -19,6 +20,9 @@ async function upsertSubscription(sub: Stripe.Subscription) {
   if (!userId || !productId) return;
 
   const item = sub.items.data[0];
+  const existing = await db.subscription.findUnique({
+    where: { stripeSubscriptionId: sub.id },
+  });
   await db.subscription.upsert({
     where: { stripeSubscriptionId: sub.id },
     create: {
@@ -42,6 +46,17 @@ async function upsertSubscription(sub: Stripe.Subscription) {
       canceledAt: sub.canceled_at ? new Date(sub.canceled_at * 1000) : null,
     },
   });
+
+  // First sighting of this subscription: sync the member to Kit + Slack ping.
+  if (!existing && ["trialing", "active"].includes(sub.status)) {
+    const user = await db.user.findUnique({ where: { id: userId } });
+    if (user) {
+      await kitSubscribe(user.email, user.name.split(" ")[0]);
+      await postToSlack(
+        `🎉 New ${sub.status === "trialing" ? "trial" : "subscription"}: ${user.name} (${user.email})`,
+      );
+    }
+  }
 }
 
 export async function POST(request: Request) {

@@ -3,6 +3,7 @@
 import { db, type VideoProvider } from "@homeroom/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { APP_URL, postToSlack } from "../notify";
 import { requireAdmin } from "../session";
 import { slugify } from "../slug";
 
@@ -95,6 +96,11 @@ export async function updateLesson(
   ) as VideoProvider;
   const duration = parseInt(String(formData.get("durationSeconds") ?? ""), 10);
 
+  const before = await db.lesson.findUnique({
+    where: { id: lessonId },
+    include: { section: { include: { course: true } } },
+  });
+
   await db.lesson.update({
     where: { id: lessonId },
     data: {
@@ -111,6 +117,12 @@ export async function updateLesson(
         String(formData.get("seoDescription") ?? "").trim() || null,
     },
   });
+  if (before && !before.published && formData.get("published") === "on") {
+    await postToSlack(
+      `🎓 New lesson published: *${before.title}* in ${before.section.course.title}\n${APP_URL}/courses/${before.section.course.slug}/${String(formData.get("slug") ?? before.slug).trim() || before.slug}`,
+    );
+  }
+
   revalidatePath(`/admin/courses/${courseId}/lessons/${lessonId}`);
   revalidatePath("/courses");
 }

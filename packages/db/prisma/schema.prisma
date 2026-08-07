@@ -358,6 +358,8 @@ model Event {
   joinUrl       String?
   /// Shareable public event page (SEO)
   isPublic      Boolean  @default(true)
+  /// Set when the 24h reminder email has been sent
+  remindedAt    DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
