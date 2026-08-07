@@ -18,3 +18,4 @@ dist/
 
 # prisma
 packages/db/generated/
+.vercel
