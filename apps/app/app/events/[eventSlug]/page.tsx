@@ -17,7 +17,7 @@ export async function generateMetadata({
   const event = await db.event.findUnique({ where: { slug: eventSlug } });
   if (!event?.isPublic) return {};
   return {
-    title: `${event.title} — Homeroom`,
+    title: event.title,
     description: `${event.startsAt.toUTCString()}`,
   };
 }

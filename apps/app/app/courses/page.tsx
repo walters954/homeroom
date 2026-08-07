@@ -2,7 +2,7 @@ import Link from "next/link";
 import { db } from "@homeroom/db";
 import { getCurrentUser } from "@/lib/session";
 
-export const metadata = { title: "Courses — Homeroom" };
+export const metadata = { title: "Courses" };
 export const dynamic = "force-dynamic";
 
 export default async function CoursesPage() {

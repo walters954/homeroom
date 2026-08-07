@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { updateAiModels } from "@/lib/actions/settings";
-import { getAiModels } from "@/lib/settings";
+import { updateAiModels, updateBranding } from "@/lib/actions/settings";
+import { getAiModels, getBranding } from "@/lib/settings";
 import { requireAdmin } from "@/lib/session";
 
-export const metadata = { title: "Settings — Admin" };
+export const metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
 
 /** Common Vercel AI Gateway model slugs — free-text field accepts any slug. */
@@ -18,7 +18,7 @@ const MODEL_OPTIONS = [
 
 export default async function AdminSettingsPage() {
   await requireAdmin();
-  const models = await getAiModels();
+  const [models, branding] = await Promise.all([getAiModels(), getBranding()]);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -28,6 +28,60 @@ export default async function AdminSettingsPage() {
         </Link>
       </p>
       <h1 className="mb-8 text-3xl font-bold tracking-tight">Settings</h1>
+
+      <section className="mb-8 rounded-lg border border-zinc-200 p-5">
+        <h2 className="mb-1 text-lg font-semibold">School branding</h2>
+        <p className="mb-4 text-sm text-zinc-500">
+          What your students see — in the nav, browser tabs, the tutor&apos;s
+          self-description, and calendar invites. They should never see the
+          word &ldquo;Homeroom.&rdquo;
+        </p>
+        <form action={updateBranding} className="flex flex-col gap-4 text-sm">
+          <label className="flex flex-col gap-1 font-medium">
+            School name
+            <input
+              name="schoolName"
+              defaultValue={branding.schoolName}
+              required
+              placeholder="Revenue Engineer"
+              className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+            />
+          </label>
+          <label className="flex flex-col gap-1 font-medium">
+            Tagline
+            <input
+              name="tagline"
+              defaultValue={branding.tagline}
+              placeholder="Shown on the home page and as the site description"
+              className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+            />
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1 font-medium">
+              Logo URL (optional)
+              <input
+                name="logoUrl"
+                defaultValue={branding.logoUrl}
+                placeholder="https://…/logo.svg"
+                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+              />
+            </label>
+            <label className="flex flex-col gap-1 font-medium">
+              Support email
+              <input
+                name="supportEmail"
+                type="email"
+                defaultValue={branding.supportEmail}
+                placeholder="help@yourdomain.com"
+                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+              />
+            </label>
+          </div>
+          <button className="self-start rounded-md bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700">
+            Save branding
+          </button>
+        </form>
+      </section>
 
       <section className="rounded-lg border border-zinc-200 p-5">
         <h2 className="mb-1 text-lg font-semibold">AI models</h2>

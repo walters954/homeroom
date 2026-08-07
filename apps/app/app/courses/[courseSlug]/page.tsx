@@ -28,7 +28,7 @@ export async function generateMetadata({
   const course = await getCourse(courseSlug);
   if (!course) return {};
   return {
-    title: course.seoTitle ?? `${course.title} — Homeroom`,
+    title: course.seoTitle ?? course.title,
     description: course.seoDescription ?? course.description ?? undefined,
   };
 }

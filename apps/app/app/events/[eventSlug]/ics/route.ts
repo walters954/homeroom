@@ -1,4 +1,5 @@
 import { db } from "@homeroom/db";
+import { getBranding } from "@/lib/settings";
 
 function icsDate(d: Date): string {
   return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
@@ -17,7 +18,7 @@ export async function GET(
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Homeroom//EN",
+    `PRODID:-//${(await getBranding()).schoolName}//EN`,
     "BEGIN:VEVENT",
     `UID:${event.id}@homeroom`,
     `DTSTAMP:${icsDate(new Date())}`,

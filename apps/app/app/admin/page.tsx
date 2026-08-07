@@ -3,7 +3,7 @@ import { db } from "@homeroom/db";
 import { createCourse } from "@/lib/actions/courses";
 import { requireAdmin } from "@/lib/session";
 
-export const metadata = { title: "Admin — Homeroom" };
+export const metadata = { title: "Admin" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {

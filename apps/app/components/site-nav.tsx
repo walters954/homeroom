@@ -1,15 +1,28 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
+import { getBranding } from "@/lib/settings";
 import { SignOutButton } from "./sign-out-button";
 
 export async function SiteNav() {
-  const user = await getCurrentUser();
+  const [user, branding] = await Promise.all([
+    getCurrentUser(),
+    getBranding(),
+  ]);
   return (
     <header className="border-b border-zinc-200">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-6">
-          <Link href="/" className="font-bold tracking-tight">
-            Homeroom
+          <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
+            {branding.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={branding.logoUrl}
+                alt={branding.schoolName}
+                className="h-7 w-auto"
+              />
+            ) : (
+              branding.schoolName
+            )}
           </Link>
           <Link href="/courses" className="text-sm text-zinc-600 hover:text-zinc-900">
             Courses

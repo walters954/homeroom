@@ -1,12 +1,14 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { db, type Prisma } from "@homeroom/db";
 import { makeAnthropic, modelFor } from "@/lib/ai";
+import { getBranding } from "@/lib/settings";
 import { buildGrounding } from "@/lib/tutor/grounding";
 import { getCurrentUser } from "@/lib/session";
 
 export const maxDuration = 120;
 
-const SYSTEM_PROMPT = `You are the tutor for this school, built into its course platform (Homeroom). Students ask you questions while watching lessons.
+const systemPrompt = (schoolName: string) =>
+  `You are the tutor for ${schoolName}, built into its course platform. Students ask you questions while watching lessons.
 
 Evidence rules (non-negotiable):
 - Teach only from the course material provided in the "Course material" block of each request: transcripts, lesson notes, and excerpts. That corpus is your entire knowledge of this course.
@@ -65,7 +67,7 @@ export async function POST(request: Request) {
     system: [
       {
         type: "text",
-        text: SYSTEM_PROMPT,
+        text: systemPrompt((await getBranding()).schoolName),
         cache_control: { type: "ephemeral" },
       },
     ],

@@ -3,7 +3,7 @@ import { db } from "@homeroom/db";
 import { createSpace } from "@/lib/actions/community";
 import { getCurrentUser } from "@/lib/session";
 
-export const metadata = { title: "Community — Homeroom" };
+export const metadata = { title: "Community" };
 export const dynamic = "force-dynamic";
 
 export default async function CommunityPage() {

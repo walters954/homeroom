@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/site-nav";
+import { getBranding } from "@/lib/settings";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Homeroom",
-  description:
-    "Open-source, agent-first course and community platform. The LMS is where the teaching agent keeps its notes.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const branding = await getBranding();
+  return {
+    title: {
+      default: branding.schoolName,
+      template: `%s — ${branding.schoolName}`,
+    },
+    description: branding.tagline,
+  };
+}
 
 export default function RootLayout({
   children,

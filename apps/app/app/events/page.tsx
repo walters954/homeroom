@@ -3,7 +3,7 @@ import { db } from "@homeroom/db";
 import { createEvent } from "@/lib/actions/events";
 import { getCurrentUser } from "@/lib/session";
 
-export const metadata = { title: "Events — Homeroom" };
+export const metadata = { title: "Events" };
 export const dynamic = "force-dynamic";
 
 export default async function EventsPage() {
