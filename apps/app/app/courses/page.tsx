@@ -37,7 +37,7 @@ export default async function CoursesPage() {
     <main className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="mb-8 text-3xl font-bold tracking-tight">Courses</h1>
       {courses.length === 0 && (
-        <p className="text-zinc-500">No courses published yet.</p>
+        <p className="text-dim">No courses published yet.</p>
       )}
       <div className="grid gap-6 sm:grid-cols-2">
         {courses.map((course) => {
@@ -50,22 +50,22 @@ export default async function CoursesPage() {
             <Link
               key={course.id}
               href={`/courses/${course.slug}`}
-              className="rounded-xl border border-zinc-200 p-6 transition-colors hover:border-zinc-400"
+              className="rounded-xl border border-line p-6 transition-colors hover:border-dim"
             >
               <h2 className="text-lg font-semibold">
                 {course.title}
                 {!course.published && (
-                  <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">
+                  <span className="ml-2 rounded bg-warn-soft px-1.5 py-0.5 text-xs font-medium text-warn">
                     draft
                   </span>
                 )}
               </h2>
               {course.description && (
-                <p className="mt-2 line-clamp-2 text-sm text-zinc-600">
+                <p className="mt-2 line-clamp-2 text-sm text-dim">
                   {course.description}
                 </p>
               )}
-              <p className="mt-4 text-xs text-zinc-400">
+              <p className="mt-4 text-xs text-dim">
                 {total} lesson{total === 1 ? "" : "s"}
                 {user && total > 0 && ` · ${Math.round((done / total) * 100)}% complete`}
               </p>

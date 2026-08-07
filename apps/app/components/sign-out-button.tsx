@@ -7,14 +7,16 @@ export function SignOutButton() {
   const router = useRouter();
   return (
     <button
-      className="text-zinc-600 hover:text-zinc-900"
+      title="Sign out"
+      aria-label="Sign out"
+      className="grid h-[31px] w-[31px] place-items-center rounded-[7px] text-[13px] text-dim hover:bg-soft"
       onClick={async () => {
         await signOut();
         router.push("/");
         router.refresh();
       }}
     >
-      Sign out
+      ⎋
     </button>
   );
 }

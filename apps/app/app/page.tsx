@@ -11,18 +11,18 @@ export default async function HomePage() {
         {branding.schoolName}
       </h1>
       {branding.tagline && (
-        <p className="text-lg text-zinc-600">{branding.tagline}</p>
+        <p className="text-lg text-dim">{branding.tagline}</p>
       )}
       <div className="flex gap-3">
         <Link
           href="/courses"
-          className="rounded-md bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-700"
+          className="rounded-md bg-acc px-5 py-2.5 text-sm font-medium text-acc-ink hover:opacity-90"
         >
           Browse courses
         </Link>
         <Link
           href="/community"
-          className="rounded-md border border-zinc-300 px-5 py-2.5 text-sm font-medium hover:bg-zinc-100"
+          className="rounded-md border border-line px-5 py-2.5 text-sm font-medium hover:bg-soft"
         >
           Community
         </Link>

@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "../session";
 import { postToSlack } from "../notify";
 import {
+  getBranding,
+  normalizeAccent,
   saveAiModels,
   saveBranding,
   saveNotificationSettings,
@@ -34,11 +36,16 @@ export async function updateBranding(formData: FormData) {
   await requireAdmin();
   const schoolName = String(formData.get("schoolName") ?? "").trim();
   if (!schoolName) return;
+  const current = await getBranding();
   await saveBranding({
     schoolName,
     tagline: String(formData.get("tagline") ?? "").trim(),
     logoUrl: String(formData.get("logoUrl") ?? "").trim(),
     supportEmail: String(formData.get("supportEmail") ?? "").trim(),
+    surface: formData.get("surface") === "dark" ? "dark" : "light",
+    // Keep the existing accent rather than accepting an unusable value.
+    accent:
+      normalizeAccent(String(formData.get("accent") ?? "")) ?? current.accent,
   });
   revalidatePath("/", "layout");
 }

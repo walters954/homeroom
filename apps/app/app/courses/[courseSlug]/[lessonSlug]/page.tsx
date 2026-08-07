@@ -78,7 +78,7 @@ export default async function LessonPage({
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-zinc-500">
+      <p className="mb-2 text-sm text-dim">
         <Link href={`/courses/${course.slug}`} className="hover:underline">
           {course.title}
         </Link>
@@ -97,12 +97,12 @@ export default async function LessonPage({
         </div>
       )}
 
-      <div className="mt-10 flex items-center justify-between border-t border-zinc-200 pt-6">
+      <div className="mt-10 flex items-center justify-between border-t border-line pt-6">
         <div>
           {prev && (
             <Link
               href={`/courses/${course.slug}/${prev.slug}`}
-              className="text-sm text-zinc-600 hover:underline"
+              className="text-sm text-dim hover:underline"
             >
               ← {prev.title}
             </Link>
@@ -116,8 +116,8 @@ export default async function LessonPage({
               type="submit"
               className={
                 completed
-                  ? "rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-green-800 hover:bg-green-200"
-                  : "rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+                  ? "rounded-md bg-acc-soft px-4 py-2 text-sm font-medium text-acc hover:opacity-90"
+                  : "rounded-md bg-acc px-4 py-2 text-sm font-medium text-acc-ink hover:opacity-90"
               }
             >
               {completed ? "✓ Completed" : "Mark complete"}
@@ -128,7 +128,7 @@ export default async function LessonPage({
           {next && (
             <Link
               href={`/courses/${course.slug}/${next.slug}`}
-              className="text-sm text-zinc-600 hover:underline"
+              className="text-sm text-dim hover:underline"
             >
               {next.title} →
             </Link>

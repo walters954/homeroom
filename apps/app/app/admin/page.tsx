@@ -16,43 +16,43 @@ export default async function AdminPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Admin</h1>
-      <p className="mb-8 text-sm text-zinc-500">
-        <Link href="/admin/members" className="underline hover:text-zinc-900">
+      <p className="mb-8 text-sm text-dim">
+        <Link href="/admin/members" className="underline hover:text-ink">
           Members
         </Link>
         {" · "}
-        <Link href="/admin/products" className="underline hover:text-zinc-900">
+        <Link href="/admin/products" className="underline hover:text-ink">
           Products &amp; pricing
         </Link>
         {" · "}
-        <Link href="/admin/suggestions" className="underline hover:text-zinc-900">
+        <Link href="/admin/suggestions" className="underline hover:text-ink">
           Agent suggestions
         </Link>
         {" · "}
-        <Link href="/admin/settings" className="underline hover:text-zinc-900">
+        <Link href="/admin/settings" className="underline hover:text-ink">
           Settings
         </Link>
       </p>
 
       <section className="mb-10">
         <h2 className="mb-3 text-lg font-semibold">Courses</h2>
-        <ul className="divide-y divide-zinc-100 rounded-lg border border-zinc-200">
+        <ul className="divide-y divide-line rounded-lg border border-line">
           {courses.map((course) => (
             <Link
               key={course.id}
               href={`/admin/courses/${course.id}`}
-              className="block hover:bg-zinc-50"
+              className="block hover:bg-bg"
             >
               <li className="flex items-center justify-between px-4 py-3 text-sm">
                 <span>
                   {course.title}
                   {!course.published && (
-                    <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">
+                    <span className="ml-2 rounded bg-warn-soft px-1.5 py-0.5 text-xs text-warn">
                       draft
                     </span>
                   )}
                 </span>
-                <span className="text-zinc-400">
+                <span className="text-dim">
                   {course.sections.reduce((n, s) => n + s.lessons.length, 0)}{" "}
                   lessons
                 </span>
@@ -60,7 +60,7 @@ export default async function AdminPage() {
             </Link>
           ))}
           {courses.length === 0 && (
-            <li className="px-4 py-3 text-sm text-zinc-500">No courses yet.</li>
+            <li className="px-4 py-3 text-sm text-dim">No courses yet.</li>
           )}
         </ul>
       </section>
@@ -72,17 +72,17 @@ export default async function AdminPage() {
             name="title"
             placeholder="Course title"
             required
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+            className="rounded-md border border-line px-3 py-2 text-sm"
           />
           <textarea
             name="description"
             placeholder="Short description (optional)"
             rows={2}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+            className="rounded-md border border-line px-3 py-2 text-sm"
           />
           <button
             type="submit"
-            className="self-start rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+            className="self-start rounded-md bg-acc px-4 py-2 text-sm font-medium text-acc-ink hover:opacity-90"
           >
             Create course
           </button>

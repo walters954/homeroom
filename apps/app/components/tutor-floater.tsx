@@ -78,12 +78,12 @@ export function TutorFloater({ lessonId }: { lessonId?: string }) {
   return (
     <div className="fixed bottom-5 right-5 z-50">
       {open ? (
-        <div className="flex h-[480px] w-[360px] flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl">
-          <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-2.5">
+        <div className="flex h-[480px] w-[360px] flex-col overflow-hidden rounded-xl border border-line bg-panel shadow-xl">
+          <div className="flex items-center justify-between border-b border-soft px-4 py-2.5">
             <span className="text-sm font-semibold">Tutor</span>
             <button
               onClick={() => setOpen(false)}
-              className="text-zinc-400 hover:text-zinc-700"
+              className="text-dim hover:text-ink"
               aria-label="Close tutor"
             >
               ✕
@@ -91,7 +91,7 @@ export function TutorFloater({ lessonId }: { lessonId?: string }) {
           </div>
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
             {messages.length === 0 && (
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-dim">
                 Ask anything about {lessonId ? "this lesson" : "the course"} —
                 answers come from the course material, with citations.
               </p>
@@ -101,8 +101,8 @@ export function TutorFloater({ lessonId }: { lessonId?: string }) {
                 key={i}
                 className={
                   m.role === "user"
-                    ? "ml-8 rounded-lg bg-zinc-900 px-3 py-2 text-sm text-white"
-                    : "mr-4 whitespace-pre-wrap rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-800"
+                    ? "ml-8 rounded-lg bg-acc px-3 py-2 text-sm text-white"
+                    : "mr-4 whitespace-pre-wrap rounded-lg bg-soft px-3 py-2 text-sm text-ink"
                 }
               >
                 {m.text || (busy && i === messages.length - 1 ? "…" : m.text)}
@@ -114,18 +114,18 @@ export function TutorFloater({ lessonId }: { lessonId?: string }) {
               e.preventDefault();
               void send();
             }}
-            className="flex gap-2 border-t border-zinc-100 p-3"
+            className="flex gap-2 border-t border-soft p-3"
           >
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask the tutor…"
-              className="flex-1 rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+              className="flex-1 rounded-md border border-line px-3 py-1.5 text-sm"
             />
             <button
               type="submit"
               disabled={busy || !input.trim()}
-              className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
+              className="rounded-md bg-acc px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
             >
               Send
             </button>
@@ -134,7 +134,7 @@ export function TutorFloater({ lessonId }: { lessonId?: string }) {
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-3 text-sm font-medium text-white shadow-lg hover:bg-zinc-700"
+          className="flex items-center gap-2 rounded-full bg-acc px-4 py-3 text-sm font-medium text-white shadow-lg hover:opacity-90"
         >
           💬 Ask the tutor
         </button>

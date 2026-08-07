@@ -37,17 +37,40 @@ export interface BrandingSettings {
   tagline: string;
   logoUrl: string;
   supportEmail: string;
+  /** Light or dark ground. Dark suits audiences who live in dark IDEs. */
+  surface: "light" | "dark";
+  /** One hex. Soft/deep are derived in CSS; ink is derived from luminance. */
+  accent: string;
 }
 
 const BRANDING_KEY = "branding";
 
 export const BRANDING_DEFAULTS: BrandingSettings = {
   schoolName: "Homeroom",
-  tagline:
-    "Courses and community, with a tutor that knows the material.",
+  tagline: "Courses and community, with a tutor that knows the material.",
   logoUrl: "",
   supportEmail: "",
+  surface: "light",
+  accent: "#0F766E",
 };
+
+/** Readable text colour on the accent, by relative luminance. */
+export function accentInk(hex: string): string {
+  const h = hex.replace("#", "");
+  const full =
+    h.length === 3 ? h.split("").map((c) => c + c).join("") : h.padEnd(6, "0");
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255);
+  const lin = (c: number) =>
+    c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  return L > 0.45 ? "#14161A" : "#FFFFFF";
+}
+
+const HEX = /^#?[0-9a-fA-F]{6}$/;
+export function normalizeAccent(input: string): string | null {
+  const v = input.trim();
+  return HEX.test(v) ? (v.startsWith("#") ? v : `#${v}`).toUpperCase() : null;
+}
 
 export async function getBranding(): Promise<BrandingSettings> {
   try {

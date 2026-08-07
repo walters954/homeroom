@@ -24,14 +24,14 @@ export default async function AdminProductsPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-zinc-500">
+      <p className="mb-2 text-sm text-dim">
         <Link href="/admin" className="hover:underline">
           Admin
         </Link>
       </p>
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Products</h1>
       {!stripeConfigured() && (
-        <p className="mb-6 rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+        <p className="mb-6 rounded-md bg-warn-soft p-3 text-sm text-warn">
           STRIPE_SECRET_KEY is not set — products created now won&apos;t have
           Stripe checkout until it is.
         </p>
@@ -39,17 +39,17 @@ export default async function AdminProductsPage() {
 
       <section className="mb-10 space-y-4">
         {products.map((product) => (
-          <div key={product.id} className="rounded-lg border border-zinc-200 p-5">
+          <div key={product.id} className="rounded-lg border border-line p-5">
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <h2 className="font-semibold">
                   {product.name}{" "}
-                  <span className="font-normal text-zinc-500">
+                  <span className="font-normal text-dim">
                     {formatPrice(product)}
                     {product.trialDays > 0 && ` · ${product.trialDays}-day trial`}
                   </span>
                 </h2>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-dim">
                   {product.stripePriceId ?? "no Stripe price"}
                 </p>
               </div>
@@ -57,8 +57,8 @@ export default async function AdminProductsPage() {
                 <button
                   className={
                     product.active
-                      ? "rounded bg-green-100 px-2 py-1 text-xs text-green-800"
-                      : "rounded bg-zinc-100 px-2 py-1 text-xs text-zinc-500"
+                      ? "rounded bg-acc-soft px-2 py-1 text-xs text-acc"
+                      : "rounded bg-soft px-2 py-1 text-xs text-dim"
                   }
                 >
                   {product.active ? "active" : "inactive"}
@@ -79,8 +79,8 @@ export default async function AdminProductsPage() {
                     <button
                       className={
                         entitled
-                          ? "rounded-full bg-zinc-900 px-3 py-1 text-xs text-white"
-                          : "rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-600 hover:bg-zinc-100"
+                          ? "rounded-full bg-acc px-3 py-1 text-xs text-acc-ink"
+                          : "rounded-full border border-line px-3 py-1 text-xs text-dim hover:bg-soft"
                       }
                     >
                       {course.title}
@@ -89,27 +89,27 @@ export default async function AdminProductsPage() {
                 );
               })}
               {courses.length === 0 && (
-                <span className="text-sm text-zinc-400">No courses yet.</span>
+                <span className="text-sm text-dim">No courses yet.</span>
               )}
             </div>
           </div>
         ))}
         {products.length === 0 && (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-dim">
             No products yet. Courses without a product are free for any
             signed-in member.
           </p>
         )}
       </section>
 
-      <section className="rounded-lg border border-zinc-200 p-5">
+      <section className="rounded-lg border border-line p-5">
         <h2 className="mb-4 text-lg font-semibold">New product</h2>
         <form action={createProduct} className="flex flex-col gap-3 text-sm">
           <input
             name="name"
             placeholder="e.g. Revenue Engineer Membership"
             required
-            className="rounded-md border border-zinc-300 px-3 py-2"
+            className="rounded-md border border-line px-3 py-2"
           />
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1 font-medium">
@@ -120,7 +120,7 @@ export default async function AdminProductsPage() {
                 step="0.01"
                 min="1"
                 required
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
@@ -130,11 +130,11 @@ export default async function AdminProductsPage() {
                 type="number"
                 defaultValue={0}
                 min={0}
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
           </div>
-          <button className="self-start rounded-md bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700">
+          <button className="self-start rounded-md bg-acc px-4 py-2 font-medium text-acc-ink hover:opacity-90">
             Create product{stripeConfigured() ? " in Stripe" : ""}
           </button>
         </form>

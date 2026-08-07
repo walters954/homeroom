@@ -35,7 +35,7 @@ export default async function AdminLessonPage({
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-zinc-500">
+      <p className="mb-2 text-sm text-dim">
         <Link href="/admin" className="hover:underline">
           Admin
         </Link>{" "}
@@ -57,7 +57,7 @@ export default async function AdminLessonPage({
         </div>
       )}
 
-      <section className="mb-10 rounded-lg border border-zinc-200 p-5">
+      <section className="mb-10 rounded-lg border border-line p-5">
         <h2 className="mb-4 text-lg font-semibold">Lesson</h2>
         <form
           action={updateLesson.bind(null, lesson.id, courseId)}
@@ -69,7 +69,7 @@ export default async function AdminLessonPage({
               <input
                 name="title"
                 defaultValue={lesson.title}
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
@@ -77,7 +77,7 @@ export default async function AdminLessonPage({
               <input
                 name="slug"
                 defaultValue={lesson.slug}
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
           </div>
@@ -87,7 +87,7 @@ export default async function AdminLessonPage({
               <select
                 name="videoProvider"
                 defaultValue={lesson.videoProvider}
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               >
                 <option value="NONE">None</option>
                 <option value="VIMEO">Vimeo</option>
@@ -101,7 +101,7 @@ export default async function AdminLessonPage({
                 name="videoId"
                 defaultValue={lesson.videoId ?? ""}
                 placeholder="e.g. 987654321"
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
@@ -110,7 +110,7 @@ export default async function AdminLessonPage({
                 name="durationSeconds"
                 type="number"
                 defaultValue={lesson.durationSeconds ?? ""}
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
           </div>
@@ -120,7 +120,7 @@ export default async function AdminLessonPage({
               name="body"
               defaultValue={body}
               rows={10}
-              className="rounded-md border border-zinc-300 px-3 py-2 font-mono text-xs"
+              className="rounded-md border border-line px-3 py-2 font-mono text-xs"
             />
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -129,7 +129,7 @@ export default async function AdminLessonPage({
               <input
                 name="seoTitle"
                 defaultValue={lesson.seoTitle ?? ""}
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
@@ -137,7 +137,7 @@ export default async function AdminLessonPage({
               <input
                 name="seoDescription"
                 defaultValue={lesson.seoDescription ?? ""}
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
           </div>
@@ -161,34 +161,34 @@ export default async function AdminLessonPage({
           </div>
           <button
             type="submit"
-            className="self-start rounded-md bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700"
+            className="self-start rounded-md bg-acc px-4 py-2 font-medium text-acc-ink hover:opacity-90"
           >
             Save lesson
           </button>
         </form>
       </section>
 
-      <section className="mb-10 rounded-lg border border-zinc-200 p-5">
+      <section className="mb-10 rounded-lg border border-line p-5">
         <h2 className="mb-1 text-lg font-semibold">Transcript</h2>
-        <p className="mb-4 text-sm text-zinc-500">
+        <p className="mb-4 text-sm text-dim">
           The transcript is the agent&apos;s grounding corpus for this lesson —
           the tutor can only teach what&apos;s in here.
         </p>
         {lesson.transcript ? (
-          <div className="mb-4 rounded-md bg-zinc-50 p-4 text-sm">
-            <p className="mb-2 text-xs text-zinc-500">
+          <div className="mb-4 rounded-md bg-bg p-4 text-sm">
+            <p className="mb-2 text-xs text-dim">
               {lesson.transcript.source.toLowerCase()} ·{" "}
               {lesson.transcript.text.length.toLocaleString()} chars ·{" "}
               {Array.isArray(lesson.transcript.segments)
                 ? `${(lesson.transcript.segments as unknown[]).length} timed segments`
                 : "no timing data"}
             </p>
-            <p className="line-clamp-4 text-zinc-700">
+            <p className="line-clamp-4 text-ink">
               {lesson.transcript.text.slice(0, 500)}…
             </p>
           </div>
         ) : (
-          <p className="mb-4 text-sm text-amber-700">No transcript yet.</p>
+          <p className="mb-4 text-sm text-warn">No transcript yet.</p>
         )}
         {lesson.videoProvider === "VIMEO" && lesson.videoId && (
           <div className="mb-4">
@@ -205,24 +205,24 @@ export default async function AdminLessonPage({
               type="file"
               name="file"
               accept=".vtt,.srt,.txt,text/plain"
-              className="mt-1 block w-full text-xs text-zinc-500 file:mr-3 file:rounded-md file:border file:border-zinc-300 file:bg-white file:px-3 file:py-1.5 file:text-xs file:hover:bg-zinc-100"
+              className="mt-1 block w-full text-xs text-dim file:mr-3 file:rounded-md file:border file:border-line file:bg-panel file:px-3 file:py-1.5 file:text-xs file:hover:bg-soft"
             />
           </label>
           <textarea
             name="transcript"
             rows={5}
             placeholder="…or paste a transcript here (plain text, WebVTT, or SRT)"
-            className="rounded-md border border-zinc-300 px-3 py-2 font-mono text-xs"
+            className="rounded-md border border-line px-3 py-2 font-mono text-xs"
           />
-          <button className="self-start rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100">
+          <button className="self-start rounded-md border border-line px-3 py-1.5 text-sm hover:bg-soft">
             Save transcript
           </button>
         </form>
       </section>
 
-      <section className="mb-10 rounded-lg border border-zinc-200 p-5">
+      <section className="mb-10 rounded-lg border border-line p-5">
         <h2 className="mb-1 text-lg font-semibold">Agent</h2>
-        <p className="mb-4 text-sm text-zinc-500">
+        <p className="mb-4 text-sm text-dim">
           Drafts land in the{" "}
           <Link href="/admin/suggestions" className="underline">
             suggestion queue
@@ -233,13 +233,13 @@ export default async function AdminLessonPage({
           <form action={draftLessonFromTranscript.bind(null, lesson.id, courseId)}>
             <button
               disabled={!lesson.transcript}
-              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100 disabled:opacity-40"
+              className="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-soft disabled:opacity-40"
             >
               ✍️ Draft lesson from transcript
             </button>
           </form>
           <form action={draftAnnouncement.bind(null, lesson.id, courseId)}>
-            <button className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100">
+            <button className="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-soft">
               📣 Draft announcement email
             </button>
           </form>
@@ -247,7 +247,7 @@ export default async function AdminLessonPage({
       </section>
 
       <form action={deleteLesson.bind(null, lesson.id, courseId)}>
-        <button className="text-sm text-red-500 hover:underline">
+        <button className="text-sm text-fail hover:underline">
           Delete lesson
         </button>
       </form>

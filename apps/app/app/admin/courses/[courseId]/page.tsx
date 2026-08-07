@@ -36,7 +36,7 @@ export default async function AdminCoursePage({
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-zinc-500">
+      <p className="mb-2 text-sm text-dim">
         <Link href="/admin" className="hover:underline">
           Admin
         </Link>{" "}
@@ -44,7 +44,7 @@ export default async function AdminCoursePage({
       </p>
       <h1 className="mb-8 text-3xl font-bold tracking-tight">{course.title}</h1>
 
-      <section className="mb-10 rounded-lg border border-zinc-200 p-5">
+      <section className="mb-10 rounded-lg border border-line p-5">
         <h2 className="mb-4 text-lg font-semibold">Course settings</h2>
         <form
           action={updateCourse.bind(null, course.id)}
@@ -55,7 +55,7 @@ export default async function AdminCoursePage({
             <input
               name="title"
               defaultValue={course.title}
-              className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+              className="rounded-md border border-line px-3 py-2 font-normal"
             />
           </label>
           <label className="flex flex-col gap-1 font-medium">
@@ -63,7 +63,7 @@ export default async function AdminCoursePage({
             <input
               name="slug"
               defaultValue={course.slug}
-              className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+              className="rounded-md border border-line px-3 py-2 font-normal"
             />
           </label>
           <label className="flex flex-col gap-1 font-medium">
@@ -72,7 +72,7 @@ export default async function AdminCoursePage({
               name="description"
               defaultValue={course.description ?? ""}
               rows={2}
-              className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+              className="rounded-md border border-line px-3 py-2 font-normal"
             />
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -81,7 +81,7 @@ export default async function AdminCoursePage({
               <input
                 name="seoTitle"
                 defaultValue={course.seoTitle ?? ""}
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
@@ -89,7 +89,7 @@ export default async function AdminCoursePage({
               <input
                 name="seoDescription"
                 defaultValue={course.seoDescription ?? ""}
-                className="rounded-md border border-zinc-300 px-3 py-2 font-normal"
+                className="rounded-md border border-line px-3 py-2 font-normal"
               />
             </label>
           </div>
@@ -103,7 +103,7 @@ export default async function AdminCoursePage({
           </label>
           <button
             type="submit"
-            className="self-start rounded-md bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700"
+            className="self-start rounded-md bg-acc px-4 py-2 font-medium text-acc-ink hover:opacity-90"
           >
             Save
           </button>
@@ -113,32 +113,32 @@ export default async function AdminCoursePage({
       <section className="space-y-6">
         <h2 className="text-lg font-semibold">Curriculum</h2>
         {course.sections.map((section) => (
-          <div key={section.id} className="rounded-lg border border-zinc-200 p-5">
+          <div key={section.id} className="rounded-lg border border-line p-5">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-semibold">{section.title}</h3>
               <form action={deleteSection.bind(null, section.id, course.id)}>
-                <button className="text-xs text-red-500 hover:underline">
+                <button className="text-xs text-fail hover:underline">
                   delete section
                 </button>
               </form>
             </div>
-            <ul className="mb-4 divide-y divide-zinc-100">
+            <ul className="mb-4 divide-y divide-line">
               {section.lessons.map((lesson) => (
                 <Link
                   key={lesson.id}
                   href={`/admin/courses/${course.id}/lessons/${lesson.id}`}
-                  className="block hover:bg-zinc-50"
+                  className="block hover:bg-bg"
                 >
                   <li className="flex items-center justify-between px-2 py-2 text-sm">
                     <span>{lesson.title}</span>
                     <span className="flex gap-2 text-xs">
                       {lesson.videoProvider !== "NONE" && (
-                        <span className="text-zinc-400">
+                        <span className="text-dim">
                           {lesson.videoProvider.toLowerCase()}
                         </span>
                       )}
                       {lesson.transcript && (
-                        <span className="text-green-600">transcript ✓</span>
+                        <span className="text-acc">transcript ✓</span>
                       )}
                       {!lesson.published && (
                         <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">
@@ -158,9 +158,9 @@ export default async function AdminCoursePage({
                 name="title"
                 placeholder="New lesson title"
                 required
-                className="flex-1 rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+                className="flex-1 rounded-md border border-line px-3 py-1.5 text-sm"
               />
-              <button className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100">
+              <button className="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-soft">
                 Add lesson
               </button>
             </form>
@@ -174,9 +174,9 @@ export default async function AdminCoursePage({
             name="title"
             placeholder="New section title"
             required
-            className="flex-1 rounded-md border border-zinc-300 px-3 py-2 text-sm"
+            className="flex-1 rounded-md border border-line px-3 py-2 text-sm"
           />
-          <button className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700">
+          <button className="rounded-md bg-acc px-4 py-2 text-sm font-medium text-acc-ink hover:opacity-90">
             Add section
           </button>
         </form>

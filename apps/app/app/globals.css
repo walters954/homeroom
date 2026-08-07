@@ -1,1 +1,125 @@
 @import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Homeroom design tokens — see docs/DESIGN.md
+   A school themes two things: a surface mode and one accent hex. Everything
+   else (scale, spacing, semantics) is Homeroom's, so a re-brand can't break
+   contrast or change what a colour means.
+   --------------------------------------------------------------------------- */
+:root {
+  /* surface: light (default) */
+  --bg: #fbfbfc;
+  --panel: #ffffff;
+  --line: #e4e6ea;
+  --soft: #eff1f3;
+  --ink: #14161a;
+  --dim: #6b7280;
+
+  /* semantics — meaning is fixed; a school may move the hue */
+  --fail: #b3261e;
+  --fail-soft: #fdecea;
+  --warn: #b45309;
+  --warn-soft: #fef3e2;
+  --ok: #0f766e;
+
+  /* accent — overridden per school; soft/deep are derived, never authored */
+  --acc: #0f766e;
+  --acc-ink: #ffffff;
+  --acc-soft: color-mix(in srgb, var(--acc) 12%, var(--panel));
+  --acc-deep: color-mix(in srgb, var(--acc) 82%, #000);
+
+  --radius: 0.5rem;
+}
+
+[data-surface="dark"] {
+  --bg: #1a1a2e;
+  --panel: #1f1f3a;
+  --line: rgba(250, 250, 250, 0.1);
+  --soft: #252544;
+  --ink: #fafafa;
+  --dim: #8892a0;
+
+  --fail-soft: color-mix(in srgb, var(--fail) 18%, transparent);
+  --warn-soft: color-mix(in srgb, var(--warn) 18%, transparent);
+  --acc-soft: color-mix(in srgb, var(--acc) 16%, transparent);
+}
+
+/* Expose tokens to Tailwind so `bg-panel`, `text-dim`, `border-line` work. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --color-soft: var(--soft);
+  --color-ink: var(--ink);
+  --color-dim: var(--dim);
+  --color-fail: var(--fail);
+  --color-fail-soft: var(--fail-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --color-acc: var(--acc);
+  --color-acc-ink: var(--acc-ink);
+  --color-acc-soft: var(--acc-soft);
+  --color-acc-deep: var(--acc-deep);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   Component vocabulary from docs/DESIGN.md §5. Kept as classes rather than
+   repeated utility strings so a token change lands everywhere at once.
+   -------------------------------------------------------------------------- */
+@layer components {
+  .hr-card { @apply rounded-[10px] border border-line bg-panel; }
+  .hr-card-h { @apply flex items-center gap-2 border-b border-line px-4 py-3 text-[12.5px]; }
+  .hr-card-b { @apply p-4; }
+  .hr-card-f { @apply flex items-center gap-2 border-t border-line bg-bg px-4 py-3; }
+  .hr-row { @apply flex items-center gap-3 border-b border-soft px-4 py-2.5 text-[12.5px] last:border-b-0; }
+
+  .hr-btn { @apply cursor-pointer rounded-[7px] border border-line bg-panel px-4 py-2 text-[12.5px] font-semibold text-ink; }
+  .hr-btn:hover { @apply bg-soft; }
+  .hr-btn-primary { @apply border-acc bg-acc text-acc-ink; }
+  .hr-btn-primary:hover { background: var(--acc-deep); }
+  .hr-btn-sm { @apply px-3 py-1.5 text-[11.5px]; }
+  .hr-btn:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+
+  .hr-input { @apply w-full rounded-[7px] border border-line bg-bg px-3 py-2 text-[13px] text-ink; }
+  .hr-input:focus { outline: 2px solid var(--acc); outline-offset: -1px; }
+  .hr-input::placeholder { color: var(--dim); }
+
+  .hr-eyebrow { @apply text-[10px] font-bold uppercase tracking-[0.13em] text-dim; }
+  .hr-title { @apply text-[21px] font-bold tracking-[-0.022em] text-balance; }
+  .hr-sub { @apply max-w-[66ch] text-[13px] leading-relaxed text-dim; }
+  .hr-ev { @apply mt-0.5 text-[11px] text-dim; }
+  .hr-path { @apply font-mono text-[11px] text-dim; }
+
+  .hr-tag { @apply rounded-[4px] px-2 py-[3px] text-[10px] font-bold tracking-[0.03em]; }
+  .hr-tag-proven { @apply bg-acc-soft text-acc; }
+  .hr-tag-shaky { @apply bg-warn-soft text-warn; }
+  .hr-tag-untested { @apply bg-soft text-dim; }
+  .hr-tag-fail { @apply bg-fail-soft text-fail; }
+
+  /* Every agent claim shows what it was drawn from. */
+  .hr-cite { @apply rounded-[6px] border border-line border-l-2 bg-bg px-3 py-2 text-[11.5px]; border-left-color: var(--acc); }
+}
+
+/* Rendered markdown inside lessons and posts. */
+.hr-prose { @apply max-w-[66ch] space-y-4 text-[15px] leading-relaxed; }
+.hr-prose h1 { @apply text-2xl font-bold; }
+.hr-prose h2 { @apply text-xl font-semibold; }
+.hr-prose h3 { @apply text-lg font-semibold; }
+.hr-prose a { @apply underline; color: var(--acc); }
+.hr-prose ul { @apply list-disc; } .hr-prose ol { @apply list-decimal; }
+.hr-prose li { @apply ml-5; }
+.hr-prose code { @apply rounded bg-soft px-1 font-mono text-[13px]; }
+.hr-prose pre { @apply overflow-x-auto rounded-lg bg-soft p-4; }
+.hr-prose pre code { @apply bg-transparent p-0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

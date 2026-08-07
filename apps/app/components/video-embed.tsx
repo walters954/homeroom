@@ -17,7 +17,7 @@ export function VideoEmbed({
 }) {
   if (provider === "NONE" || !videoId) return null;
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-zinc-950">
+    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-ink">
       <iframe
         src={EMBED_URLS[provider](videoId)}
         title={title}

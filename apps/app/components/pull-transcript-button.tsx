@@ -24,11 +24,11 @@ export function PullTranscriptButton({
             setMessage(result.message);
           })
         }
-        className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100 disabled:opacity-50"
+        className="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-soft disabled:opacity-50"
       >
         {pending ? "Pulling from Vimeo…" : "Pull transcript from Vimeo captions"}
       </button>
-      {message && <span className="text-sm text-zinc-500">{message}</span>}
+      {message && <span className="text-sm text-dim">{message}</span>}
     </div>
   );
 }

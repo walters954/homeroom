@@ -40,13 +40,13 @@ export default async function PublicPostPage({
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-zinc-400">
+      <p className="mb-2 text-sm text-dim">
         Shared from #{post.space.name}
       </p>
       {post.title && (
         <h1 className="mb-2 text-2xl font-bold tracking-tight">{post.title}</h1>
       )}
-      <p className="mb-6 text-sm text-zinc-400">
+      <p className="mb-6 text-sm text-dim">
         {post.author.name} · {post.createdAt.toLocaleDateString()}
       </p>
       <Markdown>{markdown}</Markdown>

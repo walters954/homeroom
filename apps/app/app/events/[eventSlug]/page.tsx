@@ -49,13 +49,13 @@ export default async function EventPage({
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-zinc-500">
+      <p className="mb-2 text-sm text-dim">
         <Link href="/events" className="hover:underline">
           Events
         </Link>
       </p>
       <h1 className="mb-2 text-3xl font-bold tracking-tight">{event.title}</h1>
-      <p className="mb-6 text-zinc-500">
+      <p className="mb-6 text-dim">
         {event.startsAt.toLocaleString("en-US", {
           weekday: "long",
           month: "long",
@@ -81,7 +81,7 @@ export default async function EventPage({
           href={event.joinUrl!}
           target="_blank"
           rel="noreferrer"
-          className="mb-6 inline-block rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-500"
+          className="mb-6 inline-block rounded-md bg-acc px-5 py-2.5 text-sm font-semibold text-acc-ink hover:opacity-90"
         >
           Join now →
         </a>
@@ -95,8 +95,8 @@ export default async function EventPage({
               <button
                 className={`rounded-md px-4 py-2 text-sm font-medium ${
                   mine?.status === status
-                    ? "bg-zinc-900 text-white"
-                    : "border border-zinc-300 hover:bg-zinc-100"
+                    ? "bg-acc text-acc-ink"
+                    : "border border-line hover:bg-soft"
                 }`}
               >
                 {status === "GOING"
@@ -109,7 +109,7 @@ export default async function EventPage({
           ))}
         </div>
       ) : (
-        <p className="rounded-lg bg-zinc-50 p-4 text-sm text-zinc-600">
+        <p className="rounded-lg bg-bg p-4 text-sm text-dim">
           <Link href="/sign-up" className="font-medium underline">
             Create an account
           </Link>{" "}
@@ -118,14 +118,14 @@ export default async function EventPage({
       )}
 
       {going.length > 0 && (
-        <p className="mt-6 text-sm text-zinc-500">
+        <p className="mt-6 text-sm text-dim">
           {going.length} going: {going.map((r) => r.user.name).join(", ")}
         </p>
       )}
 
       {user?.role === "ADMIN" && (
         <form action={deleteEvent.bind(null, event.id)} className="mt-10">
-          <button className="text-sm text-red-500 hover:underline">
+          <button className="text-sm text-fail hover:underline">
             Delete event
           </button>
         </form>
