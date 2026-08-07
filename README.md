@@ -49,7 +49,7 @@ pnpm turbo run build --filter=@homeroom/agent   # Node 24
 
 ## Status
 
-Early scaffold. Built in the open; first production school is [Revenue Engineer](https://www.cloudcodeacademy.com/) migrating off Circle. See [docs/PLAN.md](docs/PLAN.md) for the full design.
+Early scaffold. Built in the open; first production school is [Revenue Engineer](https://www.cloudcodeacademy.com/) migrating off Circle. See [docs/PLAN.md](docs/PLAN.md) for the product design and [docs/DESIGN.md](docs/DESIGN.md) for the design system every screen follows.
 
 ## License
 

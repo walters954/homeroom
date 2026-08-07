@@ -22,7 +22,7 @@ Learning products people say actually work don't behave like an LMS. They run a 
 
 Concretely, this changes what the software is:
 
-- **The attempt is the unit of progress, not the lesson.** Video demotes to support material for an attempt; nothing advances by clicking "mark complete".
+- **Video teaches; the attempt proves it.** Video stays the primary teaching medium — it is how Warren actually explains things, and the transcript is what grounds the tutor. What changes is the measurement: progress advances when someone passes an exercise they hadn't seen, never by clicking "mark complete". Every concept video is paired with an attempt, and the handoff between them is the core interaction.
 - **Feedback is immediate and specific** — failing tests plus a tutor that read *your* code, with a hint ladder that unlocks with effort. Revealing the solution costs the "proven" mark.
 - **One next-best action** on return, chosen from what you've proven and what you're about to forget — not a catalog to browse.
 - **Spaced recall** after a skill is proven (≈ day 2 / 7 / 30), tightening on a miss.
@@ -32,7 +32,7 @@ Concretely, this changes what the software is:
 
 Guardrail, taken from the same research: gamification drives return behaviour but not competence. Streaks count days you *attempted* something, never days you logged in, and leaderboards stay out.
 
-**Visual direction:** Console — dense, keyboard-forward, agent as a permanent pane, near-white with a single teal accent. Chosen because the audience lives in Linear/Vercel/GitHub-shaped tools all day.
+**Visual direction (decided):** **Console** — dense, keyboard-forward, the tutor as a permanent pane, near-white with a single teal accent. Chosen over two alternatives (Dojo, a stark one-thing-per-screen treatment; Workbench, a warm paper-toned one) because the audience lives in Linear/Vercel/GitHub-shaped tools all day, and because Console handles the complexity of video + editor + tests + tutor on one screen without feeling crowded.
 
 ## Product decisions
 
