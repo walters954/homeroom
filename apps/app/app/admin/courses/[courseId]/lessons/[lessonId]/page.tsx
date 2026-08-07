@@ -12,6 +12,8 @@ import { saveManualTranscript } from "@/lib/actions/transcripts";
 import { requireAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
+// Model calls + fan-out can run long; Pro allows well past the default.
+export const maxDuration = 300;
 
 export default async function AdminLessonPage({
   params,

@@ -6,8 +6,10 @@ import {
 } from "@/lib/actions/agent";
 import { requireAdmin } from "@/lib/session";
 
-export const metadata = { title: "Agent suggestions — Admin" };
+export const metadata = { title: "Agent suggestions" };
 export const dynamic = "force-dynamic";
+// Model calls + fan-out can run long; Pro allows well past the default.
+export const maxDuration = 300;
 
 const TYPE_LABELS: Record<string, string> = {
   LESSON_DRAFT: "Lesson draft",

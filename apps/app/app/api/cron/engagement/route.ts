@@ -1,6 +1,8 @@
 import { db, type Prisma } from "@homeroom/db";
 import { APP_URL } from "@/lib/notify";
 
+export const maxDuration = 300;
+
 const INACTIVE_DAYS = 14;
 
 /**

@@ -1,6 +1,8 @@
 import { db } from "@homeroom/db";
 import { APP_URL, sendEmail } from "@/lib/notify";
 
+export const maxDuration = 300;
+
 /** Hourly cron: email GOING members ~24h before an event starts. */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
