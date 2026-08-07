@@ -17,6 +17,10 @@ export default async function AdminPage() {
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Admin</h1>
       <p className="mb-8 text-sm text-zinc-500">
+        <Link href="/admin/members" className="underline hover:text-zinc-900">
+          Members
+        </Link>
+        {" · "}
         <Link href="/admin/products" className="underline hover:text-zinc-900">
           Products &amp; pricing
         </Link>
