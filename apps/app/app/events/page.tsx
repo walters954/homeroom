@@ -83,7 +83,7 @@ export default async function EventsPage() {
               required
               className="rounded-md border border-line px-3 py-2"
             />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="flex flex-col gap-1 font-medium">
                 Starts
                 <input

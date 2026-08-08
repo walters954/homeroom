@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { db } from "@homeroom/db";
+import { Page, PageHeader } from "@/components/page-header";
 import { createCourse } from "@/lib/actions/courses";
+import { plural } from "@/lib/practice";
 import { requireAdmin } from "@/lib/session";
 
 export const metadata = { title: "Admin" };
@@ -13,85 +15,101 @@ export default async function AdminPage() {
     include: { sections: { include: { lessons: { select: { id: true } } } } },
   });
 
-  return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-2 text-3xl font-bold tracking-tight">Admin</h1>
-      <p className="mb-8 text-sm text-dim">
-        <Link href="/admin/coach" className="underline hover:text-ink">
-          Coach
-        </Link>
-        {" · "}
-        <Link href="/admin/members" className="underline hover:text-ink">
-          Members
-        </Link>
-        {" · "}
-        <Link href="/admin/products" className="underline hover:text-ink">
-          Products &amp; pricing
-        </Link>
-        {" · "}
-        <Link href="/admin/suggestions" className="underline hover:text-ink">
-          Agent suggestions
-        </Link>
-        {" · "}
-        <Link href="/admin/settings" className="underline hover:text-ink">
-          Settings
-        </Link>
-      </p>
+  const published = courses.filter((c) => c.published).length;
 
-      <section className="mb-10">
-        <h2 className="mb-3 text-lg font-semibold">Courses</h2>
-        <ul className="divide-y divide-line rounded-lg border border-line">
-          {courses.map((course) => (
-            <Link
-              key={course.id}
-              href={`/admin/courses/${course.id}`}
-              className="block hover:bg-bg"
-            >
-              <li className="flex items-center justify-between px-4 py-3 text-sm">
-                <span>
-                  {course.title}
-                  {!course.published && (
-                    <span className="ml-2 rounded bg-warn-soft px-1.5 py-0.5 text-xs text-warn">
-                      draft
+  return (
+    <Page width="narrow">
+      <PageHeader
+        crumbs={[{ label: "Admin" }]}
+        title="Courses"
+        subtitle={
+          courses.length > 0
+            ? `${plural(courses.length, "course")}, ${published} published. Everything else lives on the rail — coach, members, products, the agent queue and settings.`
+            : "Nothing exists yet. A course is the container everything else hangs off, so it is the first thing to make."
+        }
+      />
+
+      <section className="hr-card">
+        <div className="hr-card-h">
+          <span className="font-semibold">All courses</span>
+          <span className="ml-auto hr-path">{courses.length}</span>
+        </div>
+        {courses.length === 0 ? (
+          <div className="hr-card-b">
+            <p className="text-[12.5px] text-dim">
+              Create one below and it will appear here with its lesson count.
+            </p>
+          </div>
+        ) : (
+          <ul>
+            {courses.map((course) => {
+              const lessons = course.sections.reduce(
+                (n, s) => n + s.lessons.length,
+                0,
+              );
+              return (
+                <li key={course.id} className="hr-row items-start">
+                  <span className="min-w-0 flex-1">
+                    <Link
+                      href={`/admin/courses/${course.id}`}
+                      className="block font-medium text-ink hover:underline"
+                    >
+                      {course.title}
+                    </Link>
+                    <span className="hr-ev block">
+                      {plural(lessons, "lesson")}
+                      {lessons === 0 && " · nothing to watch yet"}
                     </span>
-                  )}
-                </span>
-                <span className="text-dim">
-                  {course.sections.reduce((n, s) => n + s.lessons.length, 0)}{" "}
-                  lessons
-                </span>
-              </li>
-            </Link>
-          ))}
-          {courses.length === 0 && (
-            <li className="px-4 py-3 text-sm text-dim">No courses yet.</li>
-          )}
-        </ul>
+                  </span>
+                  <span
+                    className={`hr-tag shrink-0 ${
+                      course.published ? "hr-tag-proven" : "hr-tag-untested"
+                    }`}
+                  >
+                    {course.published ? "published" : "draft"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
 
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">New course</h2>
-        <form action={createCourse} className="flex flex-col gap-3">
-          <input
-            name="title"
-            placeholder="Course title"
-            required
-            className="rounded-md border border-line px-3 py-2 text-sm"
-          />
-          <textarea
-            name="description"
-            placeholder="Short description (optional)"
-            rows={2}
-            className="rounded-md border border-line px-3 py-2 text-sm"
-          />
-          <button
-            type="submit"
-            className="self-start rounded-md bg-acc px-4 py-2 text-sm font-medium text-acc-ink hover:opacity-90"
-          >
-            Create course
-          </button>
+      <section className="hr-card mt-4">
+        <div className="hr-card-h">
+          <span className="font-semibold">New course</span>
+        </div>
+        <form action={createCourse}>
+          <div className="hr-card-b space-y-3">
+            <label className="block">
+              <span className="hr-eyebrow mb-1 block">Title</span>
+              <input
+                name="title"
+                placeholder="Apex That Survives Production"
+                required
+                className="hr-input"
+              />
+            </label>
+            <label className="block">
+              <span className="hr-eyebrow mb-1 block">Description</span>
+              <textarea
+                name="description"
+                placeholder="What someone can do after finishing it — optional."
+                rows={2}
+                className="hr-input"
+              />
+            </label>
+          </div>
+          <div className="hr-card-f">
+            <button type="submit" className="hr-btn hr-btn-primary hr-btn-sm">
+              Create course
+            </button>
+            <span className="hr-ev">
+              Created as a draft. Nothing is member-visible until you publish it.
+            </span>
+          </div>
         </form>
       </section>
-    </main>
+    </Page>
   );
 }

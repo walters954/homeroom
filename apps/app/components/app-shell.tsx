@@ -132,7 +132,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="flex min-h-screen">
+    // Column on a phone (the rail becomes a top bar), row from lg where the
+    // rail is a real sidebar again.
+    <div className="flex min-h-screen flex-col lg:flex-row">
       <Rail groups={groups} brand={brand} footer={footer} />
       <div className="flex min-w-0 flex-1">{children}</div>
     </div>

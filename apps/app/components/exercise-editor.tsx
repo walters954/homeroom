@@ -45,14 +45,15 @@ export function ExerciseEditor({
     // Running is the default submit; the other buttons override with formAction.
     <form action={runAction} className="mt-4 space-y-4">
       <div className="hr-card overflow-hidden">
-        <div className="flex items-center gap-1 border-b border-line bg-bg px-2 py-1.5">
+        {/* Paths are long and phones are narrow: scroll the strip, don't wrap it. */}
+        <div className="flex items-center gap-1 overflow-x-auto border-b border-line bg-bg px-2 py-1.5">
           {files.map((f) => (
             <button
               key={f.path}
               type="button"
               onClick={() => setActive(f.path)}
               aria-pressed={f.path === active}
-              className={`rounded-[6px] px-2.5 py-1 font-mono text-[11.5px] ${
+              className={`shrink-0 rounded-[6px] px-2.5 py-1 font-mono text-[11.5px] ${
                 f.path === active
                   ? "bg-panel text-ink"
                   : "text-dim hover:bg-soft"

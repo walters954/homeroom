@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@homeroom/db";
 import {
@@ -8,6 +7,7 @@ import {
   setMemberRole,
 } from "@/lib/actions/members";
 import { isComped } from "@/lib/comp";
+import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -54,20 +54,21 @@ export default async function MemberDetailPage({
   );
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-dim">
-        <Link href="/admin/members" className="hover:underline">
-          Members
-        </Link>
-      </p>
-      <h1 className="text-3xl font-bold tracking-tight">{member.name}</h1>
-      <p className="mb-8 text-sm text-dim">
-        {member.email} · joined {member.createdAt.toLocaleDateString()} ·{" "}
-        {member.emailVerified ? "verified" : "email unverified"}
-      </p>
+    <Page width="narrow">
+      <PageHeader
+        crumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Members", href: "/admin/members" },
+          { label: member.name },
+        ]}
+        title={member.name}
+        subtitle={`${member.email} · joined ${member.createdAt.toLocaleDateString()} · ${
+          member.emailVerified ? "email verified" : "email unverified"
+        }`}
+      />
 
-      <section className="mb-8 rounded-lg border border-line p-5">
-        <h2 className="mb-4 text-lg font-semibold">Access</h2>
+      <section className="hr-card mb-4 p-5">
+        <h2 className="mb-4 text-[13px] font-semibold">Access</h2>
         {member.subscriptions.length === 0 && (
           <p className="mb-4 text-sm text-dim">No subscriptions.</p>
         )}
@@ -106,7 +107,7 @@ export default async function MemberDetailPage({
               Grant access (no charge)
               <select
                 name="productId"
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               >
                 {grantable.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -115,7 +116,7 @@ export default async function MemberDetailPage({
                 ))}
               </select>
             </label>
-            <button className="rounded-md bg-acc px-4 py-2 text-sm font-medium text-acc-ink hover:opacity-90">
+            <button className="hr-btn hr-btn-primary hr-btn-sm">
               Grant
             </button>
           </form>
@@ -127,8 +128,8 @@ export default async function MemberDetailPage({
         </p>
       </section>
 
-      <section className="mb-8 rounded-lg border border-line p-5">
-        <h2 className="mb-4 text-lg font-semibold">Account</h2>
+      <section className="hr-card mb-4 p-5">
+        <h2 className="mb-4 text-[13px] font-semibold">Account</h2>
         <div className="flex flex-wrap items-end gap-3">
           <form
             action={setMemberRole.bind(null, member.id)}
@@ -139,18 +140,18 @@ export default async function MemberDetailPage({
               <select
                 name="role"
                 defaultValue={member.role}
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               >
                 <option value="MEMBER">Member</option>
                 <option value="ADMIN">Admin</option>
               </select>
             </label>
-            <button className="rounded-md border border-line px-3 py-2 text-sm hover:bg-soft">
+            <button className="hr-btn hr-btn-sm">
               Save role
             </button>
           </form>
           <form action={sendSignInLink.bind(null, member.id)}>
-            <button className="rounded-md border border-line px-3 py-2 text-sm hover:bg-soft">
+            <button className="hr-btn hr-btn-sm">
               Email sign-in link
             </button>
           </form>
@@ -162,7 +163,7 @@ export default async function MemberDetailPage({
           Recent progress
         </h2>
         {member.lessonProgress.length === 0 ? (
-          <p className="text-sm text-dim">No lessons completed yet.</p>
+          <p className="hr-ev">Nothing completed yet — no watch history on record.</p>
         ) : (
           <ul className="space-y-1 text-sm text-dim">
             {member.lessonProgress.map((p) => (
@@ -177,6 +178,6 @@ export default async function MemberDetailPage({
           </ul>
         )}
       </section>
-    </main>
+    </Page>
   );
 }

@@ -90,8 +90,14 @@ semantic  text-fail bg-fail-soft · text-warn bg-warn-soft
 
 Components: `.hr-card`, `.hr-card-h/b/f`, `.hr-row`, `.hr-btn` (+`.hr-btn-primary`,
 `.hr-btn-sm`), `.hr-input`, `.hr-tag-*`, `.hr-cite`, `.hr-eyebrow`, `.hr-title`,
-`.hr-sub`, `.hr-ev`, `.hr-path`, `.hr-prose`. Plus `<Page>`, `<PageHeader>`,
-`<EmptyState>` in `apps/app/components/`.
+`.hr-sub`, `.hr-ev`, `.hr-path`, `.hr-prose`, `.hr-scroll-x`. Plus `<Page>`,
+`<PageHeader>`, `<EmptyState>` in `apps/app/components/`.
+
+**Every screen has to work at 375px.** The rail is a sidebar only from `lg`;
+below that it is a top bar plus a drawer. Use `<Page>` rather than a hand-rolled
+`<main>` so padding scales, put wide content in `.hr-scroll-x` or give tables a
+`min-w-*` so they scroll inside themselves, and give any multi-column grid a
+`sm:`/`md:` prefix — an unprefixed `grid-cols-2` is a bug on a phone.
 
 **Every claim about a person shows its evidence** beneath it in `--dim` at 11px:
 *"proven 3× · no hints used · 6 days ago"*. Nothing asserts without it.
@@ -133,6 +139,12 @@ a genuine green is a failure, including our own outages** — a fabricated pass
 would set a PROVEN state, seed a recall schedule and unlock the worked solution
 off nothing. `lib/exercises/harness.test.mjs` guards that; keep it passing.
 
+All admin surfaces are on the Console direction and every screen has a
+small-screen state, so the app is usable on a phone.
+
 Not built yet: Apex execution (#29 — so the two Apex exercises still report
 honestly and admins use the manual override), exercise authoring outside the
-seed script (#30), and the repo-grounded tutor (#8). Stripe is still in sandbox.
+seed script (#30), bulk member import for the Circle migration (#36), and the
+repo-grounded tutor (#8). **Stripe is still in sandbox (#1)** — that is the one
+thing blocking real money, and it needs the live account imported via the Vercel
+integration.
