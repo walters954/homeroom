@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { db } from "@homeroom/db";
 import { createPost } from "@/lib/actions/community";
 import { getCurrentUser } from "@/lib/session";
+import { Page, PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -32,16 +34,15 @@ export default async function SpacePage({
   if (space.visibility === "MEMBERS" && !user) redirect("/sign-in");
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-dim">
-        <Link href="/community" className="hover:underline">
-          Community
-        </Link>
-      </p>
-      <h1 className="mb-1 text-3xl font-bold tracking-tight">#{space.name}</h1>
-      {space.description && (
-        <p className="mb-8 text-dim">{space.description}</p>
-      )}
+    <Page width="narrow">
+      <PageHeader
+        crumbs={[
+          { label: "Community", href: "/community" },
+          { label: `#${space.name}` },
+        ]}
+        title={`#${space.name}`}
+        subtitle={space.description ?? undefined}
+      />
 
       {user && (
         <form
@@ -96,9 +97,17 @@ export default async function SpacePage({
           </Link>
         ))}
         {space.posts.length === 0 && (
-          <p className="text-sm text-dim">No posts yet — start the conversation.</p>
+          <EmptyState
+            glyph="◇"
+            title="Nothing posted in here yet"
+            body={
+              user
+                ? "Somebody has to go first. A question you had this week works better than an introduction — it gives people something to answer."
+                : "This space is quiet so far. Check back, or ask in a space you can post to."
+            }
+          />
         )}
       </ul>
-    </main>
+    </Page>
   );
 }

@@ -12,7 +12,7 @@ export default async function HomePage() {
 
   const branding = await getBranding();
   return (
-    <main className="mx-auto flex min-h-[70vh] max-w-2xl flex-col items-start justify-center gap-6 px-6">
+    <main className="mx-auto flex min-h-[70vh] max-w-2xl flex-col items-start justify-center gap-6 px-4 sm:px-6">
       <h1 className="text-4xl font-bold tracking-tight">
         {branding.schoolName}
       </h1>

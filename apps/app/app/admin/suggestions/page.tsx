@@ -5,6 +5,7 @@ import {
 } from "@/lib/actions/agent";
 import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
+import { EmptyState } from "@/components/empty-state";
 
 export const metadata = { title: "Agent suggestions" };
 export const dynamic = "force-dynamic";
@@ -90,9 +91,13 @@ export default async function SuggestionsPage() {
           );
         })}
         {pending.length === 0 && (
-          <p className="text-sm text-dim">
-            Queue is clear — the agent has nothing waiting for you.
-          </p>
+          <EmptyState
+            glyph="✓"
+            title="Queue is clear"
+            body="The agent has nothing waiting on you. It drafts overnight from lesson transcripts, so the fastest way to fill this is to add a transcript to a lesson that doesn't have one."
+            actionLabel="Go to courses"
+            actionHref="/admin"
+          />
         )}
       </section>
 
