@@ -174,7 +174,7 @@ export default async function CoachPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[12.5px]">
+            <table className="w-full min-w-[560px] text-left text-[12.5px]">
               <thead>
                 <tr className="border-b border-line">
                   <th className="px-4 py-2 font-medium text-dim">Exercise</th>

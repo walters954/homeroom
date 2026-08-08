@@ -22,7 +22,7 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <header className="mb-7 border-b border-line pb-6">
+    <header className="mb-6 border-b border-line pb-5 md:mb-7 md:pb-6">
       {crumbs && crumbs.length > 0 && (
         <nav aria-label="Breadcrumb" className="hr-path mb-2 flex flex-wrap items-center gap-1.5">
           {crumbs.map((c, i) => (
@@ -59,8 +59,10 @@ export function Page({
   width?: "narrow" | "wide";
 }) {
   return (
+    // 32px of gutter on a phone is a third of the readable width — the padding
+    // has to scale or every screen reads as a desktop page shrunk down.
     <main
-      className={`mx-auto w-full px-8 py-9 ${
+      className={`mx-auto w-full px-4 py-6 sm:px-6 md:px-8 md:py-9 ${
         width === "narrow" ? "max-w-3xl" : "max-w-5xl"
       }`}
     >

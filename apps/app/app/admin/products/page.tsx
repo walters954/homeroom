@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { db } from "@homeroom/db";
 import { formatPrice } from "@/lib/access";
 import {
@@ -6,6 +5,8 @@ import {
   toggleEntitlement,
   toggleProductActive,
 } from "@/lib/actions/products";
+import { EmptyState } from "@/components/empty-state";
+import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
 import { stripeConfigured } from "@/lib/stripe";
 
@@ -23,13 +24,12 @@ export default async function AdminProductsPage() {
   ]);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-dim">
-        <Link href="/admin" className="hover:underline">
-          Admin
-        </Link>
-      </p>
-      <h1 className="mb-2 text-3xl font-bold tracking-tight">Products</h1>
+    <Page width="narrow">
+      <PageHeader
+        crumbs={[{ label: "Admin", href: "/admin" }, { label: "Products" }]}
+        title="Products &amp; pricing"
+        subtitle="A product grants access to courses. Set trial days here — that is what lets someone start before their old subscription ends."
+      />
       {!stripeConfigured() && (
         <p className="mb-6 rounded-md bg-warn-soft p-3 text-sm text-warn">
           STRIPE_SECRET_KEY is not set — products created now won&apos;t have
@@ -39,7 +39,7 @@ export default async function AdminProductsPage() {
 
       <section className="mb-10 space-y-4">
         {products.map((product) => (
-          <div key={product.id} className="rounded-lg border border-line p-5">
+          <div key={product.id} className="hr-card mb-4 p-5">
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <h2 className="font-semibold">
@@ -89,29 +89,32 @@ export default async function AdminProductsPage() {
                 );
               })}
               {courses.length === 0 && (
-                <span className="text-sm text-dim">No courses yet.</span>
+                <span className="hr-ev">
+                  No courses exist yet, so there is nothing to grant.
+                </span>
               )}
             </div>
           </div>
         ))}
         {products.length === 0 && (
-          <p className="text-sm text-dim">
-            No products yet. Courses without a product are free for any
-            signed-in member.
-          </p>
+          <EmptyState
+            glyph="⛁"
+            title="No products yet"
+            body="Until a course is attached to a product it is free for any signed-in member. Create one below to charge for access — and set trial days if people are arriving mid-subscription somewhere else."
+          />
         )}
       </section>
 
-      <section className="rounded-lg border border-line p-5">
-        <h2 className="mb-4 text-lg font-semibold">New product</h2>
+      <section className="hr-card mb-4 p-5">
+        <h2 className="mb-4 text-[13px] font-semibold">New product</h2>
         <form action={createProduct} className="flex flex-col gap-3 text-sm">
           <input
             name="name"
             placeholder="e.g. Revenue Engineer Membership"
             required
-            className="rounded-md border border-line px-3 py-2"
+            className="hr-input"
           />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 font-medium">
               Monthly price (USD)
               <input
@@ -120,7 +123,7 @@ export default async function AdminProductsPage() {
                 step="0.01"
                 min="1"
                 required
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
@@ -130,15 +133,15 @@ export default async function AdminProductsPage() {
                 type="number"
                 defaultValue={0}
                 min={0}
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               />
             </label>
           </div>
-          <button className="self-start rounded-md bg-acc px-4 py-2 font-medium text-acc-ink hover:opacity-90">
+          <button className="hr-btn hr-btn-primary hr-btn-sm self-start">
             Create product{stripeConfigured() ? " in Stripe" : ""}
           </button>
         </form>
       </section>
-    </main>
+    </Page>
   );
 }

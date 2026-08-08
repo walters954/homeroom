@@ -1,17 +1,20 @@
 import Link from "next/link";
 import { db, type Prisma } from "@homeroom/db";
+import { EmptyState } from "@/components/empty-state";
+import { Page, PageHeader } from "@/components/page-header";
 import { inviteMember } from "@/lib/actions/members";
+import { plural, relativeDays } from "@/lib/practice";
 import { requireAdmin } from "@/lib/session";
 
 export const metadata = { title: "Members" };
 export const dynamic = "force-dynamic";
 
-const STATUS_STYLES: Record<string, string> = {
-  ACTIVE: "bg-acc-soft text-acc",
-  TRIALING: "bg-acc-soft text-acc",
-  PAST_DUE: "bg-warn-soft text-warn",
-  CANCELED: "bg-soft text-dim",
-  INCOMPLETE: "bg-soft text-dim",
+const STATUS_TAG: Record<string, string> = {
+  ACTIVE: "hr-tag-proven",
+  TRIALING: "hr-tag-proven",
+  PAST_DUE: "hr-tag-shaky",
+  CANCELED: "hr-tag-untested",
+  INCOMPLETE: "hr-tag-untested",
 };
 
 export default async function MembersPage({
@@ -51,101 +54,97 @@ export default async function MembersPage({
   });
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <p className="mb-2 text-sm text-dim">
-        <Link href="/admin" className="hover:underline">
-          Admin
-        </Link>
-      </p>
-      <h1 className="mb-6 text-3xl font-bold tracking-tight">
-        Members{" "}
-        <span className="text-lg font-normal text-dim">
-          {members.length}
-        </span>
-      </h1>
+    <Page>
+      <PageHeader
+        crumbs={[{ label: "Admin", href: "/admin" }, { label: "Members" }]}
+        title="Members"
+        subtitle={
+          q
+            ? `Matching "${q}".`
+            : "Everyone with an account, newest first. Access comes from a subscription or a comp — open a member to change it."
+        }
+        actions={
+          <form action={inviteMember} className="flex gap-2">
+            <input
+              name="email"
+              type="email"
+              required
+              placeholder="Invite by email…"
+              className="hr-input w-[190px]"
+            />
+            <button className="hr-btn hr-btn-primary hr-btn-sm shrink-0">
+              Invite
+            </button>
+          </form>
+        }
+      />
 
-      <div className="mb-6 flex flex-wrap items-end gap-3">
-        <form className="flex gap-2">
-          <input
-            name="q"
-            defaultValue={q ?? ""}
-            placeholder="Search name or email…"
-            className="rounded-md border border-line px-3 py-2 text-sm"
-          />
-          <button className="rounded-md border border-line px-3 py-2 text-sm hover:bg-soft">
-            Search
-          </button>
-        </form>
-        <form action={inviteMember} className="ml-auto flex gap-2">
-          <input
-            name="email"
-            type="email"
-            required
-            placeholder="Invite by email…"
-            className="rounded-md border border-line px-3 py-2 text-sm"
-          />
-          <button className="rounded-md bg-acc px-4 py-2 text-sm font-medium text-acc-ink hover:opacity-90">
-            Send invite
-          </button>
-        </form>
-      </div>
+      <form className="mb-4 flex gap-2">
+        <input
+          name="q"
+          defaultValue={q ?? ""}
+          placeholder="Search name or email…"
+          className="hr-input max-w-xs"
+        />
+        <button className="hr-btn hr-btn-sm shrink-0">Search</button>
+      </form>
 
-      <ul className="divide-y divide-line rounded-lg border border-line">
-        {members.map((m) => {
-          const active = m.subscriptions.find((s) =>
-            ["ACTIVE", "TRIALING"].includes(s.status),
-          );
-          const last = m.lessonProgress[0]?.updatedAt;
-          return (
-            <Link
-              key={m.id}
-              href={`/admin/members/${m.id}`}
-              className="block hover:bg-bg"
-            >
-              <li className="flex items-center justify-between gap-4 px-4 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">
-                    {m.name}
-                    {m.role === "ADMIN" && (
-                      <span className="ml-2 rounded bg-acc px-1.5 py-0.5 text-xs text-acc-ink">
-                        admin
-                      </span>
-                    )}
-                    {!m.emailVerified && (
-                      <span className="ml-2 rounded bg-warn-soft px-1.5 py-0.5 text-xs text-warn">
-                        unverified
-                      </span>
-                    )}
-                  </p>
-                  <p className="truncate text-xs text-dim">{m.email}</p>
-                </div>
-                <div className="flex shrink-0 items-center gap-3 text-xs">
-                  <span className="text-dim">
-                    {m._count.lessonProgress} done
-                    {last && ` · active ${last.toLocaleDateString()}`}
-                  </span>
-                  {active ? (
-                    <span
-                      className={`rounded px-2 py-0.5 ${STATUS_STYLES[active.status]}`}
+      {members.length === 0 ? (
+        <EmptyState
+          title={q ? "Nobody matches that search" : "No members yet"}
+          body={
+            q
+              ? "Try an email fragment, or clear the search to see everyone."
+              : "Invite the first one by email above — they get a magic link, so there is no password for them to invent."
+          }
+        />
+      ) : (
+        <section className="hr-card">
+          <div className="hr-card-h">
+            <span className="font-semibold">
+              {q ? "Matches" : "Everyone"}
+            </span>
+            <span className="ml-auto hr-path">{plural(members.length, "member")}</span>
+          </div>
+          <ul>
+            {members.map((m) => {
+              const active = m.subscriptions.find((s) =>
+                ["ACTIVE", "TRIALING"].includes(s.status),
+              );
+              const last = m.lessonProgress[0]?.updatedAt;
+              return (
+                <li key={m.id} className="hr-row items-start">
+                  <span className="min-w-0 flex-1">
+                    <Link
+                      href={`/admin/members/${m.id}`}
+                      className="flex flex-wrap items-center gap-2 font-medium text-ink hover:underline"
                     >
-                      {active.status.toLowerCase()}
+                      {m.name}
+                      {m.role === "ADMIN" && (
+                        <span className="hr-tag hr-tag-proven">admin</span>
+                      )}
+                      {!m.emailVerified && (
+                        <span className="hr-tag hr-tag-shaky">unverified</span>
+                      )}
+                    </Link>
+                    <span className="hr-ev block truncate">
+                      {m.email} · {m._count.lessonProgress} completed
+                      {last && ` · active ${relativeDays(last)}`}
                     </span>
-                  ) : (
-                    <span className="rounded bg-soft px-2 py-0.5 text-dim">
-                      no access
-                    </span>
-                  )}
-                </div>
-              </li>
-            </Link>
-          );
-        })}
-        {members.length === 0 && (
-          <li className="px-4 py-3 text-sm text-dim">
-            {q ? "No members match that search." : "No members yet."}
-          </li>
-        )}
-      </ul>
-    </main>
+                  </span>
+                  <span
+                    className={`hr-tag shrink-0 ${
+                      active ? STATUS_TAG[active.status] : "hr-tag-untested"
+                    }`}
+                  >
+                    {active ? active.status.toLowerCase() : "no access"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+    </Page>
   );
 }

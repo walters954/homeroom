@@ -93,8 +93,12 @@ body {
   .hr-input:focus { outline: 2px solid var(--acc); outline-offset: -1px; }
   .hr-input::placeholder { color: var(--dim); }
 
+  /* Wide content scrolls inside itself. Without this a table forces the whole
+     page sideways on a phone, which is the difference between dense and broken. */
+  .hr-scroll-x { @apply -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0; }
+
   .hr-eyebrow { @apply text-[10px] font-bold uppercase tracking-[0.13em] text-dim; }
-  .hr-title { @apply text-[21px] font-bold tracking-[-0.022em] text-balance; }
+  .hr-title { @apply text-[19px] font-bold tracking-[-0.022em] text-balance md:text-[21px]; }
   .hr-sub { @apply max-w-[66ch] text-[13px] leading-relaxed text-dim; }
   .hr-ev { @apply mt-0.5 text-[11px] text-dim; }
   .hr-path { @apply font-mono text-[11px] text-dim; }

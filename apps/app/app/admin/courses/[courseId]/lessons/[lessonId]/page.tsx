@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/agent";
 import { deleteLesson, updateLesson } from "@/lib/actions/courses";
 import { saveManualTranscript } from "@/lib/actions/transcripts";
+import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -34,18 +35,19 @@ export default async function AdminLessonPage({
   const body = (lesson.body as { markdown?: string } | null)?.markdown ?? "";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-dim">
-        <Link href="/admin" className="hover:underline">
-          Admin
-        </Link>{" "}
-        ·{" "}
-        <Link href={`/admin/courses/${courseId}`} className="hover:underline">
-          {lesson.section.course.title}
-        </Link>{" "}
-        · {lesson.section.title}
-      </p>
-      <h1 className="mb-8 text-3xl font-bold tracking-tight">{lesson.title}</h1>
+    <Page width="narrow">
+      <PageHeader
+        crumbs={[
+          { label: "Admin", href: "/admin" },
+          {
+            label: lesson.section.course.title,
+            href: `/admin/courses/${courseId}`,
+          },
+          { label: lesson.section.title },
+        ]}
+        title={lesson.title}
+        subtitle="The video teaches and the transcript grounds the tutor — a lesson without one leaves the agent guessing."
+      />
 
       {lesson.videoProvider !== "NONE" && lesson.videoId && (
         <div className="mb-8">
@@ -57,19 +59,19 @@ export default async function AdminLessonPage({
         </div>
       )}
 
-      <section className="mb-10 rounded-lg border border-line p-5">
-        <h2 className="mb-4 text-lg font-semibold">Lesson</h2>
+      <section className="hr-card mb-4 p-5">
+        <h2 className="mb-4 text-[13px] font-semibold">Lesson</h2>
         <form
           action={updateLesson.bind(null, lesson.id, courseId)}
           className="flex flex-col gap-3 text-sm"
         >
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 font-medium">
               Title
               <input
                 name="title"
                 defaultValue={lesson.title}
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
@@ -77,17 +79,17 @@ export default async function AdminLessonPage({
               <input
                 name="slug"
                 defaultValue={lesson.slug}
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               />
             </label>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <label className="flex flex-col gap-1 font-medium">
               Video provider
               <select
                 name="videoProvider"
                 defaultValue={lesson.videoProvider}
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               >
                 <option value="NONE">None</option>
                 <option value="VIMEO">Vimeo</option>
@@ -101,7 +103,7 @@ export default async function AdminLessonPage({
                 name="videoId"
                 defaultValue={lesson.videoId ?? ""}
                 placeholder="e.g. 987654321"
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
@@ -110,7 +112,7 @@ export default async function AdminLessonPage({
                 name="durationSeconds"
                 type="number"
                 defaultValue={lesson.durationSeconds ?? ""}
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               />
             </label>
           </div>
@@ -120,16 +122,16 @@ export default async function AdminLessonPage({
               name="body"
               defaultValue={body}
               rows={10}
-              className="rounded-md border border-line px-3 py-2 font-mono text-xs"
+              className="hr-input font-mono text-[12px] font-normal"
             />
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 font-medium">
               SEO title
               <input
                 name="seoTitle"
                 defaultValue={lesson.seoTitle ?? ""}
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
@@ -137,7 +139,7 @@ export default async function AdminLessonPage({
               <input
                 name="seoDescription"
                 defaultValue={lesson.seoDescription ?? ""}
-                className="rounded-md border border-line px-3 py-2 font-normal"
+                className="hr-input font-normal"
               />
             </label>
           </div>
@@ -161,14 +163,14 @@ export default async function AdminLessonPage({
           </div>
           <button
             type="submit"
-            className="self-start rounded-md bg-acc px-4 py-2 font-medium text-acc-ink hover:opacity-90"
+            className="hr-btn hr-btn-primary hr-btn-sm self-start"
           >
             Save lesson
           </button>
         </form>
       </section>
 
-      <section className="mb-10 rounded-lg border border-line p-5">
+      <section className="hr-card mb-4 p-5">
         <h2 className="mb-1 text-lg font-semibold">Transcript</h2>
         <p className="mb-4 text-sm text-dim">
           The transcript is the agent&apos;s grounding corpus for this lesson —
@@ -212,15 +214,15 @@ export default async function AdminLessonPage({
             name="transcript"
             rows={5}
             placeholder="…or paste a transcript here (plain text, WebVTT, or SRT)"
-            className="rounded-md border border-line px-3 py-2 font-mono text-xs"
+            className="hr-input font-mono text-[12px] font-normal"
           />
-          <button className="self-start rounded-md border border-line px-3 py-1.5 text-sm hover:bg-soft">
+          <button className="hr-btn hr-btn-sm self-start">
             Save transcript
           </button>
         </form>
       </section>
 
-      <section className="mb-10 rounded-lg border border-line p-5">
+      <section className="hr-card mb-4 p-5">
         <h2 className="mb-1 text-lg font-semibold">Agent</h2>
         <p className="mb-4 text-sm text-dim">
           Drafts land in the{" "}
@@ -233,13 +235,13 @@ export default async function AdminLessonPage({
           <form action={draftLessonFromTranscript.bind(null, lesson.id, courseId)}>
             <button
               disabled={!lesson.transcript}
-              className="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-soft disabled:opacity-40"
+              className="hr-btn hr-btn-sm disabled:opacity-40"
             >
               ✍️ Draft lesson from transcript
             </button>
           </form>
           <form action={draftAnnouncement.bind(null, lesson.id, courseId)}>
-            <button className="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-soft">
+            <button className="hr-btn hr-btn-sm">
               📣 Draft announcement email
             </button>
           </form>
@@ -251,6 +253,6 @@ export default async function AdminLessonPage({
           Delete lesson
         </button>
       </form>
-    </main>
+    </Page>
   );
 }

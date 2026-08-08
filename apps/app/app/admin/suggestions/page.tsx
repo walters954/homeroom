@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { db } from "@homeroom/db";
 import {
   approveSuggestion,
   rejectSuggestion,
 } from "@/lib/actions/agent";
+import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
 
 export const metadata = { title: "Agent suggestions" };
@@ -35,26 +35,19 @@ export default async function SuggestionsPage() {
   ]);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="mb-2 text-sm text-dim">
-        <Link href="/admin" className="hover:underline">
-          Admin
-        </Link>
-      </p>
-      <h1 className="mb-2 text-3xl font-bold tracking-tight">
-        Agent suggestions
-      </h1>
-      <p className="mb-8 text-sm text-dim">
-        The agent drafts; you approve. Nothing the agent isn&apos;t certain of
-        ships without your sign-off.
-      </p>
+    <Page width="narrow">
+      <PageHeader
+        crumbs={[{ label: "Admin", href: "/admin" }, { label: "Agent queue" }]}
+        title="Agent suggestions"
+        subtitle="The agent drafts; you approve. Nothing the agent isn't certain of ships without your sign-off."
+      />
 
       <section className="space-y-4">
         {pending.map((s) => {
           const payload = s.payload as Record<string, unknown>;
           const evidence = s.evidence as Record<string, unknown>;
           return (
-            <div key={s.id} className="rounded-lg border border-line p-5">
+            <div key={s.id} className="hr-card mb-4 p-5">
               <div className="mb-2 flex items-center justify-between">
                 <span className="rounded bg-acc-soft px-2 py-0.5 text-xs font-medium text-acc">
                   {TYPE_LABELS[s.type] ?? s.type}
@@ -83,12 +76,12 @@ export default async function SuggestionsPage() {
 
               <div className="flex gap-2">
                 <form action={approveSuggestion.bind(null, s.id)}>
-                  <button className="rounded-md bg-acc px-4 py-1.5 text-sm font-medium text-acc-ink hover:opacity-90">
+                  <button className="hr-btn hr-btn-primary hr-btn-sm">
                     Approve{s.type === "ANNOUNCEMENT" ? " & send" : s.type === "NUDGE_EMAIL" ? " & send" : " & apply"}
                   </button>
                 </form>
                 <form action={rejectSuggestion.bind(null, s.id)}>
-                  <button className="rounded-md border border-line px-4 py-1.5 text-sm hover:bg-soft">
+                  <button className="hr-btn hr-btn-sm">
                     Reject
                   </button>
                 </form>
@@ -119,6 +112,6 @@ export default async function SuggestionsPage() {
           </ul>
         </section>
       )}
-    </main>
+    </Page>
   );
 }
