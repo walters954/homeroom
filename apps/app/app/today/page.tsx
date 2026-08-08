@@ -12,6 +12,7 @@ import {
   type NextAction,
 } from "@/lib/practice";
 import { requireUser } from "@/lib/session";
+import { Badge, Card, CardContent, CardFooter, CardHeader } from "@homeroom/ui";
 
 export const metadata = { title: "Today" };
 export const dynamic = "force-dynamic";
@@ -80,9 +81,9 @@ export default async function TodayPage({
                     </span>
                     <span className="hr-ev block">{alt.evidence[0]}</span>
                   </span>
-                  <span className="hr-tag hr-tag-untested shrink-0">
+                  <Badge variant="untested" className="shrink-0">
                     {alt.eyebrow}
-                  </span>
+                  </Badge>
                 </Link>
               </li>
             ))}
@@ -100,20 +101,20 @@ export default async function TodayPage({
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {/* Due for recall */}
-        <section className="hr-card">
-          <div className="hr-card-h">
+        <Card>
+          <CardHeader>
             <span className="font-semibold">Due for recall</span>
             <span className="ml-auto hr-tag hr-tag-shaky">
               {snapshot.dueRecall.length}
             </span>
-          </div>
+          </CardHeader>
           {snapshot.dueRecall.length === 0 ? (
-            <div className="hr-card-b">
+            <CardContent>
               <p className="text-[12.5px] text-dim">
                 Nothing due. Checks appear two days after you first prove a
                 skill, then further apart each time you get one right.
               </p>
-            </div>
+            </CardContent>
           ) : (
             <ul>
               {snapshot.dueRecall.slice(0, 5).map((r) => (
@@ -131,28 +132,28 @@ export default async function TodayPage({
               ))}
             </ul>
           )}
-          <div className="hr-card-f">
+          <CardFooter>
             <Link href="/recall" className="hr-btn hr-btn-sm">
               Open recall
             </Link>
-          </div>
-        </section>
+          </CardFooter>
+        </Card>
 
         {/* Capability snapshot */}
-        <section className="hr-card">
-          <div className="hr-card-h">
+        <Card>
+          <CardHeader>
             <span className="font-semibold">What you can do</span>
-          </div>
-          <div className="hr-card-b">
+          </CardHeader>
+          <CardContent>
             <div className="flex gap-2">
-              <span className="hr-tag hr-tag-proven">{proven} proven</span>
-              <span className="hr-tag hr-tag-shaky">{shaky} shaky</span>
-              <span className="hr-tag hr-tag-untested">{untested} untested</span>
+              <Badge variant="proven">{proven} proven</Badge>
+              <Badge variant="shaky">{shaky} shaky</Badge>
+              <Badge variant="untested">{untested} untested</Badge>
             </div>
             <p className="hr-ev mt-2">
               Assessed from attempts, not from lessons marked complete.
             </p>
-          </div>
+          </CardContent>
           <ul>
             {snapshot.skills.slice(0, 4).map(({ skill, state, status }) => (
               <li key={skill.id} className="hr-row">
@@ -168,12 +169,12 @@ export default async function TodayPage({
               </li>
             ))}
           </ul>
-          <div className="hr-card-f">
+          <CardFooter>
             <Link href="/capability" className="hr-btn hr-btn-sm">
               See the evidence
             </Link>
-          </div>
-        </section>
+          </CardFooter>
+        </Card>
       </div>
 
       <PracticeDaysStrip days={snapshot.practiceDays.days} window={7} />
@@ -191,12 +192,12 @@ function ChosenCard({
   hasAlternatives: boolean;
 }) {
   return (
-    <section className="hr-card mt-5">
-      <div className="hr-card-h">
+    <Card className="mt-5">
+      <CardHeader>
         <span className="hr-eyebrow">{action.eyebrow}</span>
         <span className="ml-auto hr-path">picked for you</span>
-      </div>
-      <div className="hr-card-b">
+      </CardHeader>
+      <CardContent>
         {/* Rule 2 of the agent-first test: the reason is visible. */}
         <p className="max-w-[66ch] text-[13.5px] leading-relaxed text-ink">
           {action.reason}
@@ -208,8 +209,8 @@ function ChosenCard({
             </p>
           ))}
         </div>
-      </div>
-      <div className="hr-card-f">
+      </CardContent>
+      <CardFooter>
         <Link href={action.href} className="hr-btn hr-btn-primary hr-btn-sm">
           {action.cta}
         </Link>
@@ -221,8 +222,8 @@ function ChosenCard({
             Not this — show me something else
           </Link>
         )}
-      </div>
-    </section>
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -239,7 +240,7 @@ function PracticeDaysStrip({ days, window }: { days: string[]; window: number })
   });
 
   return (
-    <section className="hr-card mt-4">
+    <Card className="mt-4">
       <div className="hr-card-b flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-1.5">
           {cells.map((c) => {
@@ -268,6 +269,6 @@ function PracticeDaysStrip({ days, window }: { days: string[]; window: number })
           </p>
         </div>
       </div>
-    </section>
+    </Card>
   );
 }

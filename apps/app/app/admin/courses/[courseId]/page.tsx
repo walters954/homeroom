@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/courses";
 import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
+import { Button, Card, Input, Textarea } from "@homeroom/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,7 @@ export default async function AdminCoursePage({
         }
       />
 
-      <section className="hr-card mb-4 p-5">
+      <Card className="mb-4 p-5">
         <h2 className="mb-4 text-[13px] font-semibold">Course settings</h2>
         <form
           action={updateCourse.bind(null, course.id)}
@@ -56,44 +57,44 @@ export default async function AdminCoursePage({
         >
           <label className="flex flex-col gap-1 font-medium">
             Title
-            <input
+            <Input
               name="title"
               defaultValue={course.title}
-              className="hr-input font-normal"
+              className="font-normal"
             />
           </label>
           <label className="flex flex-col gap-1 font-medium">
             Slug
-            <input
+            <Input
               name="slug"
               defaultValue={course.slug}
-              className="hr-input font-normal"
+              className="font-normal"
             />
           </label>
           <label className="flex flex-col gap-1 font-medium">
             Description
-            <textarea
+            <Textarea
               name="description"
               defaultValue={course.description ?? ""}
               rows={2}
-              className="hr-input font-normal"
+              className="font-normal"
             />
           </label>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 font-medium">
               SEO title
-              <input
+              <Input
                 name="seoTitle"
                 defaultValue={course.seoTitle ?? ""}
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
               SEO description
-              <input
+              <Input
                 name="seoDescription"
                 defaultValue={course.seoDescription ?? ""}
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
           </div>
@@ -105,14 +106,14 @@ export default async function AdminCoursePage({
             />
             Published
           </label>
-          <button
+          <Button
             type="submit"
-            className="hr-btn hr-btn-primary hr-btn-sm self-start"
+            size="sm"className=" self-start"
           >
             Save
-          </button>
+          </Button>
         </form>
-      </section>
+      </Card>
 
       <section className="space-y-6">
         <h2 className="text-[13px] font-semibold">Curriculum</h2>
@@ -158,15 +159,15 @@ export default async function AdminCoursePage({
               action={createLesson.bind(null, section.id, course.id)}
               className="flex gap-2"
             >
-              <input
+              <Input
                 name="title"
                 placeholder="New lesson title"
                 required
-                className="hr-input flex-1"
+                className="flex-1"
               />
-              <button className="hr-btn hr-btn-sm">
+              <Button variant="outline" size="sm"className="">
                 Add lesson
-              </button>
+              </Button>
             </form>
           </div>
         ))}
@@ -174,15 +175,15 @@ export default async function AdminCoursePage({
           action={createSection.bind(null, course.id)}
           className="flex gap-2"
         >
-          <input
+          <Input
             name="title"
             placeholder="New section title"
             required
-            className="hr-input flex-1"
+            className="flex-1"
           />
-          <button className="hr-btn hr-btn-primary hr-btn-sm">
+          <Button size="sm"className="">
             Add section
-          </button>
+          </Button>
         </form>
       </section>
     </Page>

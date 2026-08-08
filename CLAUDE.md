@@ -88,10 +88,24 @@ accent    bg-acc  text-acc  text-acc-ink  bg-acc-soft
 semantic  text-fail bg-fail-soft · text-warn bg-warn-soft
 ```
 
-Components: `.hr-card`, `.hr-card-h/b/f`, `.hr-row`, `.hr-btn` (+`.hr-btn-primary`,
-`.hr-btn-sm`), `.hr-input`, `.hr-tag-*`, `.hr-cite`, `.hr-eyebrow`, `.hr-title`,
-`.hr-sub`, `.hr-ev`, `.hr-path`, `.hr-prose`, `.hr-scroll-x`. Plus `<Page>`,
-`<PageHeader>`, `<EmptyState>` in `apps/app/components/`.
+**Components come from `@homeroom/ui`** (shadcn/ui in `packages/ui/src`):
+`Button`, `Input`, `Textarea`, `Select`, `Label`, `Card` (+`CardHeader`,
+`CardContent`, `CardFooter`, `CardRow`), `Badge`, `Table`, `Dialog`, `Sheet`,
+`DropdownMenu`, `Separator`. Reach for one of these before writing markup.
+
+The shadcn semantic tokens (`bg-card`, `text-muted-foreground`, `border-input`,
+`bg-primary`, …) are **aliases over the Homeroom tokens above**, declared in
+`globals.css`. Both names render identically, so use whichever reads better —
+but never introduce a third palette.
+
+The `hr-*` layer that remains is **typographic, not component**: `.hr-eyebrow`,
+`.hr-title`, `.hr-sub`, `.hr-ev`, `.hr-path`, `.hr-cite`, `.hr-prose`,
+`.hr-scroll-x`. shadcn has no equivalent for these and inlining them everywhere
+would be worse, so they stay. `.hr-btn` / `.hr-row` / `.hr-tag` are a shrinking
+tail — prefer `Button` / `CardRow` / `Badge` in new code.
+
+Layout stays local: `<Page>`, `<PageHeader>`, `<EmptyState>` in
+`apps/app/components/`.
 
 **Every screen has to work at 375px.** The rail is a sidebar only from `lg`;
 below that it is a top bar plus a drawer. Use `<Page>` rather than a hand-rolled

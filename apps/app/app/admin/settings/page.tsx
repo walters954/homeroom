@@ -11,6 +11,7 @@ import {
 import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
 import { listSlackChannels, slackConnected } from "@/lib/slack";
+import { Button, Card, Input, Select } from "@homeroom/ui";
 
 export const metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -42,7 +43,7 @@ export default async function AdminSettingsPage() {
         subtitle="School identity, branding, notifications and which model runs which task. Branding here re-themes the whole app."
       />
 
-      <section className="hr-card mb-4 p-5">
+      <Card className="mb-4 p-5">
         <h2 className="mb-1 text-lg font-semibold">School branding</h2>
         <p className="mb-4 text-sm text-dim">
           What your students see — in the nav, browser tabs, the tutor&apos;s
@@ -52,64 +53,64 @@ export default async function AdminSettingsPage() {
         <form action={updateBranding} className="flex flex-col gap-4 text-sm">
           <label className="flex flex-col gap-1 font-medium">
             School name
-            <input
+            <Input
               name="schoolName"
               defaultValue={branding.schoolName}
               required
               placeholder="Revenue Engineer"
-              className="hr-input font-normal"
+              className="font-normal"
             />
           </label>
           <label className="flex flex-col gap-1 font-medium">
             Tagline
-            <input
+            <Input
               name="tagline"
               defaultValue={branding.tagline}
               placeholder="Shown on the home page and as the site description"
-              className="hr-input font-normal"
+              className="font-normal"
             />
           </label>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 font-medium">
               Logo URL (optional)
-              <input
+              <Input
                 name="logoUrl"
                 defaultValue={branding.logoUrl}
                 placeholder="https://…/logo.svg"
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
               Support email
-              <input
+              <Input
                 name="supportEmail"
                 type="email"
                 defaultValue={branding.supportEmail}
                 placeholder="help@yourdomain.com"
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 font-medium">
               Surface
-              <select
+              <Select
                 name="surface"
                 defaultValue={branding.surface}
-                className="hr-input font-normal"
+                className="font-normal"
               >
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
-              </select>
+              </Select>
             </label>
             <label className="flex flex-col gap-1 font-medium">
               Accent colour
               <span className="flex items-center gap-2">
-                <input
+                <Input
                   name="accent"
                   defaultValue={branding.accent}
                   placeholder="#FF6B2B"
-                  className="hr-input flex-1 font-mono text-[12px] font-normal"
+                  className="flex-1 font-mono text-[12px] font-normal"
                 />
                 <span
                   aria-hidden
@@ -123,13 +124,13 @@ export default async function AdminSettingsPage() {
             One hex is all we take. Hover, muted, and text-on-accent are derived
             from it, so a brand change can never make something unreadable.
           </p>
-          <button className="hr-btn hr-btn-primary hr-btn-sm self-start">
+          <Button size="sm"className=" self-start">
             Save branding
-          </button>
+          </Button>
         </form>
-      </section>
+      </Card>
 
-      <section className="hr-card mb-4 p-5">
+      <Card className="mb-4 p-5">
         <h2 className="mb-1 text-lg font-semibold">AI models</h2>
         <p className="mb-4 text-sm text-dim">
           Any Vercel AI Gateway model slug works (provider/model). Simple
@@ -139,22 +140,22 @@ export default async function AdminSettingsPage() {
         <form action={updateAiModels} className="flex flex-col gap-4 text-sm">
           <label className="flex flex-col gap-1 font-medium">
             Simple tasks (tutor chat)
-            <input
+            <Input
               name="simple"
               defaultValue={models.simple}
               list="model-options"
               required
-              className="hr-input font-mono text-[12px] font-normal"
+              className="font-mono text-[12px] font-normal"
             />
           </label>
           <label className="flex flex-col gap-1 font-medium">
             Complex tasks (lesson drafts, announcements)
-            <input
+            <Input
               name="complex"
               defaultValue={models.complex}
               list="model-options"
               required
-              className="hr-input font-mono text-[12px] font-normal"
+              className="font-mono text-[12px] font-normal"
             />
           </label>
           <datalist id="model-options">
@@ -162,13 +163,13 @@ export default async function AdminSettingsPage() {
               <option key={m} value={m} />
             ))}
           </datalist>
-          <button className="hr-btn hr-btn-primary hr-btn-sm self-start">
+          <Button size="sm"className=" self-start">
             Save
-          </button>
+          </Button>
         </form>
-      </section>
+      </Card>
 
-      <section className="hr-card mt-4 p-5">
+      <Card className="mt-4 p-5">
         <h2 className="mb-1 text-lg font-semibold">Slack notifications</h2>
         <p className="mb-4 text-sm text-dim">
           {slackConnected()
@@ -182,10 +183,10 @@ export default async function AdminSettingsPage() {
           >
             <label className="flex flex-col gap-1 font-medium">
               Channel
-              <select
+              <Select
                 name="slackChannel"
                 defaultValue={notifications.slackChannel}
-                className="hr-input font-normal"
+                className="font-normal"
               >
                 <option value="">— none (notifications off) —</option>
                 {channels.map((c) => (
@@ -193,18 +194,18 @@ export default async function AdminSettingsPage() {
                     #{c.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <p className="text-xs text-dim">
               Invite the app to a private channel first, or it can only post to
               public ones. Saving sends a test message.
             </p>
-            <button className="hr-btn hr-btn-primary hr-btn-sm self-start">
+            <Button size="sm"className=" self-start">
               Save &amp; send test
-            </button>
+            </Button>
           </form>
         )}
-      </section>
+      </Card>
 
       <p className="mt-6 text-xs text-dim">
         Provider keys and spend live in the{" "}

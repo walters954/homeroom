@@ -7,6 +7,7 @@ import { Page, PageHeader } from "@/components/page-header";
 import { parseFiles } from "@/lib/exercises/runner";
 import { isAttempt, isGenuinePass, relativeDays } from "@/lib/practice";
 import { requireUser } from "@/lib/session";
+import { Badge, Card, CardContent, CardFooter, CardHeader } from "@homeroom/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -65,9 +66,9 @@ export default async function SolutionPage({
           title="Your version"
           badge={
             proven ? (
-              <span className="hr-tag hr-tag-proven">proven</span>
+              <Badge variant="proven">proven</Badge>
             ) : (
-              <span className="hr-tag hr-tag-shaky">solution revealed</span>
+              <Badge variant="shaky">solution revealed</Badge>
             )
           }
           files={yours}
@@ -81,11 +82,11 @@ export default async function SolutionPage({
         />
       </div>
 
-      <section className="hr-card mt-4">
-        <div className="hr-card-h">
+      <Card className="mt-4">
+        <CardHeader>
           <span className="font-semibold">What the difference costs you</span>
-        </div>
-        <div className="hr-card-b">
+        </CardHeader>
+        <CardContent>
           {exercise.differenceNotes ? (
             <Markdown>{exercise.differenceNotes}</Markdown>
           ) : (
@@ -95,16 +96,16 @@ export default async function SolutionPage({
               not read as the same thing.
             </p>
           )}
-        </div>
-        <div className="hr-card-f">
+        </CardContent>
+        <CardFooter>
           <Link href={`/exercises/${slug}`} className="hr-btn hr-btn-sm">
             Back to the attempt
           </Link>
           <Link href="/today" className="hr-btn hr-btn-sm">
             What&apos;s next
           </Link>
-        </div>
-      </section>
+        </CardFooter>
+      </Card>
     </Page>
   );
 }
@@ -121,11 +122,11 @@ function FileColumn({
   empty: string;
 }) {
   return (
-    <section className="hr-card">
-      <div className="hr-card-h">
+    <Card>
+      <CardHeader>
         <span className="font-semibold">{title}</span>
         <span className="ml-auto">{badge}</span>
-      </div>
+      </CardHeader>
       <div className="hr-card-b space-y-3">
         {files.length === 0 ? (
           <p className="text-[12.5px] text-dim">{empty}</p>
@@ -140,6 +141,6 @@ function FileColumn({
           ))
         )}
       </div>
-    </section>
+    </Card>
   );
 }

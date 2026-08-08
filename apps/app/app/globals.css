@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "./depth.css";
 
+/* packages/ui lives outside this app's directory and is symlinked through
+   node_modules, so Tailwind will not find its classes without being told. */
+@source "../../../packages/ui/src";
+
 /* ---------------------------------------------------------------------------
    Homeroom design tokens — see docs/DESIGN.md
    A school themes two things: a surface mode and one accent hex. Everything
@@ -30,6 +34,39 @@
   --acc-deep: color-mix(in srgb, var(--acc) 82%, #000);
 
   --radius: 0.5rem;
+
+  /* ---------------------------------------------------------------------
+     shadcn/ui semantic layer, expressed in Homeroom's tokens.
+
+     Deliberately aliases rather than a second palette: a school still themes
+     exactly two things, and `[data-surface="dark"]` below only has to override
+     the Homeroom vars — these follow, because custom properties resolve at use
+     time rather than at declaration. That is also what keeps #40 (per-user
+     dark mode) cheap: flipping the attribute at runtime moves both layers.
+
+     Note `--accent` is shadcn's *hover/muted* surface, not the brand accent.
+     The brand accent is `--primary`. Getting these the wrong way round tints
+     every hover state with the school's colour.
+     --------------------------------------------------------------------- */
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card: var(--panel);
+  --card-foreground: var(--ink);
+  --popover: var(--panel);
+  --popover-foreground: var(--ink);
+  --primary: var(--acc);
+  --primary-foreground: var(--acc-ink);
+  --secondary: var(--soft);
+  --secondary-foreground: var(--ink);
+  --muted: var(--soft);
+  --muted-foreground: var(--dim);
+  --accent: var(--soft);
+  --accent-foreground: var(--ink);
+  --destructive: var(--fail);
+  --destructive-foreground: var(--acc-ink);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--acc);
 }
 
 [data-surface="dark"] {
@@ -64,6 +101,30 @@
   --color-acc-deep: var(--acc-deep);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+
+  /* shadcn utilities: bg-background, text-muted-foreground, border-input, … */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
 body {
@@ -77,7 +138,6 @@ body {
    -------------------------------------------------------------------------- */
 @layer components {
   .hr-card { @apply rounded-[10px] border border-line bg-panel; }
-  .hr-card-h { @apply flex items-center gap-2 border-b border-line px-4 py-3 text-[12.5px]; }
   .hr-card-b { @apply p-4; }
   .hr-card-f { @apply flex items-center gap-2 border-t border-line bg-bg px-4 py-3; }
   .hr-row { @apply flex items-center gap-3 border-b border-soft px-4 py-2.5 text-[12.5px] last:border-b-0; }
@@ -88,10 +148,6 @@ body {
   .hr-btn-primary:hover { background: var(--acc-deep); }
   .hr-btn-sm { @apply px-3 py-1.5 text-[11.5px]; }
   .hr-btn:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
-
-  .hr-input { @apply w-full rounded-[7px] border border-line bg-bg px-3 py-2 text-[13px] text-ink; }
-  .hr-input:focus { outline: 2px solid var(--acc); outline-offset: -1px; }
-  .hr-input::placeholder { color: var(--dim); }
 
   /* Wide content scrolls inside itself. Without this a table forces the whole
      page sideways on a phone, which is the difference between dense and broken. */

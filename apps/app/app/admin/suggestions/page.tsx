@@ -6,6 +6,7 @@ import {
 import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
 import { EmptyState } from "@/components/empty-state";
+import { Button } from "@homeroom/ui";
 
 export const metadata = { title: "Agent suggestions" };
 export const dynamic = "force-dynamic";
@@ -77,14 +78,14 @@ export default async function SuggestionsPage() {
 
               <div className="flex gap-2">
                 <form action={approveSuggestion.bind(null, s.id)}>
-                  <button className="hr-btn hr-btn-primary hr-btn-sm">
+                  <Button size="sm"className="">
                     Approve{s.type === "ANNOUNCEMENT" ? " & send" : s.type === "NUDGE_EMAIL" ? " & send" : " & apply"}
-                  </button>
+                  </Button>
                 </form>
                 <form action={rejectSuggestion.bind(null, s.id)}>
-                  <button className="hr-btn hr-btn-sm">
+                  <Button variant="outline" size="sm"className="">
                     Reject
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>

@@ -12,6 +12,18 @@ import {
 import { parseTestResults } from "@/lib/exercises/runner";
 import { requireUser } from "@/lib/session";
 import { EmptyState } from "@/components/empty-state";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@homeroom/ui";
 
 export const metadata = { title: "Capability" };
 export const dynamic = "force-dynamic";
@@ -81,13 +93,13 @@ export default async function CapabilityPage() {
         subtitle={`Assessed from attempts, not from lessons watched. ${proven} of ${skills.length} skills read as proven right now — every line below shows the evidence it was drawn from.`}
       />
 
-      <section className="hr-card">
-        <div className="hr-card-h">
+      <Card>
+        <CardHeader>
           <span className="font-semibold">Skills</span>
           <span className="ml-auto hr-path">{skills.length}</span>
-        </div>
+        </CardHeader>
         {skills.length === 0 ? (
-          <div className="hr-card-b">
+          <CardContent>
             <EmptyState
               glyph="▤"
               title="Nothing to assess yet"
@@ -95,7 +107,7 @@ export default async function CapabilityPage() {
               actionLabel="Browse courses"
               actionHref="/courses"
             />
-          </div>
+          </CardContent>
         ) : (
           <ul>
             {skills.map((skill) => {
@@ -139,62 +151,60 @@ export default async function CapabilityPage() {
             })}
           </ul>
         )}
-      </section>
+      </Card>
 
-      <section className="hr-card mt-4">
-        <div className="hr-card-h">
+      <Card className="mt-4">
+        <CardHeader>
           <span className="font-semibold">Error patterns</span>
           <span className="ml-auto hr-path">{repeated.length}</span>
-        </div>
+        </CardHeader>
         {repeated.length === 0 ? (
-          <div className="hr-card-b">
+          <CardContent>
             <p className="text-[12.5px] text-dim">
               Nothing has failed twice yet. A pattern only appears here once the
               same named test has failed more than once — a single miss is not a
               pattern, and calling it one would be a guess.
             </p>
-          </div>
+          </CardContent>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left text-[12.5px]">
-              <thead>
-                <tr className="border-b border-line">
-                  <th className="px-4 py-2 font-medium text-dim">Failing check</th>
-                  <th className="px-4 py-2 font-medium text-dim">Skill</th>
-                  <th className="px-4 py-2 text-right font-medium text-dim">
+          <Table>
+              <TableHeader>
+                <TableRow className="border-b border-border">
+                  <TableHead>Failing check</TableHead>
+                  <TableHead>Skill</TableHead>
+                  <TableHead className="text-right">
                     Failures
-                  </th>
-                  <th className="px-4 py-2 font-medium text-dim">Last seen</th>
-                </tr>
-              </thead>
-              <tbody>
+                  </TableHead>
+                  <TableHead>Last seen</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {repeated.map((p) => (
-                  <tr key={`${p.skill}-${p.name}`} className="border-b border-soft last:border-b-0">
-                    <td className="px-4 py-2">
+                  <TableRow key={`${p.skill}-${p.name}`}>
+                    <TableCell>
                       <span className="block font-mono text-[12px] text-ink">
                         {p.name}
                       </span>
                       <span className="hr-ev block">
                         across {plural(p.exercises.size, "exercise")}
                       </span>
-                    </td>
-                    <td className="px-4 py-2 text-ink">{p.skill}</td>
-                    <td className="px-4 py-2 text-right font-mono tabular-nums text-fail">
+                    </TableCell>
+                    <TableCell className="text-ink">{p.skill}</TableCell>
+                    <TableCell className="text-right font-mono tabular-nums text-fail">
                       {p.failures}
-                    </td>
-                    <td className="px-4 py-2 text-dim">{relativeDays(p.last)}</td>
-                  </tr>
+                    </TableCell>
+                    <TableCell className="text-dim">{relativeDays(p.last)}</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
         )}
-        <div className="hr-card-f">
+        <CardFooter>
           <Link href="/today" className="hr-btn hr-btn-sm">
             Work on the weakest one
           </Link>
-        </div>
-      </section>
+        </CardFooter>
+      </Card>
     </Page>
   );
 }

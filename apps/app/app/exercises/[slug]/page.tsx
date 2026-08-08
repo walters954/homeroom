@@ -27,6 +27,7 @@ import {
   relativeDays,
 } from "@/lib/practice";
 import { requireUser } from "@/lib/session";
+import { Card, CardContent, CardFooter, CardHeader } from "@homeroom/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -136,15 +137,15 @@ export default async function ExercisePage({
         )}
       </div>
 
-      <section className="hr-card mt-5">
-        <div className="hr-card-h">
+      <Card className="mt-5">
+        <CardHeader>
           <span className="font-semibold">What to build</span>
           <span className="ml-auto hr-path">{exercise.language.toLowerCase()}</span>
-        </div>
-        <div className="hr-card-b">
+        </CardHeader>
+        <CardContent>
           <Markdown>{exercise.prompt}</Markdown>
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       <ExerciseEditor
         files={files}
@@ -161,15 +162,15 @@ export default async function ExercisePage({
         }
       />
 
-      <section className="hr-card mt-4">
-        <div className="hr-card-h">
+      <Card className="mt-4">
+        <CardHeader>
           <span className="font-semibold">Tests</span>
           <span className="ml-auto hr-path">
             {lastRun
               ? `last run ${relativeDays(lastRun.createdAt)}`
               : `${plural(spec.length, "test")} specified`}
           </span>
-        </div>
+        </CardHeader>
         {results.length > 0 ? (
           <ul>
             {results.map((r) => (
@@ -216,21 +217,21 @@ export default async function ExercisePage({
             ))}
           </ul>
         )}
-        <div className="hr-card-f">
+        <CardFooter>
           <p className="hr-ev">
             {planFor(exercise.language)
               ? "Your files run against these tests in an isolated sandbox with no network access. A failing run is a failing run, and nothing here fakes a pass."
               : `${unsupportedMessage(exercise.language)} Attempts are still recorded, and nothing here fakes a pass.`}
           </p>
-        </div>
-      </section>
+        </CardFooter>
+      </Card>
 
       {solutionRevealed && solutionFiles.length > 0 && (
-        <section className="hr-card mt-4">
-          <div className="hr-card-h">
+        <Card className="mt-4">
+          <CardHeader>
             <span className="font-semibold">Reference solution</span>
             <span className="ml-auto hr-tag hr-tag-fail">not proven</span>
-          </div>
+          </CardHeader>
           <div className="hr-card-b space-y-3">
             <p className="text-[12.5px] text-dim">
               You opened this, so this skill will not read as proven from this
@@ -245,7 +246,7 @@ export default async function ExercisePage({
               </div>
             ))}
           </div>
-        </section>
+        </Card>
       )}
 
       {proven && (

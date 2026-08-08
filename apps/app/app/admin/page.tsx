@@ -4,6 +4,15 @@ import { Page, PageHeader } from "@/components/page-header";
 import { createCourse } from "@/lib/actions/courses";
 import { plural } from "@/lib/practice";
 import { requireAdmin } from "@/lib/session";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  Input,
+  Textarea,
+} from "@homeroom/ui";
 
 export const metadata = { title: "Admin" };
 export const dynamic = "force-dynamic";
@@ -29,17 +38,17 @@ export default async function AdminPage() {
         }
       />
 
-      <section className="hr-card">
-        <div className="hr-card-h">
+      <Card>
+        <CardHeader>
           <span className="font-semibold">All courses</span>
           <span className="ml-auto hr-path">{courses.length}</span>
-        </div>
+        </CardHeader>
         {courses.length === 0 ? (
-          <div className="hr-card-b">
+          <CardContent>
             <p className="text-[12.5px] text-dim">
               Create one below and it will appear here with its lesson count.
             </p>
-          </div>
+          </CardContent>
         ) : (
           <ul>
             {courses.map((course) => {
@@ -73,43 +82,43 @@ export default async function AdminPage() {
             })}
           </ul>
         )}
-      </section>
+      </Card>
 
-      <section className="hr-card mt-4">
-        <div className="hr-card-h">
+      <Card className="mt-4">
+        <CardHeader>
           <span className="font-semibold">New course</span>
-        </div>
+        </CardHeader>
         <form action={createCourse}>
           <div className="hr-card-b space-y-3">
             <label className="block">
               <span className="hr-eyebrow mb-1 block">Title</span>
-              <input
+              <Input
                 name="title"
                 placeholder="Apex That Survives Production"
                 required
-                className="hr-input"
+                
               />
             </label>
             <label className="block">
               <span className="hr-eyebrow mb-1 block">Description</span>
-              <textarea
+              <Textarea
                 name="description"
                 placeholder="What someone can do after finishing it — optional."
                 rows={2}
-                className="hr-input"
+                
               />
             </label>
           </div>
-          <div className="hr-card-f">
-            <button type="submit" className="hr-btn hr-btn-primary hr-btn-sm">
+          <CardFooter>
+            <Button type="submit" size="sm"className="">
               Create course
-            </button>
+            </Button>
             <span className="hr-ev">
               Created as a draft. Nothing is member-visible until you publish it.
             </span>
-          </div>
+          </CardFooter>
         </form>
-      </section>
+      </Card>
     </Page>
   );
 }
