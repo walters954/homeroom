@@ -512,8 +512,13 @@ model Exercise {
   solutionFiles   Json?
   /// ["nudge", "mechanism", "full solution"] — the last rung costs the proven mark
   hints           Json
-  /// [{ name, description }] — execution comes later (GitHub issue #7)
+  /// [{ name, description }] — the contract shown to the learner. A spec row
+  /// nothing reported on counts as failed, so this decides the result shape.
   testSpec        Json
+  /// [{ path, contents }] — the executable tests, never shown to the learner.
+  /// Each default-exports [{ name, run }]; `run` throws to fail. Names must
+  /// match `testSpec` for a run to reconcile against the contract.
+  testFiles       Json?
   /// What the gap between their pass and the reference version costs them
   differenceNotes String?
   /// Timecode in the paired lesson that explains this, e.g. 705 (seconds)

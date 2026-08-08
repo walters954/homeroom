@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "node --test lib/exercises/",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "@homeroom/env": "workspace:*",
     "@homeroom/ui": "workspace:*",
     "@vercel/connect": "^0.6.1",
+    "@vercel/sandbox": "^3.0.0",
     "better-auth": "^1.2.0",
     "eve": "^0.31.3",
     "next": "^16.3.0",

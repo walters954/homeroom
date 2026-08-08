@@ -17,7 +17,11 @@
     "OPENAI_API_KEY",
     "TUTOR_MODEL",
     "EMAIL_FROM",
-    "CRON_SECRET"
+    "CRON_SECRET",
+    "VERCEL_OIDC_TOKEN",
+    "VERCEL_TOKEN",
+    "VERCEL_TEAM_ID",
+    "VERCEL_PROJECT_ID"
   ],
   "tasks": {
     "build": {
@@ -26,6 +30,10 @@
     },
     "typecheck": {
       "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "cache": false
     },
     "dev": {
       "cache": false,
