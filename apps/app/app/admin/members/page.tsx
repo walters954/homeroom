@@ -5,6 +5,7 @@ import { Page, PageHeader } from "@/components/page-header";
 import { inviteMember } from "@/lib/actions/members";
 import { plural, relativeDays } from "@/lib/practice";
 import { requireAdmin } from "@/lib/session";
+import { Badge, Button, Card, CardHeader, Input } from "@homeroom/ui";
 
 export const metadata = { title: "Members" };
 export const dynamic = "force-dynamic";
@@ -65,28 +66,28 @@ export default async function MembersPage({
         }
         actions={
           <form action={inviteMember} className="flex gap-2">
-            <input
+            <Input
               name="email"
               type="email"
               required
               placeholder="Invite by email…"
-              className="hr-input w-[190px]"
+              className="w-[190px]"
             />
-            <button className="hr-btn hr-btn-primary hr-btn-sm shrink-0">
+            <Button size="sm"className=" shrink-0">
               Invite
-            </button>
+            </Button>
           </form>
         }
       />
 
       <form className="mb-4 flex gap-2">
-        <input
+        <Input
           name="q"
           defaultValue={q ?? ""}
           placeholder="Search name or email…"
-          className="hr-input max-w-xs"
+          className="max-w-xs"
         />
-        <button className="hr-btn hr-btn-sm shrink-0">Search</button>
+        <Button variant="outline" size="sm"className=" shrink-0">Search</Button>
       </form>
 
       {members.length === 0 ? (
@@ -99,13 +100,13 @@ export default async function MembersPage({
           }
         />
       ) : (
-        <section className="hr-card">
-          <div className="hr-card-h">
+        <Card>
+          <CardHeader>
             <span className="font-semibold">
               {q ? "Matches" : "Everyone"}
             </span>
             <span className="ml-auto hr-path">{plural(members.length, "member")}</span>
-          </div>
+          </CardHeader>
           <ul>
             {members.map((m) => {
               const active = m.subscriptions.find((s) =>
@@ -121,10 +122,10 @@ export default async function MembersPage({
                     >
                       {m.name}
                       {m.role === "ADMIN" && (
-                        <span className="hr-tag hr-tag-proven">admin</span>
+                        <Badge variant="proven">admin</Badge>
                       )}
                       {!m.emailVerified && (
-                        <span className="hr-tag hr-tag-shaky">unverified</span>
+                        <Badge variant="shaky">unverified</Badge>
                       )}
                     </Link>
                     <span className="hr-ev block truncate">
@@ -143,7 +144,7 @@ export default async function MembersPage({
               );
             })}
           </ul>
-        </section>
+        </Card>
       )}
     </Page>
   );

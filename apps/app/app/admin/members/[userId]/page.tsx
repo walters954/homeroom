@@ -9,6 +9,7 @@ import {
 import { isComped } from "@/lib/comp";
 import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
+import { Button, Card, Select } from "@homeroom/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +68,7 @@ export default async function MemberDetailPage({
         }`}
       />
 
-      <section className="hr-card mb-4 p-5">
+      <Card className="mb-4 p-5">
         <h2 className="mb-4 text-[13px] font-semibold">Access</h2>
         {member.subscriptions.length === 0 && (
           <p className="mb-4 text-sm text-dim">No subscriptions.</p>
@@ -105,20 +106,20 @@ export default async function MemberDetailPage({
           >
             <label className="flex flex-1 flex-col gap-1 text-sm font-medium">
               Grant access (no charge)
-              <select
+              <Select
                 name="productId"
-                className="hr-input font-normal"
+                className="font-normal"
               >
                 {grantable.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
-            <button className="hr-btn hr-btn-primary hr-btn-sm">
+            <Button size="sm"className="">
               Grant
-            </button>
+            </Button>
           </form>
         )}
         <p className="mt-3 text-xs text-dim">
@@ -126,9 +127,9 @@ export default async function MemberDetailPage({
           and comps. Revoking a real Stripe subscription marks it canceled here;
           cancel the billing in Stripe too.
         </p>
-      </section>
+      </Card>
 
-      <section className="hr-card mb-4 p-5">
+      <Card className="mb-4 p-5">
         <h2 className="mb-4 text-[13px] font-semibold">Account</h2>
         <div className="flex flex-wrap items-end gap-3">
           <form
@@ -137,26 +138,26 @@ export default async function MemberDetailPage({
           >
             <label className="flex flex-col gap-1 text-sm font-medium">
               Role
-              <select
+              <Select
                 name="role"
                 defaultValue={member.role}
-                className="hr-input font-normal"
+                className="font-normal"
               >
                 <option value="MEMBER">Member</option>
                 <option value="ADMIN">Admin</option>
-              </select>
+              </Select>
             </label>
-            <button className="hr-btn hr-btn-sm">
+            <Button variant="outline" size="sm"className="">
               Save role
-            </button>
+            </Button>
           </form>
           <form action={sendSignInLink.bind(null, member.id)}>
-            <button className="hr-btn hr-btn-sm">
+            <Button variant="outline" size="sm"className="">
               Email sign-in link
-            </button>
+            </Button>
           </form>
         </div>
-      </section>
+      </Card>
 
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-dim">

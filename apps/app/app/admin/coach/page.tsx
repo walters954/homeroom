@@ -3,6 +3,19 @@ import { db } from "@homeroom/db";
 import { Page, PageHeader } from "@/components/page-header";
 import { isAttempt, plural, relativeDays } from "@/lib/practice";
 import { requireAdmin } from "@/lib/session";
+import {
+  Badge,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@homeroom/ui";
 
 export const metadata = { title: "Coach" };
 export const dynamic = "force-dynamic";
@@ -160,40 +173,36 @@ export default async function CoachPage() {
         </div>
       )}
 
-      <section className="hr-card mt-4">
-        <div className="hr-card-h">
+      <Card className="mt-4">
+        <CardHeader>
           <span className="font-semibold">Exercises</span>
           <span className="ml-auto hr-path">{exercises.length}</span>
-        </div>
+        </CardHeader>
         {exercises.length === 0 ? (
-          <div className="hr-card-b">
+          <CardContent>
             <p className="text-[12.5px] text-dim">
               No exercises exist yet. Every concept video should be paired with
               one — that pairing is what turns watching into proving.
             </p>
-          </div>
+          </CardContent>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left text-[12.5px]">
-              <thead>
-                <tr className="border-b border-line">
-                  <th className="px-4 py-2 font-medium text-dim">Exercise</th>
-                  <th className="px-4 py-2 text-right font-medium text-dim">
+          <Table>
+              <TableHeader>
+                <TableRow className="border-b border-border">
+                  <TableHead>Exercise</TableHead>
+                  <TableHead className="text-right">
                     1st-attempt
-                  </th>
-                  <th className="px-4 py-2 text-right font-medium text-dim">
+                  </TableHead>
+                  <TableHead className="text-right">
                     Avg attempts
-                  </th>
-                  <th className="px-4 py-2 font-medium text-dim">Signal</th>
-                </tr>
-              </thead>
-              <tbody>
+                  </TableHead>
+                  <TableHead>Signal</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {rows.map((r) => (
-                  <tr
-                    key={r.exercise.id}
-                    className="border-b border-soft last:border-b-0"
-                  >
-                    <td className="px-4 py-2">
+                  <TableRow key={r.exercise.id}>
+                    <TableCell>
                       <Link
                         href={`/exercises/${r.exercise.slug}`}
                         className="block text-ink hover:underline"
@@ -205,41 +214,40 @@ export default async function CoachPage() {
                         {r.exercise.published ? "published" : "draft"} ·{" "}
                         {plural(r.learners, "learner")}
                       </span>
-                    </td>
-                    <td className="px-4 py-2 text-right font-mono tabular-nums text-ink">
+                    </TableCell>
+                    <TableCell className="text-right font-mono tabular-nums text-ink">
                       {r.firstAttemptRate === null
                         ? "—"
                         : `${Math.round(r.firstAttemptRate * 100)}%`}
-                    </td>
-                    <td className="px-4 py-2 text-right font-mono tabular-nums text-ink">
+                    </TableCell>
+                    <TableCell className="text-right font-mono tabular-nums text-ink">
                       {r.learners === 0 ? "—" : r.avgAttempts.toFixed(1)}
-                    </td>
-                    <td className="px-4 py-2">
+                    </TableCell>
+                    <TableCell>
                       <span className={r.signal.tag}>{r.signal.label}</span>
                       <span className="hr-ev block max-w-[34ch]">
                         {r.signal.note}
                       </span>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
         )}
-      </section>
+      </Card>
 
-      <section className="hr-card mt-4">
-        <div className="hr-card-h">
+      <Card className="mt-4">
+        <CardHeader>
           <span className="font-semibold">Struggling quietly</span>
           <span className="ml-auto hr-tag hr-tag-fail">{quiet.length}</span>
-        </div>
-        <div className="hr-card-b">
+        </CardHeader>
+        <CardContent>
           <p className="text-[12.5px] text-dim">
             Three or more failed attempts on one exercise, never passed, and no
             tutor conversation on record. These are the people who drop without
             ever asking.
           </p>
-        </div>
+        </CardContent>
         {quiet.length === 0 ? (
           <div className="hr-card-b border-t border-soft">
             <p className="text-[12.5px] text-dim">
@@ -263,20 +271,20 @@ export default async function CoachPage() {
                     {q.exercise} · last {relativeDays(q.last)}
                   </span>
                 </span>
-                <span className="hr-tag hr-tag-fail shrink-0">no tutor use</span>
+                <Badge variant="fail" className="shrink-0">no tutor use</Badge>
               </li>
             ))}
           </ul>
         )}
-        <div className="hr-card-f">
+        <CardFooter>
           <Link href="/admin/suggestions" className="hr-btn hr-btn-sm">
             Agent queue
           </Link>
           <span className="hr-ev">
             Nothing here is sent to anyone. Reaching out is your call.
           </span>
-        </div>
-      </section>
+        </CardFooter>
+      </Card>
     </Page>
   );
 }

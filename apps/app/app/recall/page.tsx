@@ -10,6 +10,7 @@ import {
   relativeDays,
 } from "@/lib/practice";
 import { requireUser } from "@/lib/session";
+import { Card, CardContent, CardFooter, CardHeader } from "@homeroom/ui";
 
 export const metadata = { title: "Recall" };
 export const dynamic = "force-dynamic";
@@ -97,16 +98,16 @@ export default async function RecallPage({
         </p>
       </div>
 
-      <section className="hr-card">
-        <div className="hr-card-h">
+      <Card>
+        <CardHeader>
           <span className="font-semibold">{item.skill.name}</span>
           <span className="ml-auto hr-tag hr-tag-shaky">due</span>
-        </div>
-        <div className="hr-card-b">
+        </CardHeader>
+        <CardContent>
           <p className="max-w-[66ch] text-[13.5px] leading-relaxed text-ink">
             {question.prompt}
           </p>
-        </div>
+        </CardContent>
         <form action={answerRecall.bind(null, question.id)}>
           <ul>
             {opts.map((opt, i) => (
@@ -126,13 +127,13 @@ export default async function RecallPage({
             ))}
           </ul>
         </form>
-        <div className="hr-card-f">
+        <CardFooter>
           <p className="hr-ev">
             Answering wrong is not a penalty — it re-tightens the schedule so you
             see this again in two days.
           </p>
-        </div>
-      </section>
+        </CardFooter>
+      </Card>
     </Page>
   );
 }
@@ -182,10 +183,10 @@ async function Outcome({
         }
       />
 
-      <section className="hr-card">
-        <div className="hr-card-h">
+      <Card>
+        <CardHeader>
           <span className="font-semibold">{question.prompt}</span>
-        </div>
+        </CardHeader>
         <ul>
           {opts.map((opt, i) => {
             const isAnswer = i === question.correctIndex;
@@ -220,7 +221,7 @@ async function Outcome({
             );
           })}
         </ul>
-        <div className="hr-card-f">
+        <CardFooter>
           <Link href="/recall" className="hr-btn hr-btn-primary hr-btn-sm">
             Next check
           </Link>
@@ -233,8 +234,8 @@ async function Outcome({
               {relativeDays(item.dueAt)}
             </span>
           )}
-        </div>
-      </section>
+        </CardFooter>
+      </Card>
     </Page>
   );
 }

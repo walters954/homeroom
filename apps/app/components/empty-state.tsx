@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button, Card } from "@homeroom/ui";
 
 /**
  * An empty state is a decision point, not a dead end — it says what's missing,
@@ -21,21 +22,23 @@ export function EmptyState({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="hr-card flex flex-col items-center gap-3 px-6 py-12 text-center">
+    <Card className="flex flex-col items-center gap-3 px-6 py-12 text-center">
       <span
         aria-hidden
-        className="grid h-10 w-10 place-items-center rounded-full bg-soft text-[16px] text-dim"
+        className="grid h-10 w-10 place-items-center rounded-full bg-muted text-[16px] text-muted-foreground"
       >
         {glyph}
       </span>
-      <h2 className="text-[15px] font-semibold text-ink">{title}</h2>
-      <p className="max-w-[46ch] text-[13px] leading-relaxed text-dim">{body}</p>
+      <h2 className="text-[15px] font-semibold text-foreground">{title}</h2>
+      <p className="max-w-[46ch] text-[13px] leading-relaxed text-muted-foreground">
+        {body}
+      </p>
       {actionLabel && actionHref && (
-        <Link href={actionHref} className="hr-btn hr-btn-primary mt-1">
-          {actionLabel}
-        </Link>
+        <Button asChild className="mt-1">
+          <Link href={actionHref}>{actionLabel}</Link>
+        </Button>
       )}
       {children}
-    </div>
+    </Card>
   );
 }

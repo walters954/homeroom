@@ -3,6 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  Badge,
+  Button,
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@homeroom/ui";
+import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
 
 export interface RailItem {
   href: string;
@@ -62,7 +71,9 @@ function RailLink({
             {item.label}
           </span>
           {item.badge ? (
-            <span className="hr-tag hr-tag-shaky ml-auto shrink-0">{item.badge}</span>
+            <Badge variant="shaky" className="ml-auto shrink-0">
+              {item.badge}
+            </Badge>
           ) : null}
         </span>
         <span className="mt-0.5 block text-[11px] leading-snug text-dim">
@@ -124,21 +135,6 @@ export function Rail({
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    // Stop the page scrolling underneath the drawer.
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previous;
-    };
-  }, [menuOpen]);
 
   function toggle() {
     setExpanded((v) => {
@@ -205,77 +201,64 @@ export function Rail({
           className={`mt-3 flex ${expanded ? "items-center gap-2" : "flex-col items-center gap-2"}`}
         >
           {footer}
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={toggle}
             aria-expanded={expanded}
             aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
             title={expanded ? "Collapse sidebar" : "Expand sidebar"}
-            className={`grid h-[31px] w-[31px] shrink-0 place-items-center rounded-[7px] text-[13px] text-dim hover:bg-soft ${
-              expanded ? "ml-auto" : ""
-            }`}
+            className={expanded ? "ml-auto" : ""}
           >
-            {expanded ? "«" : "»"}
-          </button>
+            {expanded ? (
+              <ChevronLeft className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </nav>
 
       {/* Mobile: a bar that stays out of the way, and the same navigation
           behind it. The badge count surfaces on the button so a member sees
           there is something waiting without opening anything. */}
-      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-line bg-panel px-4 py-2.5 lg:hidden">
-        {brand}
-        <button
-          type="button"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Open navigation"
-          aria-expanded={menuOpen}
-          className="relative ml-auto grid h-[34px] w-[34px] shrink-0 place-items-center rounded-[7px] text-[15px] text-dim hover:bg-soft"
-        >
-          <span aria-hidden>☰</span>
-          {pending > 0 && (
-            <span
-              aria-hidden
-              className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-warn"
-            />
-          )}
-        </button>
-      </header>
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 lg:hidden">
+          {brand}
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Open navigation"
+              className="relative ml-auto h-[34px] w-[34px]"
+            >
+              <Menu className="h-4 w-4" />
+              {pending > 0 && (
+                <span
+                  aria-hidden
+                  className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-warn"
+                />
+              )}
+            </Button>
+          </SheetTrigger>
+        </header>
 
-      {menuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            aria-label="Close navigation"
-            onClick={() => setMenuOpen(false)}
-            className="absolute inset-0 bg-ink/40"
-          />
-          <nav
-            aria-label="Main"
-            className="absolute inset-y-0 left-0 flex w-[280px] max-w-[85vw] flex-col gap-4 overflow-y-auto border-r border-line bg-panel p-3"
-          >
-            <div className="flex items-center gap-2 px-1">
-              {brand}
-              <button
-                type="button"
-                onClick={() => setMenuOpen(false)}
-                aria-label="Close navigation"
-                className="ml-auto grid h-[31px] w-[31px] shrink-0 place-items-center rounded-[7px] text-[13px] text-dim hover:bg-soft"
-              >
-                ✕
-              </button>
-            </div>
+        <SheetContent side="left" className="lg:hidden">
+          <div className="flex items-center gap-2 px-1">
+            {brand}
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
+          </div>
 
-            <div className="flex flex-1 flex-col gap-4">
-              <RailGroups groups={groups} onNavigate={() => setMenuOpen(false)} />
-            </div>
+          <div className="flex flex-1 flex-col gap-4">
+            <RailGroups groups={groups} onNavigate={() => setMenuOpen(false)} />
+          </div>
 
-            <div className="flex items-center gap-2 border-t border-line pt-3">
-              {footer}
-            </div>
-          </nav>
-        </div>
-      )}
+          <div className="flex items-center gap-2 border-t border-border pt-3">
+            {footer}
+          </div>
+        </SheetContent>
+      </Sheet>
+
     </>
   );
 }

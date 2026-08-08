@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
 import { stripeConfigured } from "@/lib/stripe";
+import { Button, Card, Input } from "@homeroom/ui";
 
 export const metadata = { title: "Products — Admin" };
 export const dynamic = "force-dynamic";
@@ -105,43 +106,43 @@ export default async function AdminProductsPage() {
         )}
       </section>
 
-      <section className="hr-card mb-4 p-5">
+      <Card className="mb-4 p-5">
         <h2 className="mb-4 text-[13px] font-semibold">New product</h2>
         <form action={createProduct} className="flex flex-col gap-3 text-sm">
-          <input
+          <Input
             name="name"
             placeholder="e.g. Revenue Engineer Membership"
             required
-            className="hr-input"
+            
           />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 font-medium">
               Monthly price (USD)
-              <input
+              <Input
                 name="price"
                 type="number"
                 step="0.01"
                 min="1"
                 required
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
               Trial days (0 = none)
-              <input
+              <Input
                 name="trialDays"
                 type="number"
                 defaultValue={0}
                 min={0}
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
           </div>
-          <button className="hr-btn hr-btn-primary hr-btn-sm self-start">
+          <Button size="sm"className=" self-start">
             Create product{stripeConfigured() ? " in Stripe" : ""}
-          </button>
+          </Button>
         </form>
-      </section>
+      </Card>
     </Page>
   );
 }

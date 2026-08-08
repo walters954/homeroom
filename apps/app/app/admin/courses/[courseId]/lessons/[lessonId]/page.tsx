@@ -11,6 +11,7 @@ import { deleteLesson, updateLesson } from "@/lib/actions/courses";
 import { saveManualTranscript } from "@/lib/actions/transcripts";
 import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
+import { Button, Card, Input, Select, Textarea } from "@homeroom/ui";
 
 export const dynamic = "force-dynamic";
 // Model calls + fan-out can run long; Pro allows well past the default.
@@ -59,7 +60,7 @@ export default async function AdminLessonPage({
         </div>
       )}
 
-      <section className="hr-card mb-4 p-5">
+      <Card className="mb-4 p-5">
         <h2 className="mb-4 text-[13px] font-semibold">Lesson</h2>
         <form
           action={updateLesson.bind(null, lesson.id, courseId)}
@@ -68,78 +69,78 @@ export default async function AdminLessonPage({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 font-medium">
               Title
-              <input
+              <Input
                 name="title"
                 defaultValue={lesson.title}
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
               Slug
-              <input
+              <Input
                 name="slug"
                 defaultValue={lesson.slug}
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <label className="flex flex-col gap-1 font-medium">
               Video provider
-              <select
+              <Select
                 name="videoProvider"
                 defaultValue={lesson.videoProvider}
-                className="hr-input font-normal"
+                className="font-normal"
               >
                 <option value="NONE">None</option>
                 <option value="VIMEO">Vimeo</option>
                 <option value="YOUTUBE">YouTube</option>
                 <option value="MUX">Mux</option>
-              </select>
+              </Select>
             </label>
             <label className="flex flex-col gap-1 font-medium">
               Video ID
-              <input
+              <Input
                 name="videoId"
                 defaultValue={lesson.videoId ?? ""}
                 placeholder="e.g. 987654321"
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
               Duration (sec)
-              <input
+              <Input
                 name="durationSeconds"
                 type="number"
                 defaultValue={lesson.durationSeconds ?? ""}
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
           </div>
           <label className="flex flex-col gap-1 font-medium">
             Body (markdown)
-            <textarea
+            <Textarea
               name="body"
               defaultValue={body}
               rows={10}
-              className="hr-input font-mono text-[12px] font-normal"
+              className="font-mono text-[12px] font-normal"
             />
           </label>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 font-medium">
               SEO title
-              <input
+              <Input
                 name="seoTitle"
                 defaultValue={lesson.seoTitle ?? ""}
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
             <label className="flex flex-col gap-1 font-medium">
               SEO description
-              <input
+              <Input
                 name="seoDescription"
                 defaultValue={lesson.seoDescription ?? ""}
-                className="hr-input font-normal"
+                className="font-normal"
               />
             </label>
           </div>
@@ -161,16 +162,16 @@ export default async function AdminLessonPage({
               Free public preview
             </label>
           </div>
-          <button
+          <Button
             type="submit"
-            className="hr-btn hr-btn-primary hr-btn-sm self-start"
+            size="sm"className=" self-start"
           >
             Save lesson
-          </button>
+          </Button>
         </form>
-      </section>
+      </Card>
 
-      <section className="hr-card mb-4 p-5">
+      <Card className="mb-4 p-5">
         <h2 className="mb-1 text-lg font-semibold">Transcript</h2>
         <p className="mb-4 text-sm text-dim">
           The transcript is the agent&apos;s grounding corpus for this lesson —
@@ -210,19 +211,19 @@ export default async function AdminLessonPage({
               className="mt-1 block w-full text-xs text-dim file:mr-3 file:rounded-md file:border file:border-line file:bg-panel file:px-3 file:py-1.5 file:text-xs file:hover:bg-soft"
             />
           </label>
-          <textarea
+          <Textarea
             name="transcript"
             rows={5}
             placeholder="…or paste a transcript here (plain text, WebVTT, or SRT)"
-            className="hr-input font-mono text-[12px] font-normal"
+            className="font-mono text-[12px] font-normal"
           />
-          <button className="hr-btn hr-btn-sm self-start">
+          <Button variant="outline" size="sm"className=" self-start">
             Save transcript
-          </button>
+          </Button>
         </form>
-      </section>
+      </Card>
 
-      <section className="hr-card mb-4 p-5">
+      <Card className="mb-4 p-5">
         <h2 className="mb-1 text-lg font-semibold">Agent</h2>
         <p className="mb-4 text-sm text-dim">
           Drafts land in the{" "}
@@ -233,20 +234,20 @@ export default async function AdminLessonPage({
         </p>
         <div className="flex gap-2">
           <form action={draftLessonFromTranscript.bind(null, lesson.id, courseId)}>
-            <button
+            <Button
               disabled={!lesson.transcript}
-              className="hr-btn hr-btn-sm disabled:opacity-40"
+              variant="outline" size="sm"className=" disabled:opacity-40"
             >
               ✍️ Draft lesson from transcript
-            </button>
+            </Button>
           </form>
           <form action={draftAnnouncement.bind(null, lesson.id, courseId)}>
-            <button className="hr-btn hr-btn-sm">
+            <Button variant="outline" size="sm"className="">
               📣 Draft announcement email
-            </button>
+            </Button>
           </form>
         </div>
-      </section>
+      </Card>
 
       <form action={deleteLesson.bind(null, lesson.id, courseId)}>
         <button className="text-sm text-fail hover:underline">

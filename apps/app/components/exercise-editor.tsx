@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ExerciseFile } from "@/lib/exercises/runner";
+import { Card, CardHeader } from "@homeroom/ui";
 
 type BoundAction = (formData: FormData) => void | Promise<void>;
 
@@ -44,7 +45,7 @@ export function ExerciseEditor({
   return (
     // Running is the default submit; the other buttons override with formAction.
     <form action={runAction} className="mt-4 space-y-4">
-      <div className="hr-card overflow-hidden">
+      <Card className="overflow-hidden">
         {/* Paths are long and phones are narrow: scroll the strip, don't wrap it. */}
         <div className="flex items-center gap-1 overflow-x-auto border-b border-line bg-bg px-2 py-1.5">
           {files.map((f) => (
@@ -101,16 +102,16 @@ export function ExerciseEditor({
               : "Nothing is recorded until you run."}
           </span>
         </div>
-      </div>
+      </Card>
 
       {hints.length > 0 && (
-        <section className="hr-card">
-          <div className="hr-card-h">
+        <Card>
+          <CardHeader>
             <span className="font-semibold">Hints</span>
             <span className="ml-auto hr-path">
               {Math.min(hintsUsed, hints.length)}/{hints.length} opened
             </span>
-          </div>
+          </CardHeader>
           <ol>
             {hints.map((hint, i) => {
               const opened = i < hintsUsed;
@@ -162,7 +163,7 @@ export function ExerciseEditor({
               </span>
             )}
           </div>
-        </section>
+        </Card>
       )}
     </form>
   );
