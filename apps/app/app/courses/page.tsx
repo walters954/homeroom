@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@homeroom/db";
 import { EmptyState } from "@/components/empty-state";
 import { getCurrentUser } from "@/lib/session";
+import { Page } from "@/components/page-header";
 
 export const metadata = { title: "Courses" };
 export const dynamic = "force-dynamic";
@@ -35,7 +36,7 @@ export default async function CoursesPage() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <Page>
       <h1 className="mb-8 text-3xl font-bold tracking-tight">Courses</h1>
       {courses.length === 0 &&
         (user?.role === "ADMIN" ? (
@@ -87,6 +88,6 @@ export default async function CoursesPage() {
           );
         })}
       </div>
-    </main>
+    </Page>
   );
 }

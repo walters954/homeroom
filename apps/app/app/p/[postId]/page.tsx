@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@homeroom/db";
 import type { Metadata } from "next";
 import { Markdown } from "@/components/markdown";
+import { Page } from "@/components/page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,7 @@ export default async function PublicPostPage({
   const markdown = (post.body as { markdown?: string }).markdown ?? "";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <Page width="narrow">
       <p className="mb-2 text-sm text-dim">
         Shared from #{post.space.name}
       </p>
@@ -50,6 +51,6 @@ export default async function PublicPostPage({
         {post.author.name} · {post.createdAt.toLocaleDateString()}
       </p>
       <Markdown>{markdown}</Markdown>
-    </main>
+    </Page>
   );
 }

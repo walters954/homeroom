@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Markdown } from "@/components/markdown";
 import { deleteEvent, rsvp } from "@/lib/actions/events";
 import { getCurrentUser } from "@/lib/session";
+import { Page } from "@/components/page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,7 @@ export default async function EventPage({
     event.startsAt.getTime() - Date.now() < 1000 * 60 * 60 && event.joinUrl;
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <Page width="narrow">
       <p className="mb-2 text-sm text-dim">
         <Link href="/events" className="hover:underline">
           Events
@@ -130,6 +131,6 @@ export default async function EventPage({
           </button>
         </form>
       )}
-    </main>
+    </Page>
   );
 }

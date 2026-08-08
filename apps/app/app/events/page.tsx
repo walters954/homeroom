@@ -3,6 +3,7 @@ import { db } from "@homeroom/db";
 import { createEvent } from "@/lib/actions/events";
 import { EmptyState } from "@/components/empty-state";
 import { getCurrentUser } from "@/lib/session";
+import { Page } from "@/components/page-header";
 
 export const metadata = { title: "Events" };
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export default async function EventsPage() {
   );
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <Page width="narrow">
       <h1 className="mb-8 text-3xl font-bold tracking-tight">Events</h1>
       <section className="space-y-3">
         {upcoming.map((e) => (
@@ -123,6 +124,6 @@ export default async function EventsPage() {
           </form>
         </section>
       )}
-    </main>
+    </Page>
   );
 }

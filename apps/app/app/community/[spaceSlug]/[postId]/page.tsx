@@ -8,6 +8,7 @@ import {
   toggleReaction,
 } from "@/lib/actions/community";
 import { getCurrentUser } from "@/lib/session";
+import { Page } from "@/components/page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,7 @@ export default async function PostPage({
   const markdown = (post.body as { markdown?: string }).markdown ?? "";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <Page width="narrow">
       <p className="mb-2 text-sm text-dim">
         <Link href="/community" className="hover:underline">
           Community
@@ -138,6 +139,6 @@ export default async function PostPage({
           </form>
         )}
       </section>
-    </main>
+    </Page>
   );
 }

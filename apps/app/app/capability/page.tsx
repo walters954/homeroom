@@ -11,6 +11,7 @@ import {
 } from "@/lib/practice";
 import { parseTestResults } from "@/lib/exercises/runner";
 import { requireUser } from "@/lib/session";
+import { EmptyState } from "@/components/empty-state";
 
 export const metadata = { title: "Capability" };
 export const dynamic = "force-dynamic";
@@ -87,11 +88,13 @@ export default async function CapabilityPage() {
         </div>
         {skills.length === 0 ? (
           <div className="hr-card-b">
-            <p className="text-[12.5px] text-dim">
-              No skills are defined on the courses you can open yet. A skill is
-              what an exercise proves — until one exists there is nothing to
-              assess.
-            </p>
+            <EmptyState
+              glyph="▤"
+              title="Nothing to assess yet"
+              body="A skill is what an exercise proves, and none are defined on the courses you can open. This map fills itself in as you pass exercises — it never counts lessons watched."
+              actionLabel="Browse courses"
+              actionHref="/courses"
+            />
           </div>
         ) : (
           <ul>

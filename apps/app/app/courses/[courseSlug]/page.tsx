@@ -4,6 +4,8 @@ import { db } from "@homeroom/db";
 import type { Metadata } from "next";
 import { formatPrice, getCourseAccess, lessonAccessible } from "@/lib/access";
 import { getCurrentUser } from "@/lib/session";
+import { Page } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +63,7 @@ export default async function CoursePage({
     user?.role === "ADMIN" ? lessons : lessons.filter((l) => l.published);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <Page width="narrow">
       <h1 className="text-3xl font-bold tracking-tight">{course.title}</h1>
       {course.description && (
         <p className="mt-3 text-dim">{course.description}</p>
@@ -98,6 +100,21 @@ export default async function CoursePage({
       )}
 
       <div className="mt-10 space-y-8">
+        {course.sections.every(
+          (section) => visibleLessons(section.lessons).length === 0,
+        ) && (
+          <EmptyState
+            glyph="▷"
+            title="No lessons published yet"
+            body={
+              user?.role === "ADMIN"
+                ? "You can see this course because you're an admin. Add a lesson and publish it — until then a member opening this page sees an empty shelf."
+                : "This course doesn't have anything to watch yet. It'll show up here the moment the first lesson is published."
+            }
+            actionLabel={user?.role === "ADMIN" ? "Edit this course" : undefined}
+            actionHref={user?.role === "ADMIN" ? `/admin/courses/${course.id}` : undefined}
+          />
+        )}
         {course.sections.map((section) => (
           <section key={section.id}>
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-dim">
@@ -153,6 +170,6 @@ export default async function CoursePage({
           </section>
         ))}
       </div>
-    </main>
+    </Page>
   );
 }

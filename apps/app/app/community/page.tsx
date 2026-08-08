@@ -3,6 +3,7 @@ import { db } from "@homeroom/db";
 import { createSpace } from "@/lib/actions/community";
 import { EmptyState } from "@/components/empty-state";
 import { getCurrentUser } from "@/lib/session";
+import { Page } from "@/components/page-header";
 
 export const metadata = { title: "Community" };
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export default async function CommunityPage() {
   });
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <Page width="narrow">
       <h1 className="mb-8 text-3xl font-bold tracking-tight">Community</h1>
       <ul className="divide-y divide-line rounded-lg border border-line">
         {spaces.map((space) => (
@@ -80,6 +81,6 @@ export default async function CommunityPage() {
           </form>
         </section>
       )}
-    </main>
+    </Page>
   );
 }

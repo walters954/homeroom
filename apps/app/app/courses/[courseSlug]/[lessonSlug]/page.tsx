@@ -8,6 +8,7 @@ import { VideoEmbed } from "@/components/video-embed";
 import { toggleLessonComplete } from "@/lib/actions/progress";
 import { getCourseAccess, lessonAccessible } from "@/lib/access";
 import { getCurrentUser } from "@/lib/session";
+import { Page } from "@/components/page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -78,7 +79,7 @@ export default async function LessonPage({
 
   return (
     <>
-    <main className="mx-auto max-w-3xl flex-1 px-8 py-9">
+    <Page width="narrow">
       <p className="mb-2 text-sm text-dim">
         <Link href={`/courses/${course.slug}`} className="hover:underline">
           {course.title}
@@ -137,7 +138,7 @@ export default async function LessonPage({
         </div>
       </div>
 
-    </main>
+    </Page>
     {user && (
       <AgentPane
         scope="this lesson"
