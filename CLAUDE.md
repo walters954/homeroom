@@ -64,6 +64,7 @@ pnpm install
 pnpm turbo run build --filter=@homeroom/app     # app build
 pnpm turbo run build --filter=@homeroom/agent   # needs Node 24
 pnpm typecheck
+pnpm turbo run test --filter=@homeroom/app       # exercise runner checks, Node 24
 pnpm db:migrate                                  # prisma migrate dev
 ```
 
@@ -121,9 +122,17 @@ File an issue rather than leaving a TODO in code.
 
 Deployed and working: auth with reset/verification/magic-link invites, courses and
 lessons with Vimeo transcripts, the tutor grounded in transcripts, Stripe checkout
-with entitlements, community, events, member management, and the agent suggestion
-queue with a nightly drafting schedule.
+with entitlements, community, events, member management, the agent suggestion
+queue with a nightly drafting schedule, and the practice-loop screens (Today /
+attempt / recall / capability / coach).
 
-Not built yet: the practice-loop screens (Today / attempt / recall / capability /
-coach), code execution for exercises, and the repo-grounded tutor. Stripe is still
-in sandbox.
+Exercises execute for real: `lib/exercises/runner.ts` dispatches on
+`Exercise.language`, and JS/TS submissions run against the exercise's hidden
+`testFiles` in a Vercel Sandbox with `deny-all` egress. **Every path that is not
+a genuine green is a failure, including our own outages** — a fabricated pass
+would set a PROVEN state, seed a recall schedule and unlock the worked solution
+off nothing. `lib/exercises/harness.test.mjs` guards that; keep it passing.
+
+Not built yet: Apex execution (#29 — so the two Apex exercises still report
+honestly and admins use the manual override), exercise authoring outside the
+seed script (#30), and the repo-grounded tutor (#8). Stripe is still in sandbox.

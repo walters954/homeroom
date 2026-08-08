@@ -1,4 +1,6 @@
 import type { Exercise } from "@homeroom/db";
+import { allFailed, planFor, reconcile, unsupportedMessage } from "./harness";
+import { isConfigured, runInSandbox } from "./sandbox";
 
 /** One file in an attempt or in an exercise's starter/solution set. */
 export interface ExerciseFile {
@@ -20,11 +22,11 @@ export interface TestResult {
 }
 
 /**
- * The seam a real sandbox plugs into. Everything that records a submission
- * calls this and nothing else, so wiring up execution is a one-file change.
+ * The seam execution plugs into. Everything that records a submission calls
+ * this and nothing else, so swapping the backend stays a one-file change.
  */
 export type TestRunner = (
-  exercise: Pick<Exercise, "id" | "language" | "testSpec">,
+  exercise: Pick<Exercise, "id" | "language" | "testSpec" | "testFiles">,
   files: ExerciseFile[],
 ) => Promise<TestResult[]>;
 
@@ -66,26 +68,35 @@ export function parseTestResults(value: unknown): TestResult[] {
   });
 }
 
-export const NOT_WIRED_MESSAGE = "Test execution isn't wired up yet.";
+export const NOT_CONFIGURED_MESSAGE =
+  "Test execution isn't configured on this deployment.";
+
+export const NO_TESTS_MESSAGE =
+  "This exercise has no test files yet, so nothing can be verified.";
 
 /**
- * TODO(#7): replace with sandboxed execution (see GitHub issue #7 —
- * "in-browser editor + test-verified exercises", track:technical-courses).
+ * Run a submission against the exercise's hidden tests.
  *
- * Until that lands this reports every test as failing rather than inventing a
- * pass. A fabricated green is worse than no runner: the whole product measures
- * competence by whether tests genuinely passed, and one fake pass would set a
- * PROVEN skill state, seed a recall schedule, and unlock the worked solution
- * off nothing. Admins have a manual override for demos instead.
+ * Every path out of here that is not a genuine green is a failure, including
+ * the ones that are our fault. That asymmetry is deliberate: the product
+ * measures competence by whether tests actually passed, and one fabricated
+ * pass would set a PROVEN skill state, seed a recall schedule and unlock the
+ * worked solution off nothing. Admins keep a manual override for the languages
+ * that cannot run yet.
  */
-export const runTests: TestRunner = async (exercise) => {
+export const runTests: TestRunner = async (exercise, files) => {
   const spec = parseTestSpec(exercise.testSpec);
-  const tests: TestSpecItem[] =
-    spec.length > 0 ? spec : [{ name: "tests", description: undefined }];
 
-  return tests.map((t) => ({
-    name: t.name,
-    passed: false,
-    message: NOT_WIRED_MESSAGE,
-  }));
+  const plan = planFor(exercise.language);
+  if (!plan) return allFailed(spec, unsupportedMessage(exercise.language));
+
+  const testFiles = parseFiles(exercise.testFiles);
+  if (testFiles.length === 0) return allFailed(spec, NO_TESTS_MESSAGE);
+
+  if (!isConfigured()) return allFailed(spec, NOT_CONFIGURED_MESSAGE);
+
+  const outcome = await runInSandbox(plan, files, testFiles);
+  return outcome.ok
+    ? reconcile(spec, outcome.results)
+    : allFailed(spec, outcome.message);
 };

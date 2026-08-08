@@ -1,6 +1,7 @@
 /**
- * Seeds the practice loop with real Apex content: query ordering guarantees and
- * trigger bulkification. Two skills, one exercise each, three recall questions.
+ * Seeds the practice loop with real content: two Apex skills (query ordering
+ * guarantees, trigger bulkification) and one runnable TypeScript skill, since
+ * Apex cannot execute until #29 lands. Three skills, one exercise each.
  *
  * Attaches to the first existing course if there is one; otherwise creates a
  * small demo course (with the paired concept lessons, so the watch → attempt
@@ -180,6 +181,16 @@ async function main() {
     order: 2,
   });
 
+  // The Apex exercises above cannot execute until #29 lands, so the seed also
+  // carries one TypeScript exercise: the only way to watch a real run go red,
+  // then green, then set a PROVEN state and schedule a recall check.
+  const pagination = await upsertSkill(course.id, {
+    name: "Paginated API reads",
+    description:
+      "Consuming a cursor-paginated API without silently dropping every record past the first page.",
+    order: 3,
+  });
+
   // --- Exercises ----------------------------------------------------------
   await db.exercise.upsert({
     where: { slug: "deterministic-top-accounts" },
@@ -293,6 +304,41 @@ async function main() {
   });
 
   // --- Recall questions ---------------------------------------------------
+  await db.exercise.upsert({
+    where: { slug: "follow-every-page" },
+    create: {
+      slug: "follow-every-page",
+      skillId: pagination.id,
+      title: "Follow the cursor to the last page",
+      language: "TYPESCRIPT",
+      order: 1,
+      published: true,
+      prompt: PAGINATION_PROMPT,
+      starterFiles: [{ path: "pagination.ts", contents: PAGINATION_STARTER }],
+      solutionFiles: [{ path: "pagination.ts", contents: PAGINATION_SOLUTION }],
+      testFiles: [
+        { path: "tests/pagination.test.ts", contents: PAGINATION_TESTS },
+      ],
+      hints: PAGINATION_HINTS,
+      testSpec: PAGINATION_SPEC,
+      differenceNotes: PAGINATION_DIFFERENCE,
+    },
+    update: {
+      skillId: pagination.id,
+      published: true,
+      prompt: PAGINATION_PROMPT,
+      starterFiles: [{ path: "pagination.ts", contents: PAGINATION_STARTER }],
+      solutionFiles: [{ path: "pagination.ts", contents: PAGINATION_SOLUTION }],
+      testFiles: [
+        { path: "tests/pagination.test.ts", contents: PAGINATION_TESTS },
+      ],
+      hints: PAGINATION_HINTS,
+      testSpec: PAGINATION_SPEC,
+      differenceNotes: PAGINATION_DIFFERENCE,
+    },
+  });
+
+  // --- Recall questions ---------------------------------------------------
   await upsertQuestion(ordering.id, orderingLessonId, 712, {
     prompt:
       "A SOQL query with LIMIT 10 and no ORDER BY runs twice against data nobody changed in between. What are you guaranteed about the two result sets?",
@@ -326,7 +372,23 @@ async function main() {
     correctIndex: 0,
   });
 
-  console.log("Practice seed complete: 2 skills, 2 exercises, 3 recall questions.");
+  // Without at least one question on the skill, deriveSkillState will not open
+  // a RecallItem on first proof — so the runnable exercise needs one to show
+  // the whole loop, not just the pass.
+  await upsertQuestion(pagination.id, null, 0, {
+    prompt:
+      "A cursor-paginated endpoint returns 50 records and a nextCursor. Your code reads the first response and returns its records. What does the caller see?",
+    options: [
+      "The first 50 records, with everything after them silently missing and no error to notice",
+      "An error, because the cursor was never consumed",
+      "All records — the client library follows cursors for you",
+    ],
+    correctIndex: 0,
+  });
+
+  console.log(
+    "Practice seed complete: 3 skills, 3 exercises, 4 recall questions.",
+  );
 }
 
 async function upsertSkill(
@@ -361,6 +423,148 @@ async function upsertQuestion(
     data: { skillId, sourceLessonId, sourceTimecode, ...q },
   });
 }
+
+// --- The runnable one ------------------------------------------------------
+// Tests take the fetcher as an argument rather than calling out, so the run
+// stays honest under the sandbox's deny-all network policy.
+
+const PAGINATION_STARTER = `export interface Page<T> {
+  records: T[];
+  nextCursor: string | null;
+}
+
+export type Fetcher<T> = (cursor: string | null) => Promise<Page<T>>;
+
+/**
+ * Reads every record from a cursor-paginated endpoint.
+ *
+ * The sync that uses this has been "working" for a month. Finance noticed the
+ * totals were low; nobody noticed an error, because there wasn't one.
+ */
+export async function fetchAllPages<T>(fetchPage: Fetcher<T>): Promise<T[]> {
+  const page = await fetchPage(null);
+  return page.records;
+}
+`;
+
+const PAGINATION_SOLUTION = `export interface Page<T> {
+  records: T[];
+  nextCursor: string | null;
+}
+
+export type Fetcher<T> = (cursor: string | null) => Promise<Page<T>>;
+
+export async function fetchAllPages<T>(fetchPage: Fetcher<T>): Promise<T[]> {
+  const all: T[] = [];
+  let cursor: string | null = null;
+
+  for (;;) {
+    const page = await fetchPage(cursor);
+    all.push(...page.records);
+    if (!page.nextCursor) return all;
+    cursor = page.nextCursor;
+  }
+}
+`;
+
+const PAGINATION_TESTS = `import assert from "node:assert";
+import { fetchAllPages, type Page } from "../pagination.ts";
+
+/** Records every cursor it is asked for, so tests can assert on the walk. */
+function pager<T>(pages: Page<T>[]) {
+  const seen: (string | null)[] = [];
+  let i = 0;
+  return {
+    seen,
+    fetch: async (cursor: string | null) => {
+      seen.push(cursor);
+      const page = pages[i++];
+      if (!page) throw new Error("Asked for a page past the end of the data.");
+      return page;
+    },
+  };
+}
+
+export default [
+  {
+    name: "returns records from every page",
+    run: async () => {
+      const p = pager([
+        { records: [1, 2], nextCursor: "b" },
+        { records: [3, 4], nextCursor: "c" },
+        { records: [5], nextCursor: null },
+      ]);
+      assert.deepStrictEqual(await fetchAllPages(p.fetch), [1, 2, 3, 4, 5]);
+    },
+  },
+  {
+    name: "stops at the page whose cursor is null",
+    run: async () => {
+      const p = pager([
+        { records: ["a"], nextCursor: "2" },
+        { records: ["b"], nextCursor: null },
+      ]);
+      await fetchAllPages(p.fetch);
+      assert.strictEqual(p.seen.length, 2, "should stop after the null cursor");
+    },
+  },
+  {
+    name: "passes each cursor through to the next request",
+    run: async () => {
+      const p = pager([
+        { records: [1], nextCursor: "b" },
+        { records: [2], nextCursor: "c" },
+        { records: [3], nextCursor: null },
+      ]);
+      await fetchAllPages(p.fetch);
+      assert.deepStrictEqual(p.seen, [null, "b", "c"]);
+    },
+  },
+  {
+    name: "handles a single-page response",
+    run: async () => {
+      const p = pager([{ records: [1], nextCursor: null }]);
+      assert.deepStrictEqual(await fetchAllPages(p.fetch), [1]);
+      assert.strictEqual(p.seen.length, 1, "should make exactly one request");
+    },
+  },
+];
+`;
+
+const PAGINATION_SPEC = [
+  {
+    name: "returns records from every page",
+    description: "Three pages in, every record out, in order.",
+  },
+  {
+    name: "stops at the page whose cursor is null",
+    description: "No request is made past the last page.",
+  },
+  {
+    name: "passes each cursor through to the next request",
+    description: "The walk is null → b → c, not the same cursor twice.",
+  },
+  {
+    name: "handles a single-page response",
+    description: "One page, one request, no second call.",
+  },
+];
+
+const PAGINATION_PROMPT = `The nightly sync pulls contacts from a partner API. It has run clean for a month — no errors, no alerts — and finance has just worked out the totals are short.
+
+The endpoint is cursor-paginated: each response carries \`records\` and a \`nextCursor\`, and \`nextCursor\` is \`null\` on the last page.
+
+Make \`fetchAllPages\` return every record, not just the first page's. The tests supply the fetcher, so you never touch the network.`;
+
+const PAGINATION_HINTS = [
+  "The starter calls `fetchPage` exactly once. How many times should it call it for three pages of data?",
+  "You need a loop that keeps going while `nextCursor` is not null, feeding that cursor into the next call and collecting records as you go.",
+  "```ts\nconst all: T[] = [];\nlet cursor: string | null = null;\nfor (;;) {\n  const page = await fetchPage(cursor);\n  all.push(...page.records);\n  if (!page.nextCursor) return all;\n  cursor = page.nextCursor;\n}\n```",
+];
+
+const PAGINATION_DIFFERENCE = `A version that loops \`while (cursor)\` starting from \`null\` never runs at all — the first cursor is legitimately null, and treating "no cursor yet" and "no cursor left" as the same value is what makes this bug so quiet.
+
+The failure mode to remember: the broken version throws nothing and logs nothing. It returns a shorter array than it should, which looks exactly like a slow week.`;
 
 const ORDERING_PROMPT = `Support has two bug reports open against the **Top accounts** dashboard tile:
 

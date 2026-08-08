@@ -13,8 +13,8 @@ import {
   revealSolution,
   submitAttempt,
 } from "@/lib/actions/practice";
+import { planFor, unsupportedMessage } from "@/lib/exercises/harness";
 import {
-  NOT_WIRED_MESSAGE,
   parseFiles,
   parseTestResults,
   parseTestSpec,
@@ -29,6 +29,10 @@ import {
 import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
+
+// Submitting runs the tests inline: provisioning a sandbox plus a 60s run cap
+// outlives the default budget, and the attempt has to finish to be recorded.
+export const maxDuration = 300;
 
 async function getExercise(slug: string) {
   return db.exercise.findUnique({
@@ -214,8 +218,9 @@ export default async function ExercisePage({
         )}
         <div className="hr-card-f">
           <p className="hr-ev">
-            {NOT_WIRED_MESSAGE} Runs are still recorded honestly — a failing run
-            is a failing run, and nothing here fakes a pass.
+            {planFor(exercise.language)
+              ? "Your files run against these tests in an isolated sandbox with no network access. A failing run is a failing run, and nothing here fakes a pass."
+              : `${unsupportedMessage(exercise.language)} Attempts are still recorded, and nothing here fakes a pass.`}
           </p>
         </div>
       </section>
