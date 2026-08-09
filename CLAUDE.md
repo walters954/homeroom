@@ -156,9 +156,14 @@ off nothing. `lib/exercises/harness.test.mjs` guards that; keep it passing.
 All admin surfaces are on the Console direction and every screen has a
 small-screen state, so the app is usable on a phone.
 
-Not built yet: Apex execution (#29 — so the two Apex exercises still report
-honestly and admins use the manual override), exercise authoring outside the
-seed script (#30), bulk member import for the Circle migration (#36), and the
-repo-grounded tutor (#8). **Stripe is still in sandbox (#1)** — that is the one
-thing blocking real money, and it needs the live account imported via the Vercel
-integration.
+Creators can author exercises in the app (`/admin/exercises/[id]`, reached from
+a course's skills section) and import a member list from CSV
+(`/admin/members/import`). Before publishing an exercise, **run the reference
+solution against its own tests** — if the author's answer cannot pass, a
+learner would be told correct code is wrong.
+
+Not built yet: Apex execution (#29 — so Apex exercises still report honestly and
+admins use the manual override), the repo-grounded tutor (#8), and per-user dark
+mode (#40 — the surface is school-wide today). **Stripe is still in sandbox
+(#1)** — the one thing blocking real money, needing the live account imported
+via the Vercel integration.
