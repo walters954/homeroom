@@ -78,12 +78,12 @@ export default async function SuggestionsPage() {
 
               <div className="flex gap-2">
                 <form action={approveSuggestion.bind(null, s.id)}>
-                  <Button size="sm"className="">
+                  <Button size="sm">
                     Approve{s.type === "ANNOUNCEMENT" ? " & send" : s.type === "NUDGE_EMAIL" ? " & send" : " & apply"}
                   </Button>
                 </form>
                 <form action={rejectSuggestion.bind(null, s.id)}>
-                  <Button variant="outline" size="sm"className="">
+                  <Button variant="outline" size="sm">
                     Reject
                   </Button>
                 </form>

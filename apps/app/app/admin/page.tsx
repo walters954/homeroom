@@ -110,7 +110,7 @@ export default async function AdminPage() {
             </label>
           </div>
           <CardFooter>
-            <Button type="submit" size="sm"className="">
+            <Button type="submit" size="sm">
               Create course
             </Button>
             <span className="hr-ev">

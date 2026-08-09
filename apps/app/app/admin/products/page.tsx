@@ -138,7 +138,7 @@ export default async function AdminProductsPage() {
               />
             </label>
           </div>
-          <Button size="sm"className=" self-start">
+          <Button size="sm" className="self-start">
             Create product{stripeConfigured() ? " in Stripe" : ""}
           </Button>
         </form>

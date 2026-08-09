@@ -65,7 +65,11 @@ export default async function MembersPage({
             : "Everyone with an account, newest first. Access comes from a subscription or a comp — open a member to change it."
         }
         actions={
-          <form action={inviteMember} className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/admin/members/import">Import a list</Link>
+            </Button>
+            <form action={inviteMember} className="flex gap-2">
             <Input
               name="email"
               type="email"
@@ -73,10 +77,11 @@ export default async function MembersPage({
               placeholder="Invite by email…"
               className="w-[190px]"
             />
-            <Button size="sm"className=" shrink-0">
-              Invite
-            </Button>
-          </form>
+              <Button size="sm" className="shrink-0">
+                Invite
+              </Button>
+            </form>
+          </div>
         }
       />
 
@@ -87,7 +92,7 @@ export default async function MembersPage({
           placeholder="Search name or email…"
           className="max-w-xs"
         />
-        <Button variant="outline" size="sm"className=" shrink-0">Search</Button>
+        <Button variant="outline" size="sm" className="shrink-0">Search</Button>
       </form>
 
       {members.length === 0 ? (

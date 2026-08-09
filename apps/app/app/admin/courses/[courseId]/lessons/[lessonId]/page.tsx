@@ -164,7 +164,7 @@ export default async function AdminLessonPage({
           </div>
           <Button
             type="submit"
-            size="sm"className=" self-start"
+            size="sm" className="self-start"
           >
             Save lesson
           </Button>
@@ -217,7 +217,7 @@ export default async function AdminLessonPage({
             placeholder="…or paste a transcript here (plain text, WebVTT, or SRT)"
             className="font-mono text-[12px] font-normal"
           />
-          <Button variant="outline" size="sm"className=" self-start">
+          <Button variant="outline" size="sm" className="self-start">
             Save transcript
           </Button>
         </form>
@@ -236,13 +236,13 @@ export default async function AdminLessonPage({
           <form action={draftLessonFromTranscript.bind(null, lesson.id, courseId)}>
             <Button
               disabled={!lesson.transcript}
-              variant="outline" size="sm"className=" disabled:opacity-40"
+              variant="outline" size="sm" className="disabled:opacity-40"
             >
               ✍️ Draft lesson from transcript
             </Button>
           </form>
           <form action={draftAnnouncement.bind(null, lesson.id, courseId)}>
-            <Button variant="outline" size="sm"className="">
+            <Button variant="outline" size="sm">
               📣 Draft announcement email
             </Button>
           </form>
