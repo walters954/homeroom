@@ -88,7 +88,8 @@ export async function submitAttempt(slug: string, formData: FormData) {
     orderBy: { createdAt: "desc" },
   });
 
-  // Execution lives behind one interface; today it reports honest failures.
+  // Real execution in a sandbox for languages we can run; an honest failure
+  // for the ones we can't. Never a fabricated pass — see lib/exercises/runner.
   const results = await runTests(exercise, files);
   const passed = results.length > 0 && results.every((r) => r.passed);
 
@@ -157,9 +158,9 @@ export async function revealSolution(slug: string, formData: FormData) {
 }
 
 /**
- * Admin escape hatch so the loop is demonstrable before the sandbox exists.
- * It records what it is — an override, with no tests run — rather than
- * pretending a green run happened.
+ * Admin escape hatch, now only really needed for languages Homeroom can't
+ * execute (Apex, SQL). It records what it is — an override, with no tests run
+ * — rather than pretending a green run happened.
  */
 export async function markPassedManual(slug: string, formData: FormData) {
   const admin = await requireAdmin();
@@ -176,7 +177,7 @@ export async function markPassedManual(slug: string, formData: FormData) {
     {
       name: "manual override",
       passed: true,
-      message: `An admin marked this passed. No tests were run — the sandbox isn't wired up yet (issue #7). ${spec.length} test(s) are specified.`,
+      message: `An admin marked this passed. No tests were run — ${exercise.language.toLowerCase()} can't be executed here. ${spec.length} test(s) are specified.`,
     },
   ];
 

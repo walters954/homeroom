@@ -161,6 +161,39 @@ Labels: area (`learner` / `creator` / `agent` / `platform` / `design`) and track
 (`launch` = blocks cancelling Circle, `technical-courses` = the niche, `later`).
 File an issue rather than leaving a TODO in code.
 
+## Running exercise submissions
+
+Three files, and the split between them is the point. `runner.ts` is the only entry
+point. `harness.ts` holds every judgement — which languages can run (`planFor`), the
+harness source, and what the output *means*. `sandbox.ts` is only transport: put the
+files in a microVM, run the harness, bring stdout back.
+
+Submissions run in a Vercel Sandbox with `networkPolicy: "deny-all"`, a fresh
+filesystem per attempt and a wall-clock cap. Auth is the mechanism the app already
+uses for model calls: on Vercel the deployment's OIDC token is picked up
+automatically, so there is **no new secret to configure**. Off-Vercel it needs
+`VERCEL_TOKEN` + `VERCEL_TEAM_ID` + `VERCEL_PROJECT_ID`, and with neither the runner
+says so rather than guessing.
+
+Two rules that are not negotiable:
+
+- **Pass/fail comes from a real process exit and real assertions, never from a model.**
+  A pass sets a PROVEN skill state, seeds a recall schedule and unlocks the worked
+  solution — a fabricated green corrupts all three.
+- **Anything that prevents a run is a failure, not a pass**: unsupported language,
+  missing sandbox credentials, no test files, a sandbox that won't boot.
+
+An exercise carries hidden `testFiles` (`[{path, contents}]`, never sent to the
+browser) alongside the learner-visible `testSpec`. A test file default-exports
+`[{ name, run }]` and `run` throws to fail, which makes `node:assert` the whole
+assertion library and keeps authored tests free of any dependency we would have to
+install per run. Names must match `testSpec` — a spec row nothing reported on counts
+as failed. JS and TS share one runtime (Node 24 strips types natively).
+
+Everything else — Apex above all — has no runtime outside its own platform, so
+`planFor` returns null and it reports honestly. Admins keep a manual override that
+records itself as an override.
+
 ## Current state
 
 Deployed and working: auth with reset/verification/magic-link invites, courses and
