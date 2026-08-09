@@ -20,7 +20,7 @@ async function askClaude(
   prompt: string,
   task: "simple" | "complex" = "complex",
 ): Promise<string> {
-  const client = makeAnthropic();
+  const client = await makeAnthropic();
   const response = await client.messages.create({
     model: await modelFor(task),
     max_tokens: 8192,

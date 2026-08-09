@@ -250,7 +250,7 @@ async function writeBrief(
 ): Promise<string | null> {
   try {
     const { text } = await scopeContext(scope, user);
-    const client = makeAnthropic();
+    const client = await makeAnthropic();
     const message = await client.messages.create({
       model: await modelFor("simple"),
       max_tokens: 200,

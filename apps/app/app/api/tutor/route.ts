@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     content: m.content,
   }));
 
-  const client = makeAnthropic();
+  const client = await makeAnthropic();
   const stream = client.messages.stream({
     model: await modelFor("simple"),
     max_tokens: 4096,
