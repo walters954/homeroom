@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { db } from "@homeroom/db";
-import { getCurrentUser } from "@/lib/session";
+import { getViewer } from "@/lib/session";
 import { getBranding } from "@/lib/settings";
+import { EnterPreviewButton, PreviewBar } from "./preview-bar";
 import { Rail, type RailGroup } from "./rail";
 import { SignOutButton } from "./sign-out-button";
 import {
@@ -15,7 +16,10 @@ import {
  * navigation; it collapses to glyphs and expands to explain itself.
  */
 export async function AppShell({ children }: { children: React.ReactNode }) {
-  const [user, branding] = await Promise.all([getCurrentUser(), getBranding()]);
+  const [{ user, previewing }, branding] = await Promise.all([
+    getViewer(),
+    getBranding(),
+  ]);
 
   // Counts pull you toward work — recall that's due, drafts waiting.
   const [recallDue, draftsWaiting] = user
@@ -124,6 +128,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       >
         {user.name.slice(0, 2).toUpperCase()}
       </span>
+      {user.role === "ADMIN" && <EnterPreviewButton />}
       <SignOutButton />
     </>
   ) : (
@@ -153,6 +158,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           {children}
           <AgentPaneSlot />
         </div>
+        {previewing && <PreviewBar />}
       </div>
     </AgentProvider>
   );

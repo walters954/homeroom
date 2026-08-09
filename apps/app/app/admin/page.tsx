@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@homeroom/db";
 import { Page, PageHeader } from "@/components/page-header";
+import { EnterPreviewButton } from "@/components/preview-bar";
 import { createCourse } from "@/lib/actions/courses";
 import { plural } from "@/lib/practice";
 import { requireAdmin } from "@/lib/session";
@@ -36,6 +37,7 @@ export default async function AdminPage() {
             ? `${plural(courses.length, "course")}, ${published} published. Everything else lives on the rail — coach, members, products, the agent queue and settings.`
             : "Nothing exists yet. A course is the container everything else hangs off, so it is the first thing to make."
         }
+        actions={<EnterPreviewButton expanded />}
       />
 
       <Card>

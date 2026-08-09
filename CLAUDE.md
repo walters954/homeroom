@@ -232,6 +232,11 @@ rewrites the whole sibling list as 0..n-1 rather than swapping two rows —
 seeded content already has duplicate and gapped `order` values, and a two-row
 swap silently does nothing when both hold the same number.
 
+Admins can **view as student** (`lib/viewer.ts`, `components/preview-bar.tsx`):
+while previewing, `getCurrentUser()` reports MEMBER, so paywalls and draft
+lessons apply and `/admin` redirects away until you step back out. Only
+`getActualUser()` sees through it.
+
 Not built yet: Apex execution (#29 — so Apex exercises still report honestly and
 admins use the manual override), the repo-grounded tutor (#8), and per-user dark
 mode (#40 — the surface is school-wide today). **Stripe is still in sandbox
