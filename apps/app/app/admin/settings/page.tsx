@@ -124,7 +124,7 @@ export default async function AdminSettingsPage() {
             One hex is all we take. Hover, muted, and text-on-accent are derived
             from it, so a brand change can never make something unreadable.
           </p>
-          <Button size="sm"className=" self-start">
+          <Button size="sm" className="self-start">
             Save branding
           </Button>
         </form>
@@ -163,7 +163,7 @@ export default async function AdminSettingsPage() {
               <option key={m} value={m} />
             ))}
           </datalist>
-          <Button size="sm"className=" self-start">
+          <Button size="sm" className="self-start">
             Save
           </Button>
         </form>
@@ -200,7 +200,7 @@ export default async function AdminSettingsPage() {
               Invite the app to a private channel first, or it can only post to
               public ones. Saving sends a test message.
             </p>
-            <Button size="sm"className=" self-start">
+            <Button size="sm" className="self-start">
               Save &amp; send test
             </Button>
           </form>

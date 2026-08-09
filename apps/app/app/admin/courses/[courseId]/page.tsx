@@ -108,7 +108,7 @@ export default async function AdminCoursePage({
           </label>
           <Button
             type="submit"
-            size="sm"className=" self-start"
+            size="sm" className="self-start"
           >
             Save
           </Button>
@@ -165,7 +165,7 @@ export default async function AdminCoursePage({
                 required
                 className="flex-1"
               />
-              <Button variant="outline" size="sm"className="">
+              <Button variant="outline" size="sm">
                 Add lesson
               </Button>
             </form>
@@ -181,7 +181,7 @@ export default async function AdminCoursePage({
             required
             className="flex-1"
           />
-          <Button size="sm"className="">
+          <Button size="sm">
             Add section
           </Button>
         </form>

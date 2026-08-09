@@ -117,7 +117,7 @@ export default async function MemberDetailPage({
                 ))}
               </Select>
             </label>
-            <Button size="sm"className="">
+            <Button size="sm">
               Grant
             </Button>
           </form>
@@ -147,12 +147,12 @@ export default async function MemberDetailPage({
                 <option value="ADMIN">Admin</option>
               </Select>
             </label>
-            <Button variant="outline" size="sm"className="">
+            <Button variant="outline" size="sm">
               Save role
             </Button>
           </form>
           <form action={sendSignInLink.bind(null, member.id)}>
-            <Button variant="outline" size="sm"className="">
+            <Button variant="outline" size="sm">
               Email sign-in link
             </Button>
           </form>
