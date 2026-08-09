@@ -7,6 +7,7 @@ import {
   deleteSection,
   updateCourse,
 } from "@/lib/actions/courses";
+import { createExercise, createSkill, deleteSkill } from "@/lib/actions/exercises";
 import { Page, PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/session";
 import { Button, Card, Input, Textarea } from "@homeroom/ui";
@@ -35,6 +36,18 @@ export default async function AdminCoursePage({
     },
   });
   if (!course) notFound();
+
+  const skills = await db.skill.findMany({
+    where: { courseId },
+    orderBy: { order: "asc" },
+    include: {
+      exercises: {
+        orderBy: { order: "asc" },
+        include: { _count: { select: { submissions: true } } },
+      },
+      _count: { select: { recallQuestions: true } },
+    },
+  });
 
   return (
     <Page width="narrow">
@@ -185,6 +198,107 @@ export default async function AdminCoursePage({
             Add section
           </Button>
         </form>
+      </section>
+
+      <section className="mt-8 space-y-3">
+        <div>
+          <h2 className="text-[13px] font-semibold">Skills and exercises</h2>
+          <p className="hr-ev">
+            A skill is what an exercise proves. Lessons teach; passing an
+            exercise is the only thing that moves a member&apos;s capability.
+          </p>
+        </div>
+
+        {skills.length === 0 && (
+          <Card className="p-4">
+            <p className="text-[12.5px] text-dim">
+              No skills yet, so nothing on this course can be proven — the
+              capability map and recall queue stay empty until one exists.
+            </p>
+          </Card>
+        )}
+
+        {skills.map((skill) => (
+          <Card key={skill.id} className="p-4">
+            <div className="mb-2 flex flex-wrap items-start gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-medium">{skill.name}</p>
+                <p className="hr-ev">
+                  {skill.exercises.length === 1
+                    ? "1 exercise"
+                    : `${skill.exercises.length} exercises`}
+                  {" · "}
+                  {skill._count.recallQuestions === 0
+                    ? "no recall questions, so proving it schedules nothing"
+                    : `${skill._count.recallQuestions} recall questions`}
+                </p>
+              </div>
+              {skill.exercises.length === 0 && (
+                <form action={deleteSkill.bind(null, skill.id)}>
+                  <Button type="submit" variant="ghost" size="sm">
+                    Delete
+                  </Button>
+                </form>
+              )}
+            </div>
+
+            {skill.exercises.length > 0 && (
+              <ul className="mb-2 divide-y divide-soft border-y border-soft">
+                {skill.exercises.map((ex) => (
+                  <li
+                    key={ex.id}
+                    className="flex flex-wrap items-center gap-2 py-2 text-[12.5px]"
+                  >
+                    <Link
+                      href={`/admin/exercises/${ex.id}`}
+                      className="min-w-0 flex-1 font-medium hover:underline"
+                    >
+                      {ex.title}
+                    </Link>
+                    <span className="hr-path">{ex.language.toLowerCase()}</span>
+                    <span
+                      className={`hr-tag ${
+                        ex.published ? "hr-tag-proven" : "hr-tag-untested"
+                      }`}
+                    >
+                      {ex.published ? "published" : "draft"}
+                    </span>
+                    <span className="hr-ev">
+                      {ex._count.submissions} attempts
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <form
+              action={createExercise.bind(null, skill.id)}
+              className="flex flex-wrap gap-2"
+            >
+              <Input
+                name="title"
+                placeholder="New exercise title"
+                required
+                className="min-w-[180px] flex-1"
+              />
+              <Button variant="outline" size="sm">
+                Add exercise
+              </Button>
+            </form>
+          </Card>
+        ))}
+
+        <Card className="p-4">
+          <p className="mb-2 text-[13px] font-semibold">New skill</p>
+          <form action={createSkill.bind(null, courseId)} className="space-y-2">
+            <Input name="name" placeholder="Trigger bulkification" required />
+            <Input
+              name="description"
+              placeholder="What someone who has this can do — optional."
+            />
+            <Button size="sm">Add skill</Button>
+          </form>
+        </Card>
       </section>
     </Page>
   );
