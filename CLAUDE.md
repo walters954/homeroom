@@ -114,6 +114,15 @@ of its copy is derived from the kind in `lib/agent/scope.ts`. A page that
 declares nothing gets the `progress` scope; `/admin/*` gets no pane at all,
 because there you are reviewing the agent rather than talking to it.
 
+Its arrival state is a **brief** (`lib/agent/brief.ts`): what the agent already
+knew before you got here. `/api/tutor/brief` streams two NDJSON lines — the
+derived sentence, straight from rows, then the model's rewrite of it — so the
+model is never on the critical path and an outage costs the nicer sentence, not
+a true one. Briefs are cached per member per scope against a **state
+fingerprint** (last submission, what's due, the thread's last reply), so a page
+view only costs a model call when the state it describes has moved. **Evidence
+lines are never model-authored.**
+
 **Every screen has to work at 375px.** The rail is a sidebar only from `lg`;
 below that it is a top bar plus a drawer. Use `<Page>` rather than a hand-rolled
 `<main>` so padding scales, put wide content in `.hr-scroll-x` or give tables a

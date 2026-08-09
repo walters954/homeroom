@@ -10,17 +10,41 @@ export interface AgentMessage {
   text: string;
 }
 
+export interface AgentBrief {
+  text: string;
+  evidence: string[];
+  written: boolean;
+}
+
+/**
+ * What the agent already knew before you arrived, and the rows it read to know
+ * it. The evidence line is never model-authored, so it stays true even while
+ * the sentence above it is still the derived one.
+ */
+function Brief({ brief }: { brief: AgentBrief }) {
+  return (
+    <div>
+      <p className="text-[12.5px] leading-relaxed text-ink">{brief.text}</p>
+      {brief.evidence.length > 0 && (
+        <p className="hr-ev mt-1">{brief.evidence.join(" · ")}</p>
+      )}
+    </div>
+  );
+}
+
 /**
  * The conversation itself. Shared by the docked desktop pane and the mobile
  * sheet so the two presentations can't drift apart.
  */
 export function AgentPaneBody({
   presentation,
+  brief,
   messages,
   busy,
   onAsk,
 }: {
   presentation: ScopePresentation;
+  brief: AgentBrief | null;
   messages: AgentMessage[];
   busy: boolean;
   onAsk: (question: string) => void;
@@ -47,6 +71,7 @@ export function AgentPaneBody({
       <div ref={scrollRef} className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <div className="flex flex-col gap-3">
+            {brief && <Brief brief={brief} />}
             <p className="text-[12.5px] leading-relaxed text-dim">
               {presentation.intro}
             </p>
@@ -114,6 +139,7 @@ export function AgentPaneBody({
  */
 export function AgentDock({
   presentation,
+  brief,
   messages,
   busy,
   expanded,
@@ -121,6 +147,7 @@ export function AgentDock({
   onAsk,
 }: {
   presentation: ScopePresentation;
+  brief: AgentBrief | null;
   messages: AgentMessage[];
   busy: boolean;
   expanded: boolean;
@@ -166,6 +193,7 @@ export function AgentDock({
 
       <AgentPaneBody
         presentation={presentation}
+        brief={brief}
         messages={messages}
         busy={busy}
         onAsk={onAsk}
