@@ -4,6 +4,11 @@ import { getCurrentUser } from "@/lib/session";
 import { getBranding } from "@/lib/settings";
 import { Rail, type RailGroup } from "./rail";
 import { SignOutButton } from "./sign-out-button";
+import {
+  AgentPaneSlot,
+  AgentProvider,
+  AgentSheetTrigger,
+} from "./agent/provider";
 
 /**
  * Console shell (docs/DESIGN.md §4). The rail is the only persistent
@@ -132,11 +137,23 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    // Column on a phone (the rail becomes a top bar), row from lg where the
-    // rail is a real sidebar again.
-    <div className="flex min-h-screen flex-col lg:flex-row">
-      <Rail groups={groups} brand={brand} footer={footer} />
-      <div className="flex min-w-0 flex-1">{children}</div>
-    </div>
+    // The provider sits above the rail because the mobile tutor trigger lives
+    // in the rail's top bar; the pane itself draws in the content row below.
+    <AgentProvider signedIn={Boolean(user)}>
+      {/* Column on a phone (the rail becomes a top bar), row from lg where the
+          rail is a real sidebar again. */}
+      <div className="flex min-h-screen flex-col lg:flex-row">
+        <Rail
+          groups={groups}
+          brand={brand}
+          footer={footer}
+          action={<AgentSheetTrigger />}
+        />
+        <div className="flex min-w-0 flex-1">
+          {children}
+          <AgentPaneSlot />
+        </div>
+      </div>
+    </AgentProvider>
   );
 }

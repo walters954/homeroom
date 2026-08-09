@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { db } from "@homeroom/db";
 import type { Metadata } from "next";
 import { Markdown } from "@/components/markdown";
-import { AgentPane } from "@/components/agent-pane";
+import { AgentScope } from "@/components/agent/provider";
 import { VideoEmbed } from "@/components/video-embed";
 import { toggleLessonComplete } from "@/lib/actions/progress";
 import { getCourseAccess, lessonAccessible } from "@/lib/access";
@@ -78,8 +78,8 @@ export default async function LessonPage({
   const coursePath = `/courses/${course.slug}/${lesson.slug}`;
 
   return (
-    <>
     <Page width="narrow">
+      <AgentScope scope={{ kind: "lesson", lessonId: lesson.id }} />
       <p className="mb-2 text-sm text-dim">
         <Link href={`/courses/${course.slug}`} className="hover:underline">
           {course.title}
@@ -139,18 +139,5 @@ export default async function LessonPage({
       </div>
 
     </Page>
-    {user && (
-      <AgentPane
-        scope="this lesson"
-        lessonId={lesson.id}
-        intro={`The tutor has read this lesson's transcript and can point you at the exact moment something is explained.`}
-        suggestions={[
-          "Summarise the key point of this lesson",
-          "I didn't follow the part about the trade-offs",
-          "What should I be able to do after this?",
-        ]}
-      />
-    )}
-    </>
   );
 }

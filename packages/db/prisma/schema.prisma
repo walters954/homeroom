@@ -424,8 +424,10 @@ model AgentSuggestion {
 model TutorConversation {
   id        String   @id @default(cuid())
   userId    String
-  /// Lesson context the floater was opened on (null = global Ask page)
+  /// Lesson the conversation is anchored to, when the scope has one
   lessonId  String?
+  /// What the pane was looking at: "lesson:<id>", "exercise:<id>", "thread:<id>", "progress"
+  scopeKey  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -433,6 +435,7 @@ model TutorConversation {
   messages TutorMessage[]
 
   @@index([userId, updatedAt])
+  @@index([userId, scopeKey, updatedAt])
 }
 
 enum TutorRole {

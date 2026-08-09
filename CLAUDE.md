@@ -107,6 +107,13 @@ tail — prefer `Button` / `CardRow` / `Badge` in new code.
 Layout stays local: `<Page>`, `<PageHeader>`, `<EmptyState>` in
 `apps/app/components/`.
 
+**The agent pane is mounted once, in the shell** (`components/agent/provider.tsx`),
+so a conversation survives moving between pages. Pages never render it — they
+declare what it is looking at with `<AgentScope scope={{ kind: … }} />`, and all
+of its copy is derived from the kind in `lib/agent/scope.ts`. A page that
+declares nothing gets the `progress` scope; `/admin/*` gets no pane at all,
+because there you are reviewing the agent rather than talking to it.
+
 **Every screen has to work at 375px.** The rail is a sidebar only from `lg`;
 below that it is a top bar plus a drawer. Use `<Page>` rather than a hand-rolled
 `<main>` so padding scales, put wide content in `.hr-scroll-x` or give tables a
