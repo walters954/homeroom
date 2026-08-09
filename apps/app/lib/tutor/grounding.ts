@@ -195,6 +195,36 @@ async function threadScopeContext(postId: string): Promise<string | null> {
 }
 
 /**
+ * What this scope is about, as the model sees it — the exercise and their
+ * attempts, their practice record, the thread.
+ *
+ * The single place that decides what a scope may expose, so the arrival brief
+ * (`lib/agent/brief.ts`) inherits the exercise redaction rather than
+ * reimplementing it. `lessonId` is the transcript to anchor on, when there is
+ * one: an exercise borrows the lesson it came from, so the concept sits in the
+ * corpus alongside the attempt.
+ */
+export async function scopeContext(
+  scope: AgentScope,
+  user: User,
+): Promise<{ text: string | null; lessonId: string | null }> {
+  switch (scope.kind) {
+    case "lesson":
+      return { text: null, lessonId: scope.lessonId };
+    case "exercise": {
+      const exercise = await exerciseScopeContext(scope.exerciseId, user);
+      return exercise
+        ? { text: exercise.text, lessonId: exercise.lessonId }
+        : { text: null, lessonId: null };
+    }
+    case "progress":
+      return { text: await progressScopeContext(user), lessonId: null };
+    case "thread":
+      return { text: await threadScopeContext(scope.postId), lessonId: null };
+  }
+}
+
+/**
  * Build the tutor's grounding corpus for one question: what the scope is about,
  * then the anchor lesson's transcript + body, then keyword-matched excerpts
  * from the rest of the transcript corpus. The tutor may only teach from what
@@ -208,30 +238,8 @@ export async function buildGrounding(
   const sources: GroundingSource[] = [];
   const parts: string[] = [];
 
-  // An exercise anchors on the lesson it came from, so the concept is in the
-  // corpus alongside the attempt.
-  let lessonId: string | null = null;
-  switch (scope.kind) {
-    case "lesson":
-      lessonId = scope.lessonId;
-      break;
-    case "exercise": {
-      const exercise = await exerciseScopeContext(scope.exerciseId, user);
-      if (exercise) {
-        parts.push(exercise.text);
-        lessonId = exercise.lessonId;
-      }
-      break;
-    }
-    case "progress":
-      parts.push(await progressScopeContext(user));
-      break;
-    case "thread": {
-      const thread = await threadScopeContext(scope.postId);
-      if (thread) parts.push(thread);
-      break;
-    }
-  }
+  const { text, lessonId } = await scopeContext(scope, user);
+  if (text) parts.push(text);
 
   if (lessonId) {
     const lesson = await db.lesson.findUnique({

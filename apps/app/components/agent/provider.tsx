@@ -17,7 +17,12 @@ import {
   scopeKey,
   type AgentScope as Scope,
 } from "@/lib/agent/scope";
-import { AgentDock, AgentPaneBody, type AgentMessage } from "./pane";
+import {
+  AgentDock,
+  AgentPaneBody,
+  type AgentBrief,
+  type AgentMessage,
+} from "./pane";
 
 interface Thread {
   messages: AgentMessage[];
@@ -35,6 +40,7 @@ interface AgentContextValue {
   /** Everything `<AgentPaneSlot>` needs to draw the current conversation. */
   pane: {
     presentation: ReturnType<typeof presentationFor>;
+    brief: AgentBrief | null;
     messages: AgentMessage[];
     busy: boolean;
     ask: (question: string) => void;
@@ -87,11 +93,13 @@ export function AgentProvider({
     path: string;
   } | null>(null);
   const [threads, setThreads] = useState<Record<string, Thread>>({});
+  const [briefs, setBriefs] = useState<Record<string, AgentBrief>>({});
   const [expanded, setExpanded] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const threadsRef = useRef<Record<string, Thread>>({});
   const controllers = useRef(new Set<AbortController>());
+  const briefsAsked = useRef(new Set<string>());
 
   useEffect(() => {
     const stored = window.localStorage.getItem(EXPANDED_KEY);
@@ -220,6 +228,75 @@ export function AgentProvider({
     [scope, write],
   );
 
+  // The brief costs a model call on the server, so it is fetched only when the
+  // pane is actually open at a scope whose arrival state is on screen. A
+  // collapsed spine and a conversation already in progress both mean nobody
+  // would read it.
+  const onScreen = visible && (expanded || sheetOpen);
+  const wanted = onScreen && thread.messages.length === 0 ? key : null;
+
+  useEffect(() => {
+    if (!wanted || briefsAsked.current.has(wanted)) return;
+    briefsAsked.current.add(wanted);
+
+    const controller = new AbortController();
+    controllers.current.add(controller);
+
+    void (async () => {
+      try {
+        const res = await fetch("/api/tutor/brief", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scope }),
+          signal: controller.signal,
+        });
+        if (!res.ok || !res.body) throw new Error(String(res.status));
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          // NDJSON: the derived brief lands first, the written one replaces it.
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            const parsed = JSON.parse(line) as
+              | { type: "derived"; text: string; evidence: string[] }
+              | { type: "written"; text: string };
+            setBriefs((all) =>
+              parsed.type === "derived"
+                ? {
+                    ...all,
+                    [wanted]: {
+                      text: parsed.text,
+                      evidence: parsed.evidence,
+                      written: false,
+                    },
+                  }
+                : all[wanted]
+                  ? {
+                      ...all,
+                      [wanted]: { ...all[wanted], text: parsed.text, written: true },
+                    }
+                  : all,
+            );
+          }
+        }
+      } catch {
+        // No brief is a quieter failure than a wrong one — the pane still has
+        // its intro and its suggestions. Allow a retry on the next visit.
+        briefsAsked.current.delete(wanted);
+      } finally {
+        controllers.current.delete(controller);
+      }
+    })();
+    // `scope` and `wanted` move together — wanted is its key.
+  }, [wanted, scope]);
+
   const openSheet = useCallback(() => setSheetOpen(true), []);
 
   const changeExpanded = useCallback((next: boolean) => {
@@ -234,6 +311,7 @@ export function AgentProvider({
       openSheet,
       pane: {
         presentation,
+        brief: briefs[key] ?? null,
         messages: thread.messages,
         busy: thread.busy,
         ask,
@@ -248,6 +326,8 @@ export function AgentProvider({
       visible,
       openSheet,
       presentation,
+      briefs,
+      key,
       thread.messages,
       thread.busy,
       ask,
@@ -275,6 +355,7 @@ export function AgentPaneSlot() {
     <>
       <AgentDock
         presentation={pane.presentation}
+        brief={pane.brief}
         messages={pane.messages}
         busy={pane.busy}
         expanded={pane.expanded}
@@ -296,6 +377,7 @@ export function AgentPaneSlot() {
           </div>
           <AgentPaneBody
             presentation={pane.presentation}
+            brief={pane.brief}
             messages={pane.messages}
             busy={pane.busy}
             onAsk={pane.ask}

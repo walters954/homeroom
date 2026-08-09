@@ -39,6 +39,7 @@ model User {
   submissions        Submission[]
   skillStates        SkillState[]
   recallItems        RecallItem[]
+  agentBriefs        AgentBrief[]
 
   @@map("user")
 }
@@ -436,6 +437,24 @@ model TutorConversation {
 
   @@index([userId, updatedAt])
   @@index([userId, scopeKey, updatedAt])
+}
+
+/// The tutor pane's opening line for one member on one screen, so a page view
+/// costs a model call only when the state it describes has actually moved.
+model AgentBrief {
+  id       String @id @default(cuid())
+  userId   String
+  /// Matches TutorConversation.scopeKey: "lesson:<id>", "progress", …
+  scopeKey String
+  /// The state this was written from. A change here is what invalidates it.
+  fingerprint String
+  text        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scopeKey])
 }
 
 enum TutorRole {
