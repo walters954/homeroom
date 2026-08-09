@@ -33,6 +33,12 @@ export default async function AdminLessonPage({
   });
   if (!lesson || lesson.section.courseId !== courseId) notFound();
 
+  const sections = await db.section.findMany({
+    where: { courseId },
+    orderBy: [{ order: "asc" }, { id: "asc" }],
+    select: { id: true, title: true },
+  });
+
   const body = (lesson.body as { markdown?: string } | null)?.markdown ?? "";
 
   return (
@@ -84,6 +90,24 @@ export default async function AdminLessonPage({
               />
             </label>
           </div>
+          <label className="flex flex-col gap-1 font-medium">
+            Section
+            <Select
+              name="sectionId"
+              defaultValue={lesson.sectionId}
+              className="font-normal"
+            >
+              {sections.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.title}
+                </option>
+              ))}
+            </Select>
+            <span className="hr-ev">
+              Moving a lesson puts it at the end of the new section — reorder it
+              from the course page.
+            </span>
+          </label>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <label className="flex flex-col gap-1 font-medium">
               Video provider

@@ -226,6 +226,12 @@ a course's skills section) and import a member list from CSV
 solution against its own tests** — if the author's answer cannot pass, a
 learner would be told correct code is wrong.
 
+Curriculum order is editable (`moveSection` / `moveLesson` in
+`lib/actions/courses.ts`, and a section picker on the lesson form). Reordering
+rewrites the whole sibling list as 0..n-1 rather than swapping two rows —
+seeded content already has duplicate and gapped `order` values, and a two-row
+swap silently does nothing when both hold the same number.
+
 Not built yet: Apex execution (#29 — so Apex exercises still report honestly and
 admins use the manual override), the repo-grounded tutor (#8), and per-user dark
 mode (#40 — the surface is school-wide today). **Stripe is still in sandbox

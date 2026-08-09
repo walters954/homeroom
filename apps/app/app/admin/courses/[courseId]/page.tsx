@@ -5,6 +5,8 @@ import {
   createLesson,
   createSection,
   deleteSection,
+  moveLesson,
+  moveSection,
   updateCourse,
 } from "@/lib/actions/courses";
 import { createExercise, createSkill, deleteSkill } from "@/lib/actions/exercises";
@@ -13,6 +15,55 @@ import { requireAdmin } from "@/lib/session";
 import { Button, Card, Input, Textarea } from "@homeroom/ui";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Up/down beats drag-and-drop here: it works without JavaScript, is reachable
+ * by keyboard and screen reader, and building a curriculum is a handful of
+ * deliberate moves rather than a long sort. The ends are disabled rather than
+ * hidden so rows don't reflow as you move something down a list.
+ */
+function Reorder({
+  up,
+  down,
+  first,
+  last,
+  label,
+}: {
+  up: () => Promise<void>;
+  down: () => Promise<void>;
+  first: boolean;
+  last: boolean;
+  label: string;
+}) {
+  const base =
+    "grid h-[18px] w-[18px] place-items-center rounded border border-line text-[10px] leading-none text-dim hover:bg-soft disabled:cursor-default disabled:opacity-25 disabled:hover:bg-transparent";
+  return (
+    <span className="flex shrink-0 flex-col gap-0.5">
+      <form action={up}>
+        <button
+          type="submit"
+          disabled={first}
+          aria-label={`Move ${label} up`}
+          title="Move up"
+          className={base}
+        >
+          ▲
+        </button>
+      </form>
+      <form action={down}>
+        <button
+          type="submit"
+          disabled={last}
+          aria-label={`Move ${label} down`}
+          title="Move down"
+          className={base}
+        >
+          ▼
+        </button>
+      </form>
+    </span>
+  );
+}
 
 export default async function AdminCoursePage({
   params,
@@ -130,10 +181,19 @@ export default async function AdminCoursePage({
 
       <section className="space-y-6">
         <h2 className="text-[13px] font-semibold">Curriculum</h2>
-        {course.sections.map((section) => (
+        {course.sections.map((section, sectionIndex) => (
           <div key={section.id} className="hr-card mb-4 p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-semibold">{section.title}</h3>
+            <div className="mb-3 flex items-center gap-2">
+              <Reorder
+                up={moveSection.bind(null, course.id, section.id, "up")}
+                down={moveSection.bind(null, course.id, section.id, "down")}
+                first={sectionIndex === 0}
+                last={sectionIndex === course.sections.length - 1}
+                label={`section ${section.title}`}
+              />
+              <h3 className="min-w-0 flex-1 truncate font-semibold">
+                {section.title}
+              </h3>
               <form action={deleteSection.bind(null, section.id, course.id)}>
                 <button className="text-xs text-fail hover:underline">
                   delete section
@@ -141,32 +201,58 @@ export default async function AdminCoursePage({
               </form>
             </div>
             <ul className="mb-4 divide-y divide-line">
-              {section.lessons.map((lesson) => (
-                <Link
+              {section.lessons.map((lesson, lessonIndex) => (
+                <li
                   key={lesson.id}
-                  href={`/admin/courses/${course.id}/lessons/${lesson.id}`}
-                  className="block hover:bg-bg"
+                  className="flex items-center gap-2 px-2 py-2 text-sm"
                 >
-                  <li className="flex items-center justify-between px-2 py-2 text-sm">
-                    <span>{lesson.title}</span>
-                    <span className="flex gap-2 text-xs">
-                      {lesson.videoProvider !== "NONE" && (
-                        <span className="text-dim">
-                          {lesson.videoProvider.toLowerCase()}
-                        </span>
-                      )}
-                      {lesson.transcript && (
-                        <span className="text-acc">transcript ✓</span>
-                      )}
-                      {!lesson.published && (
-                        <span className="rounded bg-warn-soft px-1.5 py-0.5 text-warn">
-                          draft
-                        </span>
-                      )}
-                    </span>
-                  </li>
-                </Link>
+                  <Reorder
+                    up={moveLesson.bind(
+                      null,
+                      course.id,
+                      section.id,
+                      lesson.id,
+                      "up",
+                    )}
+                    down={moveLesson.bind(
+                      null,
+                      course.id,
+                      section.id,
+                      lesson.id,
+                      "down",
+                    )}
+                    first={lessonIndex === 0}
+                    last={lessonIndex === section.lessons.length - 1}
+                    label={lesson.title}
+                  />
+                  <Link
+                    href={`/admin/courses/${course.id}/lessons/${lesson.id}`}
+                    className="min-w-0 flex-1 truncate hover:underline"
+                  >
+                    {lesson.title}
+                  </Link>
+                  <span className="flex shrink-0 gap-2 text-xs">
+                    {lesson.videoProvider !== "NONE" && (
+                      <span className="text-dim">
+                        {lesson.videoProvider.toLowerCase()}
+                      </span>
+                    )}
+                    {lesson.transcript && (
+                      <span className="text-acc">transcript ✓</span>
+                    )}
+                    {!lesson.published && (
+                      <span className="rounded bg-warn-soft px-1.5 py-0.5 text-warn">
+                        draft
+                      </span>
+                    )}
+                  </span>
+                </li>
               ))}
+              {section.lessons.length === 0 && (
+                <li className="px-2 py-2 text-sm text-dim">
+                  No lessons in this section yet.
+                </li>
+              )}
             </ul>
             <form
               action={createLesson.bind(null, section.id, course.id)}

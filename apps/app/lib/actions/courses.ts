@@ -100,10 +100,18 @@ export async function updateLesson(
     where: { id: lessonId },
     include: { section: { include: { course: true } } },
   });
+  if (!before) return;
+
+  const moved = await relocation(
+    courseId,
+    before,
+    String(formData.get("sectionId") ?? "").trim(),
+  );
 
   await db.lesson.update({
     where: { id: lessonId },
     data: {
+      ...moved,
       title: String(formData.get("title") ?? "").trim() || undefined,
       slug: String(formData.get("slug") ?? "").trim() || undefined,
       body: markdown ? { markdown } : undefined,
@@ -125,6 +133,105 @@ export async function updateLesson(
 
   revalidatePath(`/admin/courses/${courseId}/lessons/${lessonId}`);
   revalidatePath("/courses");
+}
+
+/**
+ * Curriculum ordering (GitHub issue #2).
+ *
+ * `order` was only ever set to last+1 at creation, so inserting a lesson into
+ * the middle of a module was impossible without SQL. These write the whole
+ * sibling list back as 0..n-1 rather than swapping two rows: seeded and
+ * hand-edited content already contains duplicate and gapped orders, and a
+ * two-row swap silently does nothing when both rows hold the same number.
+ */
+type Direction = "up" | "down";
+
+function swapped<T extends { id: string }>(
+  rows: T[],
+  id: string,
+  direction: Direction,
+): T[] | null {
+  const from = rows.findIndex((r) => r.id === id);
+  if (from < 0) return null;
+  const to = from + (direction === "up" ? -1 : 1);
+  if (to < 0 || to >= rows.length) return null; // already at the end
+  const next = [...rows];
+  [next[from], next[to]] = [next[to], next[from]];
+  return next;
+}
+
+export async function moveSection(
+  courseId: string,
+  sectionId: string,
+  direction: Direction,
+) {
+  await requireAdmin();
+  const sections = await db.section.findMany({
+    where: { courseId },
+    orderBy: [{ order: "asc" }, { id: "asc" }],
+    select: { id: true },
+  });
+  const next = swapped(sections, sectionId, direction);
+  if (!next) return;
+
+  await db.$transaction(
+    next.map((s, i) =>
+      db.section.update({ where: { id: s.id }, data: { order: i } }),
+    ),
+  );
+  revalidatePath(`/admin/courses/${courseId}`);
+  revalidatePath("/courses");
+}
+
+export async function moveLesson(
+  courseId: string,
+  sectionId: string,
+  lessonId: string,
+  direction: Direction,
+) {
+  await requireAdmin();
+  const lessons = await db.lesson.findMany({
+    where: { sectionId },
+    orderBy: [{ order: "asc" }, { id: "asc" }],
+    select: { id: true },
+  });
+  const next = swapped(lessons, lessonId, direction);
+  if (!next) return;
+
+  await db.$transaction(
+    next.map((l, i) =>
+      db.lesson.update({ where: { id: l.id }, data: { order: i } }),
+    ),
+  );
+  revalidatePath(`/admin/courses/${courseId}`);
+  revalidatePath("/courses");
+}
+
+/**
+ * Where a lesson should land if it's being moved into another section: the
+ * end of the target. Returns undefined when the section isn't changing, so
+ * `updateLesson` can leave `order` alone.
+ *
+ * The target is scoped to the course so a tampered form value can't relocate
+ * a lesson into a different curriculum.
+ */
+async function relocation(
+  courseId: string,
+  lesson: { sectionId: string },
+  requested: string,
+): Promise<{ sectionId: string; order: number } | undefined> {
+  if (!requested || requested === lesson.sectionId) return undefined;
+  const target = await db.section.findFirst({
+    where: { id: requested, courseId },
+    select: { id: true },
+  });
+  if (!target) return undefined;
+  const last = await db.lesson.findFirst({
+    where: { sectionId: target.id },
+    orderBy: { order: "desc" },
+    select: { order: true },
+  });
+  return { sectionId: target.id, order: (last?.order ?? -1) + 1 };
 }
 
 export async function deleteLesson(lessonId: string, courseId: string) {
