@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/community";
 import { getCurrentUser } from "@/lib/session";
 import { Page } from "@/components/page-header";
+import { AgentScope } from "@/components/agent/provider";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,7 @@ export default async function PostPage({
 
   return (
     <Page width="narrow">
+      <AgentScope scope={{ kind: "thread", postId: post.id }} />
       <p className="mb-2 text-sm text-dim">
         <Link href="/community" className="hover:underline">
           Community

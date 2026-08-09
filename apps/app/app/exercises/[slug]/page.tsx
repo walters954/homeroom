@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { ExerciseEditor } from "@/components/exercise-editor";
 import { Markdown } from "@/components/markdown";
 import { Page, PageHeader } from "@/components/page-header";
-import { AgentPane } from "@/components/agent-pane";
+import { AgentScope } from "@/components/agent/provider";
 import { getCourseAccess } from "@/lib/access";
 import {
   markPassedManual,
@@ -101,8 +101,8 @@ export default async function ExercisePage({
     : null;
 
   return (
-    <>
     <Page width="narrow">
+      <AgentScope scope={{ kind: "exercise", exerciseId: exercise.id }} />
       <PageHeader
         crumbs={[
           { label: "Today", href: "/today" },
@@ -256,17 +256,6 @@ export default async function ExercisePage({
       )}
 
     </Page>
-      <AgentPane
-        scope="this exercise"
-        lessonId={exercise.lessonId ?? undefined}
-        intro="Ask about the concept behind this exercise. The tutor answers from the lesson it came from and won't hand you the solution — that's what the hints are for."
-        suggestions={[
-          "What is this exercise actually testing?",
-          "Explain the concept again, briefly",
-          "Why would my approach fail in production?",
-        ]}
-      />
-    </>
   );
 }
 

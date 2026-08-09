@@ -1,4 +1,5 @@
 import { db } from "@homeroom/db";
+import type { AgentScope } from "@/lib/agent/scope";
 
 export interface GroundingSource {
   lessonId: string;
@@ -16,16 +17,41 @@ const CURRENT_LESSON_CHAR_CAP = 60000;
 const EXCERPT_CHARS = 600;
 
 /**
- * Build the tutor's grounding corpus for one question: the current lesson's
+ * Which lesson's transcript anchors a scope, if any.
+ *
+ * An exercise borrows the lesson it came from. Progress and thread scopes have
+ * no anchor lesson yet, so they fall through to the keyword sweep across the
+ * corpus — grounding of their own (your attempts; the thread itself) is the
+ * next piece of #26.
+ */
+async function anchorLesson(scope: AgentScope): Promise<string | null> {
+  switch (scope.kind) {
+    case "lesson":
+      return scope.lessonId;
+    case "exercise": {
+      const exercise = await db.exercise.findUnique({
+        where: { id: scope.exerciseId },
+        select: { lessonId: true },
+      });
+      return exercise?.lessonId ?? null;
+    }
+    default:
+      return null;
+  }
+}
+
+/**
+ * Build the tutor's grounding corpus for one question: the anchor lesson's
  * transcript + body first, then keyword-matched excerpts from the rest of the
  * transcript corpus. The tutor may only teach from what this returns.
  */
 export async function buildGrounding(
   question: string,
-  lessonId: string | null,
+  scope: AgentScope,
 ): Promise<GroundingContext> {
   const sources: GroundingSource[] = [];
   const parts: string[] = [];
+  const lessonId = await anchorLesson(scope);
 
   if (lessonId) {
     const lesson = await db.lesson.findUnique({

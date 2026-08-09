@@ -3,6 +3,7 @@ import { db, type Prisma } from "@homeroom/db";
 import { makeAnthropic, modelFor } from "@/lib/ai";
 import { getBranding } from "@/lib/settings";
 import { buildGrounding } from "@/lib/tutor/grounding";
+import { parseScope, scopeKey } from "@/lib/agent/scope";
 import { getCurrentUser } from "@/lib/session";
 
 export const maxDuration = 120;
@@ -26,12 +27,16 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as {
     message?: string;
-    lessonId?: string;
+    scope?: unknown;
     conversationId?: string;
   };
   const message = body.message?.trim();
   if (!message) {
     return Response.json({ error: "Empty message" }, { status: 400 });
+  }
+  const scope = parseScope(body.scope);
+  if (!scope) {
+    return Response.json({ error: "Unknown scope" }, { status: 400 });
   }
 
   // Load or create the conversation, scoped to this user.
@@ -43,12 +48,16 @@ export async function POST(request: Request) {
     : null;
   if (!conversation) {
     conversation = await db.tutorConversation.create({
-      data: { userId: user.id, lessonId: body.lessonId ?? null },
+      data: {
+        userId: user.id,
+        scopeKey: scopeKey(scope),
+        lessonId: scope.kind === "lesson" ? scope.lessonId : null,
+      },
       include: { messages: true },
     });
   }
 
-  const grounding = await buildGrounding(message, body.lessonId ?? null);
+  const grounding = await buildGrounding(message, scope);
 
   await db.tutorMessage.create({
     data: { conversationId: conversation.id, role: "USER", content: message },
