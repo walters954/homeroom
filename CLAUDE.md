@@ -73,6 +73,13 @@ pnpm db:migrate                                  # prisma migrate dev
 - **Never run `pnpm dev` / `npm run dev`.** Assume a server is already running, or
   ask. To see the app, drive the live deployment instead.
 - Deploy with `vercel deploy --prod --yes` from the repo root — only when asked.
+- **Migrations apply themselves on production deploys only.** `apps/app/vercel.json`
+  runs `migrate:deploy` when `VERCEL_ENV=production`, so a failed migration fails
+  the build instead of shipping code against a schema that isn't there. Previews
+  skip it deliberately — they share the production database, so a preview build
+  would otherwise migrate production from an unmerged branch. Keep migrations
+  **additive and backward-compatible** (add a nullable column, add a table): they
+  land before the new code is serving, so the old code has to survive them.
 
 ## Styling — non-negotiable
 
