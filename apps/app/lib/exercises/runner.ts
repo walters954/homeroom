@@ -1,5 +1,6 @@
 import type { Exercise } from "@homeroom/db";
 import { allFailed, planFor, reconcile, unsupportedMessage } from "./harness";
+import { APEX_NOT_CONFIGURED_MESSAGE } from "./apex";
 import { isConfigured, runInSandbox } from "./sandbox";
 
 /** One file in an attempt or in an exercise's starter/solution set. */
@@ -86,6 +87,13 @@ export const NO_TESTS_MESSAGE =
  */
 export const runTests: TestRunner = async (exercise, files) => {
   const spec = parseTestSpec(exercise.testSpec);
+
+  if (exercise.language === "APEX") {
+    // Apex has no runtime here — it executes inside a Salesforce org, which
+    // this deployment does not have connected yet. Reported as a failure with
+    // the reason, never as a pass. See issue #29.
+    return allFailed(spec, APEX_NOT_CONFIGURED_MESSAGE);
+  }
 
   const plan = planFor(exercise.language);
   if (!plan) return allFailed(spec, unsupportedMessage(exercise.language));
