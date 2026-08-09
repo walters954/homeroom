@@ -160,6 +160,14 @@ a genuine green is a failure, including our own outages** — a fabricated pass
 would set a PROVEN state, seed a recall schedule and unlock the worked solution
 off nothing. `lib/exercises/harness.test.mjs` guards that; keep it passing.
 
+The tutor's corpus is scope-aware (`lib/tutor/grounding.ts`), and on an exercise
+it is given the brief, the starter files, the check *names*, and the learner's
+own submission and failures — **never `testFiles` or `solutionFiles`**. A tutor
+holding the answer key would recite the assertion you are failing, which is the
+hint ladder collapsing into a solution. `lib/tutor/context.test.mjs` guards that
+too; assembly stays in `lib/tutor/context.ts`, which has no database import so
+the guarantee stays testable.
+
 All admin surfaces are on the Console direction and every screen has a
 small-screen state, so the app is usable on a phone.
 
