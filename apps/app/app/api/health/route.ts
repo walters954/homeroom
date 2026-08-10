@@ -32,14 +32,27 @@ export async function GET() {
   // Only detects migrations that started and never finished, or were rolled
   // back — a deploy that half-applied. It cannot see a migration that exists
   // in the repo and was never run, because the migrations directory isn't in
-  // the serverless bundle; `prisma migrate status` in CI is still the check
-  // that would catch that one (#52).
+  // the serverless bundle; `prisma migrate status` in CI is the check that
+  // would catch that one (#68).
+  //
+  // `_prisma_migrations` keeps failed attempts as rows rather than replacing
+  // them, so a migration that failed, was resolved and then re-applied has
+  // two rows: the wreckage and the clean one. Only the absence of any clean
+  // row means the schema is actually missing that migration. Matching on the
+  // failed row alone reports the Aug 8 incident as ongoing forever, which is
+  // how the first version of this check 503'd a healthy production.
   if (checks.database) {
     try {
       const broken = await db.$queryRaw<{ migration_name: string }[]>`
-        SELECT migration_name FROM _prisma_migrations
-        WHERE finished_at IS NULL OR rolled_back_at IS NOT NULL
-        ORDER BY started_at DESC LIMIT 1`;
+        SELECT m.migration_name FROM _prisma_migrations m
+        WHERE (m.finished_at IS NULL OR m.rolled_back_at IS NOT NULL)
+          AND NOT EXISTS (
+            SELECT 1 FROM _prisma_migrations ok
+            WHERE ok.migration_name = m.migration_name
+              AND ok.finished_at IS NOT NULL
+              AND ok.rolled_back_at IS NULL
+          )
+        ORDER BY m.started_at DESC LIMIT 1`;
       checks.migrations = broken.length === 0;
       migration = broken[0]?.migration_name ?? null;
       if (!checks.migrations) {
