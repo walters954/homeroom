@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { db } from "@homeroom/db";
 import { APP_URL, sendEmail } from "@/lib/notify";
 
@@ -9,10 +10,22 @@ export async function GET(request: Request) {
   if (secret) {
     const auth = request.headers.get("authorization");
     if (auth !== `Bearer ${secret}`) {
+      // Not a job failure — no check-in, so a probe can't mark the cron red.
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
   }
 
+  // The check-in tells Sentry the job ran; the schedule tells it when to
+  // complain if one doesn't. A cron that stops firing produces no error at
+  // all, which is why nothing else in this file would ever catch it.
+  return Sentry.withMonitor("cron-event-reminders", run, {
+    schedule: { type: "crontab", value: "0 * * * *" },
+    checkinMargin: 10,
+    maxRuntime: 10,
+  });
+}
+
+async function run(): Promise<Response> {
   const now = new Date();
   const cutoff = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const events = await db.event.findMany({

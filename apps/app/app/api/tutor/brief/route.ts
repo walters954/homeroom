@@ -1,6 +1,7 @@
 import { openingBrief, writtenBrief } from "@/lib/agent/brief";
 import { parseScope } from "@/lib/agent/scope";
 import { getCurrentUser } from "@/lib/session";
+import { report } from "@/lib/observe";
 
 export const maxDuration = 60;
 
@@ -45,8 +46,11 @@ export async function POST(request: Request) {
           opening.brief,
         );
         if (written) line({ type: "written", text: written });
-      } catch {
-        // The derived line is already on screen; leave it there.
+      } catch (err) {
+        // The derived line is already on screen; leave it there. The design
+        // is that losing this costs the nicer sentence and nothing else —
+        // which is exactly why it can fail for weeks without anyone noticing.
+        report("tutor.brief", err, { scope: scope.kind });
       }
       controller.close();
     },

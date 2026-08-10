@@ -157,6 +157,34 @@ missing and give the action that fixes it.
 - Long-running model work needs `export const maxDuration` on the page or route that
   hosts the action.
 
+## Knowing when it's broken
+
+Sentry (`@sentry/nextjs`), wired in `instrumentation.ts` / `instrumentation-client.ts`
+and the two `sentry.*.config.ts` files. Set `NEXT_PUBLIC_SENTRY_DSN`; unset means
+the SDK no-ops, like every other integration here. `SENTRY_ORG` / `SENTRY_PROJECT`
+/ `SENTRY_AUTH_TOKEN` are build-time only and come from the Vercel integration —
+without them the build skips source map upload instead of failing. Client errors
+tunnel through `/monitoring` so ad blockers can't eat them.
+
+**`catch {}` and "we hear nothing" are two different decisions.** Degrading
+gracefully for the member is right and stays; call `report()` from `lib/observe.ts`
+inside the catch so the failure is still visible to us. Every model call in
+production 500'd for days precisely because the tutor route turned an outage into
+a friendly sentence and told nobody.
+
+Both crons check in via `Sentry.withMonitor` with their crontab from
+`vercel.json` — a cron that stops firing raises no error, so only a missed
+check-in can catch it. **Keep the schedules in the two files in step.** The 401
+path deliberately doesn't check in, so a probe can't mark a job red.
+
+`/api/health` is the uptime target: 200 / 503 over database, migration state and
+gateway auth. It reports *which* check failed and never why — it's public, and
+the reasons carry connection strings, so those go to Sentry.
+
+Still open from #52: `prisma migrate status` in CI. The health check only catches
+a migration that started and never finished, not one that was never run — the
+migrations directory isn't in the serverless bundle.
+
 ## Tracking
 
 Work lives in **GitHub Issues** on `walters954/homeroom`, on project board #3.

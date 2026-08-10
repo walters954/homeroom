@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { db, type Prisma } from "@homeroom/db";
 import { APP_URL } from "@/lib/notify";
 
@@ -14,10 +15,21 @@ export async function GET(request: Request) {
   if (secret) {
     const auth = request.headers.get("authorization");
     if (auth !== `Bearer ${secret}`) {
+      // Not a job failure — no check-in, so a probe can't mark the cron red.
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
   }
 
+  // Weekly, so a miss is worth a wide margin and worth hearing about: left
+  // unwatched, this could stop filing nudges for a month unnoticed.
+  return Sentry.withMonitor("cron-engagement", run, {
+    schedule: { type: "crontab", value: "0 13 * * 1" },
+    checkinMargin: 60,
+    maxRuntime: 10,
+  });
+}
+
+async function run(): Promise<Response> {
   const cutoff = new Date(Date.now() - INACTIVE_DAYS * 24 * 60 * 60 * 1000);
   const members = await db.user.findMany({
     where: { role: "MEMBER" },

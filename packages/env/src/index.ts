@@ -23,6 +23,16 @@ const schema = z.object({
   // Encrypts the stored refresh token. 32+ chars: openssl rand -base64 32
   SALESFORCE_TOKEN_KEY: z.string().min(16).optional(),
 
+  // Error tracking (#52). Unset means the SDK no-ops, same as every other
+  // integration here. SENTRY_ORG/PROJECT/AUTH_TOKEN are build-time only and
+  // are set by the Vercel integration; without them the build skips source
+  // map upload rather than failing.
+  NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+  SENTRY_DSN: z.string().url().optional(),
+  SENTRY_ORG: z.string().optional(),
+  SENTRY_PROJECT: z.string().optional(),
+  SENTRY_AUTH_TOKEN: z.string().optional(),
+
   AI_GATEWAY_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
   TUTOR_MODEL: z.string().optional(),
