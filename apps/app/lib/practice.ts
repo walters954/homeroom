@@ -225,10 +225,35 @@ export interface NextAction {
   reason: string;
   /** The rows the reason was drawn from. */
   evidence: string[];
+  /** Which course this sits in, so /courses can scope the same proposal. */
+  courseId: string;
+}
+
+/**
+ * A course, as the practice loop sees it.
+ *
+ * The catalog used to report `X% complete` from `LessonProgress.completedAt`,
+ * which advances by watching — the belief the whole loop exists to break.
+ * These counts come from attempts, and `next` is the same ranked proposal
+ * `/today` computes, scoped to one course.
+ */
+export interface CourseStanding {
+  courseId: string;
+  proven: number;
+  shaky: number;
+  untested: number;
+  /** Last attempt against an exercise in this course. */
+  lastAttemptAt: Date | null;
+  /** The highest-ranked proposal that sits inside this course. */
+  next: NextAction | null;
+  /** Why this course is where it is in the order, drawn from the counts. */
+  standing: string;
 }
 
 export interface PracticeSnapshot {
   ranked: NextAction[];
+  /** One per accessible course, most deserving of attention first. */
+  courses: CourseStanding[];
   dueRecall: {
     skillId: string;
     skillName: string;
@@ -247,6 +272,26 @@ export interface PracticeSnapshot {
 
 function exerciseHref(slug: string) {
   return `/exercises/${slug}`;
+}
+
+/**
+ * The evidence line under a course card. Says the thing that would make
+ * someone open this course rather than another one, and says nothing when
+ * there is nothing true to say — an empty line beats a padded one.
+ */
+function courseStanding(c: CourseStanding, now: Date): string {
+  const parts: string[] = [];
+  if (c.shaky > 0) parts.push(`${c.shaky} shaky`);
+  if (c.proven > 0) parts.push(`${c.proven} proven`);
+  if (c.untested > 0) parts.push(`${c.untested} untested`);
+  if (parts.length === 0) return "no skills authored here yet";
+
+  parts.push(
+    c.lastAttemptAt
+      ? `last attempt ${relativeDays(c.lastAttemptAt, now)}`
+      : "nothing attempted yet",
+  );
+  return parts.join(" · ");
 }
 
 /**
@@ -316,6 +361,7 @@ export async function getPracticeSnapshot(user: User): Promise<PracticeSnapshot>
     ranked.push({
       key: `recall:${first.skillId}`,
       kind: "RECALL",
+      courseId: first.skill.courseId,
       eyebrow: "Due for recall",
       title: first.skill.name,
       href: "/recall",
@@ -352,6 +398,7 @@ export async function getPracticeSnapshot(user: User): Promise<PracticeSnapshot>
     ranked.push({
       key: `exercise:${ex.id}`,
       kind: "SHAKY_EXERCISE",
+      courseId: ex.skill.courseId,
       eyebrow: "Shaky skill",
       title: ex.title,
       href: exerciseHref(ex.slug),
@@ -384,6 +431,7 @@ export async function getPracticeSnapshot(user: User): Promise<PracticeSnapshot>
     ranked.push({
       key: `exercise:${ex.id}`,
       kind: "NEXT_EXERCISE",
+      courseId: ex.skill.courseId,
       eyebrow: "Next in order",
       title: ex.title,
       href: exerciseHref(ex.slug),
@@ -401,8 +449,57 @@ export async function getPracticeSnapshot(user: User): Promise<PracticeSnapshot>
 
   const practiceDays = await getPracticeDays(user.id, 7, now);
 
+  // Per-course standing, from the rows already loaded above.
+  const courseOfExercise = new Map(exercises.map((e) => [e.id, e.skill.courseId]));
+  const lastAttemptByCourse = new Map<string, Date>();
+  for (const s of submissions) {
+    if (!isAttempt(s)) continue;
+    const courseId = courseOfExercise.get(s.exerciseId);
+    if (!courseId) continue;
+    const seen = lastAttemptByCourse.get(courseId);
+    if (!seen || s.createdAt > seen) lastAttemptByCourse.set(courseId, s.createdAt);
+  }
+
+  // Seeded from every accessible course, not just those with skills, so a
+  // course with nothing authored yet still gets a card and an honest zero.
+  const standings = new Map<string, CourseStanding>(
+    courseIds.map((courseId) => [
+      courseId,
+      {
+        courseId,
+        proven: 0,
+        shaky: 0,
+        untested: 0,
+        lastAttemptAt: lastAttemptByCourse.get(courseId) ?? null,
+        next: ranked.find((a) => a.courseId === courseId) ?? null,
+        standing: "",
+      },
+    ]),
+  );
+  for (const skill of skills) {
+    const standing = standings.get(skill.courseId);
+    if (!standing) continue;
+    const status = stateBySkill.get(skill.id)?.status ?? "UNTESTED";
+    if (status === "PROVEN") standing.proven++;
+    else if (status === "SHAKY") standing.shaky++;
+    else standing.untested++;
+  }
+  for (const standing of standings.values()) {
+    standing.standing = courseStanding(standing, now);
+  }
+
+  // Order: whatever the ranking already put first, then the courses with the
+  // most shaky ground. A course you've finished sinks, which is correct — it
+  // is the one place you have nothing left to prove.
+  const rankOf = (c: CourseStanding) =>
+    c.next ? ranked.findIndex((a) => a.key === c.next?.key) : Number.MAX_SAFE_INTEGER;
+  const courses = [...standings.values()].sort(
+    (a, b) => rankOf(a) - rankOf(b) || b.shaky - a.shaky || b.untested - a.untested,
+  );
+
   return {
     ranked,
+    courses,
     dueRecall: due.map((r) => ({
       skillId: r.skillId,
       skillName: r.skill.name,
