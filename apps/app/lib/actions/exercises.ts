@@ -192,7 +192,7 @@ export interface VerifyResult {
  * code is wrong, which is the single worst thing this product can do.
  */
 export async function verifyExercise(exerciseId: string): Promise<VerifyResult> {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const exercise = await db.exercise.findUnique({ where: { id: exerciseId } });
   if (!exercise) {
@@ -227,7 +227,9 @@ export async function verifyExercise(exerciseId: string): Promise<VerifyResult> 
     ...solution,
   ];
 
-  const results = await runTests(exercise, merged);
+  // Apex verification runs in the admin's own connected org — the same path a
+  // learner's attempt takes, so a green here means green for them too.
+  const results = await runTests(exercise, merged, admin.id);
   const failed = results.filter((r) => !r.passed);
   const spec = parseTestSpec(exercise.testSpec);
   const missing = spec.filter((s) => !results.some((r) => r.name === s.name));

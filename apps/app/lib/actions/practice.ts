@@ -90,7 +90,7 @@ export async function submitAttempt(slug: string, formData: FormData) {
 
   // Real execution in a sandbox for languages we can run; an honest failure
   // for the ones we can't. Never a fabricated pass — see lib/exercises/runner.
-  const results = await runTests(exercise, files);
+  const results = await runTests(exercise, files, user.id);
   const passed = results.length > 0 && results.every((r) => r.passed);
 
   if (latest && !isAttempt(latest)) {
