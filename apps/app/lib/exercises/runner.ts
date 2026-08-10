@@ -1,6 +1,7 @@
 import type { Exercise } from "@homeroom/db";
 import { allFailed, planFor, reconcile, unsupportedMessage } from "./harness";
 import { isConfigured, runInSandbox } from "./sandbox";
+import { runApexInLearnerOrg } from "./apex-run";
 
 /** One file in an attempt or in an exercise's starter/solution set. */
 export interface ExerciseFile {
@@ -28,6 +29,8 @@ export interface TestResult {
 export type TestRunner = (
   exercise: Pick<Exercise, "id" | "language" | "testSpec" | "testFiles">,
   files: ExerciseFile[],
+  /** Whose org to run Apex in. Ignored by the sandboxed languages. */
+  userId: string,
 ) => Promise<TestResult[]>;
 
 export function parseFiles(value: unknown): ExerciseFile[] {
@@ -84,8 +87,21 @@ export const NO_TESTS_MESSAGE =
  * worked solution off nothing. Admins keep a manual override for the languages
  * that cannot run yet.
  */
-export const runTests: TestRunner = async (exercise, files) => {
+export const runTests: TestRunner = async (exercise, files, userId) => {
   const spec = parseTestSpec(exercise.testSpec);
+
+  // Apex has no runtime outside Salesforce, so it runs in the org the learner
+  // connected rather than in a microVM (#29). Nothing is deployed: one
+  // anonymous block, with its DML rolled back when it finishes.
+  if (exercise.language === "APEX") {
+    const checkFiles = parseFiles(exercise.testFiles);
+    if (checkFiles.length === 0) return allFailed(spec, NO_TESTS_MESSAGE);
+
+    const outcome = await runApexInLearnerOrg(userId, files, checkFiles);
+    return outcome.ok
+      ? reconcile(spec, outcome.results)
+      : allFailed(spec, outcome.message);
+  }
 
   const plan = planFor(exercise.language);
   if (!plan) return allFailed(spec, unsupportedMessage(exercise.language));
