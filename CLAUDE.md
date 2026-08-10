@@ -190,9 +190,14 @@ deliberately doesn't ping, so a probe can't mark a job red.
 gateway auth. It reports *which* check failed and never why — it's public, and
 the reasons carry connection strings, so those go to Sentry.
 
-Still open from #52: `prisma migrate status` in CI. The health check only catches
+Still open, as #68: `prisma migrate status` in CI. The health check only catches
 a migration that started and never finished, not one that was never run — the
 migrations directory isn't in the serverless bundle.
+
+When touching the migration check, note that `_prisma_migrations` **keeps failed
+attempts as rows**: a migration that failed, was resolved and re-applied leaves
+both the wreckage and the clean row. Only the absence of any clean row for a
+name means the schema is really missing it.
 
 ## Tracking
 
