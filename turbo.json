@@ -5,6 +5,7 @@
     "BETTER_AUTH_SECRET",
     "BETTER_AUTH_URL",
     "NEXT_PUBLIC_APP_URL",
+    "NEXT_PUBLIC_SENTRY_DSN",
     "STRIPE_SECRET_KEY",
     "STRIPE_WEBHOOK_SECRET",
     "RESEND_API_KEY",
@@ -26,7 +27,13 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      // Source map upload, not build input. Turbo hides anything unlisted
+      // from the task, so withSentryConfig read undefined and skipped the
+      // upload — a green build that ships minified stack traces. Passed
+      // through rather than hashed: the token rotates, and rotating it
+      // shouldn't invalidate every cached build.
+      "passThroughEnv": ["SENTRY_AUTH_TOKEN", "SENTRY_ORG", "SENTRY_PROJECT"]
     },
     "typecheck": {
       "dependsOn": ["^build"]
