@@ -1,6 +1,6 @@
 import { db, type User } from "@homeroom/db";
 import { makeAnthropic, modelFor } from "@/lib/ai";
-import { parseTestResults } from "@/lib/exercises/runner";
+import { parseTestResults } from "@homeroom/exercise-runner";
 import {
   getPracticeSnapshot,
   isAttempt,

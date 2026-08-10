@@ -5,14 +5,13 @@
  * `harness.ts` and `sandbox.ts`.
  */
 
-import { accessTokenFor } from "@/lib/salesforce/connect";
-import { API_VERSION } from "@/lib/salesforce/connect";
+import { API_VERSION, accessTokenFor } from "./connect";
 import {
   buildAnonymousApex,
   readAnonymousResult,
   type ApexOutcome,
 } from "./apex-anonymous";
-import type { ExerciseFile } from "./runner";
+import type { ExerciseFile } from "@homeroom/exercise-runner";
 
 /**
  * The Tooling API takes the block as a query parameter, so a large submission

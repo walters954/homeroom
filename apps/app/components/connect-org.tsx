@@ -1,7 +1,7 @@
 import { Badge, Button, Card, CardContent, CardHeader } from "@homeroom/ui";
 import { disconnectSalesforce } from "@/lib/actions/salesforce";
-import { getConnection, isSalesforceConfigured } from "@/lib/salesforce/connect";
-import { ORG_DOCS } from "@/lib/salesforce/org";
+import { getConnection, isSalesforceConfigured } from "@homeroom/runner-apex";
+import { ORG_DOCS } from "@homeroom/runner-apex";
 import { relativeDays } from "@/lib/practice";
 
 /**

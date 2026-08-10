@@ -4,7 +4,7 @@ import {
   fetchOrgIdentity,
   saveConnection,
   verdictFor,
-} from "@/lib/salesforce/connect";
+} from "@homeroom/runner-apex";
 import { getCurrentUser } from "@/lib/session";
 import { HANDSHAKE_COOKIE } from "../authorize/route";
 

@@ -6,9 +6,9 @@ import { redirect } from "next/navigation";
 import {
   parseFiles,
   parseTestSpec,
-  runTests,
   type ExerciseFile,
-} from "../exercises/runner";
+} from "@homeroom/exercise-runner";
+import { runTests } from "../exercises/runner";
 import { requireAdmin } from "../session";
 import { slugify } from "../slug";
 

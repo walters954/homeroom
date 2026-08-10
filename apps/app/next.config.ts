@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
     "@homeroom/auth",
     "@homeroom/db",
     "@homeroom/env",
+    "@homeroom/exercise-runner",
+    "@homeroom/runner-apex",
+    "@homeroom/runner-sandbox",
     "@homeroom/ui",
   ],
 };

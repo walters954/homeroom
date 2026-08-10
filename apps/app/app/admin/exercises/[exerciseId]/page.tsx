@@ -8,7 +8,7 @@ import {
   updateExercise,
   verifyExercise,
 } from "@/lib/actions/exercises";
-import { parseFiles, parseTestSpec } from "@/lib/exercises/runner";
+import { parseFiles, parseTestSpec } from "@homeroom/exercise-runner";
 import { requireAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
