@@ -4,7 +4,7 @@ import {
   createPkce,
   createState,
   isSalesforceConfigured,
-} from "@/lib/salesforce/connect";
+} from "@homeroom/runner-apex";
 import { getCurrentUser } from "@/lib/session";
 
 /** Long enough to sign in to Salesforce, short enough not to linger. */

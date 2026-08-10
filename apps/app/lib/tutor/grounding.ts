@@ -1,6 +1,6 @@
 import { db, type User } from "@homeroom/db";
 import type { AgentScope } from "@/lib/agent/scope";
-import { parseTestResults } from "@/lib/exercises/runner";
+import { parseTestResults } from "@homeroom/exercise-runner";
 import { getPracticeSnapshot, isAttempt, STATUS_LABEL } from "@/lib/practice";
 import {
   exerciseContext,

@@ -4,7 +4,7 @@ import { db } from "@homeroom/db";
 import type { Metadata } from "next";
 import { Markdown } from "@/components/markdown";
 import { Page, PageHeader } from "@/components/page-header";
-import { parseFiles } from "@/lib/exercises/runner";
+import { parseFiles } from "@homeroom/exercise-runner";
 import { isAttempt, isGenuinePass, relativeDays } from "@/lib/practice";
 import { requireUser } from "@/lib/session";
 import { Badge, Card, CardContent, CardFooter, CardHeader } from "@homeroom/ui";

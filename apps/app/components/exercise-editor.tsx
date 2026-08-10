@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ExerciseFile } from "@/lib/exercises/runner";
+import type { ExerciseFile } from "@homeroom/exercise-runner";
 import { Card, CardHeader } from "@homeroom/ui";
 
 type BoundAction = (formData: FormData) => void | Promise<void>;

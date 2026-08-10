@@ -26,7 +26,7 @@
  * No imports, so `apex-anonymous.test.mjs` can load it directly.
  */
 
-import type { ExerciseFile, TestResult } from "./runner";
+import type { ExerciseFile, TestResult } from "@homeroom/exercise-runner";
 
 /** Precedes the JSON payload inside the thrown exception's message. */
 export const APEX_SENTINEL = "__HOMEROOM_APEX__";

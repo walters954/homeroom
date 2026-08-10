@@ -6,7 +6,7 @@ import {
   type Submission,
   type User,
 } from "@homeroom/db";
-import { parseTestResults } from "./exercises/runner";
+import { parseTestResults } from "@homeroom/exercise-runner";
 
 /**
  * The practice loop, in one place: how a submission turns into a skill

@@ -1,0 +1,19 @@
+{
+  "name": "@homeroom/runner-apex",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"src/**/*.test.mjs\""
+  },
+  "dependencies": {
+    "@homeroom/db": "workspace:*",
+    "@homeroom/exercise-runner": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}

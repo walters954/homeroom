@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { disconnectOrg } from "@/lib/salesforce/connect";
+import { disconnectOrg } from "@homeroom/runner-apex";
 import { requireUser } from "@/lib/session";
 
 /**

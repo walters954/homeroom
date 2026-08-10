@@ -10,16 +10,16 @@
  */
 
 import { Sandbox } from "@vercel/sandbox";
+import { truncate } from "@homeroom/exercise-runner";
 import {
   HARNESS_PATH,
   RUN_TIMEOUT_MS,
   countMarkers,
   filesToWrite,
   parseHarnessOutput,
-  truncate,
 } from "./harness";
 import type { LanguagePlan } from "./harness";
-import type { ExerciseFile, TestResult } from "./runner";
+import type { ExerciseFile, TestResult } from "@homeroom/exercise-runner";
 
 /** Sandbox lifetime. Generous against the run timeout so the run reports first. */
 const SANDBOX_TIMEOUT_MS = RUN_TIMEOUT_MS + 30_000;

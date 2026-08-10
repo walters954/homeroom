@@ -46,6 +46,9 @@ packages/db/    Prisma schema + migrations (Neon Postgres)
 packages/auth/  Better Auth (email+password, magic link, reset, verification)
 packages/ui/    shared components
 packages/env/   env validation
+packages/exercise-runner/  the seam every language plugs into, and the honesty rules
+packages/runner-sandbox/   JS/TS in a Vercel Sandbox microVM
+packages/runner-apex/      Apex in the learner's own org, incl. its OAuth flow
 ```
 
 - **The eve agent is not a second deployment.** `withEve()` in
@@ -64,7 +67,7 @@ pnpm install
 pnpm turbo run build --filter=@homeroom/app     # app build
 pnpm turbo run build --filter=@homeroom/agent   # needs Node 24
 pnpm typecheck
-pnpm turbo run test --filter=@homeroom/app       # exercise runner checks, Node 24
+pnpm turbo run test                              # all packages, Node 24
 pnpm db:migrate                                  # prisma migrate dev
 ```
 
@@ -202,9 +205,18 @@ with entitlements, community, events, member management, the agent suggestion
 queue with a nightly drafting schedule, and the practice-loop screens (Today /
 attempt / recall / capability / coach).
 
-Exercises execute for real: `lib/exercises/runner.ts` dispatches on
-`Exercise.language`, and JS/TS submissions run against the exercise's hidden
-`testFiles` in a Vercel Sandbox with `deny-all` egress. **Every path that is not
+Exercises execute for real. **Each language is a package** implementing
+`LanguageRunner` from `@homeroom/exercise-runner`; `apps/app/lib/exercises/runner.ts`
+is only the list of which ones this deployment has. JS/TS submissions run against
+the exercise's hidden `testFiles` in a Vercel Sandbox with `deny-all` egress.
+Apex runs as one anonymous block in the org the learner connected (nothing is
+deployed, DML rolled back with a savepoint) — so `LanguageRunner.isConfigured`
+takes the request, because whether Apex can run is a question about *this*
+person, not about the school.
+
+**The honesty rule lives in `runWith`, not in the runners.** A runner reports an
+outcome; the core decides what it is worth, so a contributed runner cannot
+invent a pass by being silent. **Every path that is not
 a genuine green is a failure, including our own outages** — a fabricated pass
 would set a PROVEN state, seed a recall schedule and unlock the worked solution
 off nothing. `lib/exercises/harness.test.mjs` guards that; keep it passing.

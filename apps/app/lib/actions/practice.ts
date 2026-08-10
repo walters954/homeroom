@@ -13,9 +13,9 @@ import {
 import {
   parseFiles,
   parseTestSpec,
-  runTests,
   type ExerciseFile,
-} from "../exercises/runner";
+} from "@homeroom/exercise-runner";
+import { runTests } from "../exercises/runner";
 import { requireAdmin, requireUser } from "../session";
 
 /**

@@ -18,13 +18,10 @@ import test from "node:test";
 
 import {
   HARNESS_PATH,
-  allFailed,
   buildHarness,
   countMarkers,
   filesToWrite,
-  isSafePath,
   parseHarnessOutput,
-  reconcile,
 } from "./harness.ts";
 
 const TEST_FILE = `import assert from "node:assert";
@@ -112,33 +109,4 @@ export const sum = () => 0;
 
 test("the harness emits exactly one marker", () => {
   assert.strictEqual(countMarkers(buildHarness([])), 1);
-});
-
-test("a spec row nothing reported on counts as failed", () => {
-  const results = reconcile(SPEC, [{ name: "adds two numbers", passed: true, message: "" }]);
-  assert.strictEqual(results[1].passed, false);
-  assert.strictEqual(results[1].message, "This test did not run.");
-});
-
-test("tests outside the spec are kept, not dropped", () => {
-  const results = reconcile(SPEC, [
-    { name: "adds two numbers", passed: true, message: "" },
-    { name: "handles negatives", passed: true, message: "" },
-    { name: "undeclared", passed: false, message: "boom" },
-  ]);
-  assert.strictEqual(results.length, 3);
-  assert.strictEqual(results[2].name, "undeclared");
-});
-
-test("paths that escape the working directory are refused", () => {
-  assert.ok(!isSafePath("../../etc/passwd"));
-  assert.ok(!isSafePath("/etc/passwd"));
-  assert.ok(!isSafePath("a//b.js"));
-  assert.ok(isSafePath("src/a.js"));
-});
-
-test("allFailed fails every declared test with one reason", () => {
-  const results = allFailed(SPEC, "nope");
-  assert.strictEqual(results.length, 2);
-  assert.ok(results.every((r) => !r.passed && r.message === "nope"));
 });

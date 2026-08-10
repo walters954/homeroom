@@ -9,7 +9,7 @@ import {
   STATUS_LABEL,
   STATUS_TAG,
 } from "@/lib/practice";
-import { parseTestResults } from "@/lib/exercises/runner";
+import { parseTestResults } from "@homeroom/exercise-runner";
 import { requireUser } from "@/lib/session";
 import { EmptyState } from "@/components/empty-state";
 import {

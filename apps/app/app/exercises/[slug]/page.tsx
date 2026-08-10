@@ -14,12 +14,13 @@ import {
   revealSolution,
   submitAttempt,
 } from "@/lib/actions/practice";
-import { planFor, unsupportedMessage } from "@/lib/exercises/harness";
+import { unsupportedMessage } from "@homeroom/exercise-runner";
+import { planFor } from "@homeroom/runner-sandbox";
 import {
   parseFiles,
   parseTestResults,
   parseTestSpec,
-} from "@/lib/exercises/runner";
+} from "@homeroom/exercise-runner";
 import {
   formatTimecode,
   isAttempt,

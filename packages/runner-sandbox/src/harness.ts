@@ -8,7 +8,8 @@
  */
 
 import type { ExerciseLanguage } from "@homeroom/db";
-import type { ExerciseFile, TestResult, TestSpecItem } from "./runner";
+import { isSafePath, truncate } from "@homeroom/exercise-runner";
+import type { ExerciseFile, TestResult } from "@homeroom/exercise-runner";
 
 /**
  * Printed by the harness immediately before the JSON payload. A marker rather
@@ -25,9 +26,6 @@ export const HARNESS_PATH = "__homeroom/run.mjs";
 
 /** A submission that has not finished by now is a submission with a loop in it. */
 export const RUN_TIMEOUT_MS = 60_000;
-
-/** Long enough to diagnose a failure, short enough not to bloat every row. */
-const MAX_MESSAGE = 1_000;
 
 export interface LanguagePlan {
   runtime: "node24" | "python3.13";
@@ -51,28 +49,6 @@ export function planFor(language: ExerciseLanguage): LanguagePlan | null {
     default:
       return null;
   }
-}
-
-export function unsupportedMessage(language: ExerciseLanguage): string {
-  if (language === "APEX") {
-    return "Apex runs only inside a Salesforce org, so these tests cannot execute here yet (issue #29). An admin can record a pass manually.";
-  }
-  return `Test execution for ${language.toLowerCase()} isn't wired up yet.`;
-}
-
-export function truncate(value: string, max = MAX_MESSAGE): string {
-  const v = value.trim();
-  return v.length > max ? `${v.slice(0, max)}…` : v;
-}
-
-/**
- * Reject anything that would write outside the working directory. Paths are
- * author-controlled today rather than learner-controlled, but an exercise
- * editor (#30) will change that and this is the wrong thing to add later.
- */
-export function isSafePath(path: string): boolean {
-  if (!path || path.startsWith("/") || path.includes("\\")) return false;
-  return !path.split("/").some((seg) => seg === ".." || seg === "");
 }
 
 /**
@@ -176,37 +152,3 @@ export function parseHarnessOutput(stdout: string): TestResult[] | null {
   }
 }
 
-/**
- * Reconcile what ran against what the exercise claims it checks.
- *
- * `testSpec` is the contract shown to the learner, so it decides the shape of
- * the result: a spec item nothing reported on counts as failed, never as
- * absent. Without this, a run that silently skipped half its tests would report
- * "all green" on the half that ran.
- */
-export function reconcile(
-  spec: TestSpecItem[],
-  reported: TestResult[],
-): TestResult[] {
-  if (spec.length === 0) return reported;
-
-  const byName = new Map(reported.map((r) => [r.name, r]));
-  const claimed = spec.map(
-    (item) =>
-      byName.get(item.name) ?? {
-        name: item.name,
-        passed: false,
-        message: "This test did not run.",
-      },
-  );
-
-  const specNames = new Set(spec.map((s) => s.name));
-  const extra = reported.filter((r) => !specNames.has(r.name));
-  return [...claimed, ...extra];
-}
-
-/** Every declared test, failed, with one shared explanation. */
-export function allFailed(spec: TestSpecItem[], message: string): TestResult[] {
-  const names = spec.length > 0 ? spec.map((s) => s.name) : ["tests"];
-  return names.map((name) => ({ name, passed: false, message }));
-}
