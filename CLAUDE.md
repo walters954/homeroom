@@ -166,16 +166,25 @@ the SDK no-ops, like every other integration here. `SENTRY_ORG` / `SENTRY_PROJEC
 without them the build skips source map upload instead of failing. Client errors
 tunnel through `/monitoring` so ad blockers can't eat them.
 
+**The SDK is the interface, not the vendor.** GlitchTip and Bugsink both speak
+the Sentry protocol, so moving to a self-hosted instance is a change of DSN and
+nothing else. Don't grow a dependency on a sentry.io-only feature — that is why
+cron liveness below is a ping URL and not `Sentry.withMonitor`, which would have
+tied us to the vendor *and* to a paid plan for the second cron.
+
 **`catch {}` and "we hear nothing" are two different decisions.** Degrading
 gracefully for the member is right and stays; call `report()` from `lib/observe.ts`
 inside the catch so the failure is still visible to us. Every model call in
 production 500'd for days precisely because the tutor route turned an outage into
 a friendly sentence and told nobody.
 
-Both crons check in via `Sentry.withMonitor` with their crontab from
-`vercel.json` — a cron that stops firing raises no error, so only a missed
-check-in can catch it. **Keep the schedules in the two files in step.** The 401
-path deliberately doesn't check in, so a probe can't mark a job red.
+Both crons ping a heartbeat URL through `lib/heartbeat.ts` — a cron that stops
+firing raises no error, so only something outside the app expecting a ping can
+catch it. The healthchecks.io protocol (`/start`, bare URL, `/fail`) is three
+URLs and no client library, so the free hosted tier, a self-hosted instance and
+Better Stack heartbeats are interchangeable. The schedule lives with the
+monitor, not in code; `vercel.json` stays the only crontab. The 401 path
+deliberately doesn't ping, so a probe can't mark a job red.
 
 `/api/health` is the uptime target: 200 / 503 over database, migration state and
 gateway auth. It reports *which* check failed and never why — it's public, and

@@ -1,5 +1,5 @@
-import * as Sentry from "@sentry/nextjs";
 import { db, type Prisma } from "@homeroom/db";
+import { withHeartbeat } from "@/lib/heartbeat";
 import { APP_URL } from "@/lib/notify";
 
 export const maxDuration = 300;
@@ -20,13 +20,9 @@ export async function GET(request: Request) {
     }
   }
 
-  // Weekly, so a miss is worth a wide margin and worth hearing about: left
-  // unwatched, this could stop filing nudges for a month unnoticed.
-  return Sentry.withMonitor("cron-engagement", run, {
-    schedule: { type: "crontab", value: "0 13 * * 1" },
-    checkinMargin: 60,
-    maxRuntime: 10,
-  });
+  // Weekly, so this is the one worth watching: left unmonitored it could stop
+  // filing nudges for a month before anyone wondered why.
+  return withHeartbeat(process.env.HEARTBEAT_ENGAGEMENT_URL, run);
 }
 
 async function run(): Promise<Response> {

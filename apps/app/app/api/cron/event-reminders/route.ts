@@ -1,5 +1,5 @@
-import * as Sentry from "@sentry/nextjs";
 import { db } from "@homeroom/db";
+import { withHeartbeat } from "@/lib/heartbeat";
 import { APP_URL, sendEmail } from "@/lib/notify";
 
 export const maxDuration = 300;
@@ -15,14 +15,10 @@ export async function GET(request: Request) {
     }
   }
 
-  // The check-in tells Sentry the job ran; the schedule tells it when to
-  // complain if one doesn't. A cron that stops firing produces no error at
-  // all, which is why nothing else in this file would ever catch it.
-  return Sentry.withMonitor("cron-event-reminders", run, {
-    schedule: { type: "crontab", value: "0 * * * *" },
-    checkinMargin: 10,
-    maxRuntime: 10,
-  });
+  // The schedule lives with the monitor, not here — this file only says the
+  // job ran. Keeping the crontab in one place (vercel.json) rather than
+  // repeating it in code is worth more than the monitor auto-creating itself.
+  return withHeartbeat(process.env.HEARTBEAT_EVENT_REMINDERS_URL, run);
 }
 
 async function run(): Promise<Response> {

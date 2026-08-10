@@ -27,11 +27,18 @@ const schema = z.object({
   // integration here. SENTRY_ORG/PROJECT/AUTH_TOKEN are build-time only and
   // are set by the Vercel integration; without them the build skips source
   // map upload rather than failing.
+  // Any Sentry-protocol host: sentry.io, or a self-hosted GlitchTip/Bugsink.
+  // Switching is this variable and nothing else.
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
   SENTRY_DSN: z.string().url().optional(),
   SENTRY_ORG: z.string().optional(),
   SENTRY_PROJECT: z.string().optional(),
   SENTRY_AUTH_TOKEN: z.string().optional(),
+
+  // Cron liveness. Any healthchecks.io-protocol ping URL — the hosted free
+  // tier, a self-hosted instance, or Better Stack heartbeats.
+  HEARTBEAT_ENGAGEMENT_URL: z.string().url().optional(),
+  HEARTBEAT_EVENT_REMINDERS_URL: z.string().url().optional(),
 
   AI_GATEWAY_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
