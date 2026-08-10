@@ -159,9 +159,12 @@ export type ApexOutcome =
  * reporting, or came back in a shape we do not recognise is a failure with an
  * explanation — never an empty green run.
  */
-export function readAnonymousResult(
-  response: ExecuteAnonymousResponse,
-): ApexOutcome {
+export function readAnonymousResult(input: unknown): ApexOutcome {
+  // `unknown` on purpose: this is a network boundary, and the fields below are
+  // read defensively anyway. Typing the parameter as the shape we hope for
+  // would only move the lie one line earlier.
+  const response = (input ?? {}) as ExecuteAnonymousResponse;
+
   if (response.compiled === false) {
     const problem = truncate(response.compileProblem ?? "", 600);
     const where =
