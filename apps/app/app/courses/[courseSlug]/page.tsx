@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@homeroom/db";
 import type { Metadata } from "next";
+import { Badge, Card, CardContent, CardFooter, CardHeader } from "@homeroom/ui";
 import { formatPrice, getCourseAccess, lessonAccessible } from "@/lib/access";
 import { getCurrentUser } from "@/lib/session";
-import { Page } from "@/components/page-header";
+import { Page, PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { getPracticeSnapshot } from "@/lib/practice";
 
 export const dynamic = "force-dynamic";
 
@@ -62,11 +64,62 @@ export default async function CoursePage({
   const visibleLessons = (lessons: (typeof course.sections)[0]["lessons"]) =>
     user?.role === "ADMIN" ? lessons : lessons.filter((l) => l.published);
 
+  // The same ranked proposal /today computes, narrowed to this course. Only
+  // worth the query for someone who can actually attempt something.
+  const snapshot = user && access.hasAccess ? await getPracticeSnapshot(user) : null;
+  const standing =
+    snapshot?.courses.find((c) => c.courseId === course.id) ?? null;
+  const next = snapshot?.ranked.find((a) => a.courseId === course.id) ?? null;
+
   return (
     <Page width="narrow">
-      <h1 className="text-3xl font-bold tracking-tight">{course.title}</h1>
-      {course.description && (
-        <p className="mt-3 text-dim">{course.description}</p>
+      <PageHeader
+        crumbs={[{ label: "Courses", href: "/courses" }, { label: course.title }]}
+        title={course.title}
+        subtitle={course.description ?? undefined}
+      />
+
+      {standing && standing.proven + standing.shaky + standing.untested > 0 && (
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          {standing.proven > 0 && (
+            <Badge variant="proven">{standing.proven} proven</Badge>
+          )}
+          {standing.shaky > 0 && (
+            <Badge variant="shaky">{standing.shaky} shaky</Badge>
+          )}
+          {standing.untested > 0 && (
+            <Badge variant="untested">{standing.untested} untested</Badge>
+          )}
+          <span className="hr-ev">{standing.standing}</span>
+        </div>
+      )}
+
+      {/* Arrival: the one thing worth doing inside this course, with why. */}
+      {next && (
+        <Card className="mb-8">
+          <CardHeader>
+            <span className="hr-eyebrow">{next.eyebrow}</span>
+            <span className="ml-auto hr-path">picked for you</span>
+          </CardHeader>
+          <CardContent>
+            <p className="font-semibold text-ink">{next.title}</p>
+            <p className="mt-2 max-w-[66ch] text-[13.5px] leading-relaxed text-ink">
+              {next.reason}
+            </p>
+            <div className="hr-cite mt-3">
+              {next.evidence.map((line) => (
+                <p key={line} className="text-dim">
+                  {line}
+                </p>
+              ))}
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Link href={next.href} className="hr-btn hr-btn-primary hr-btn-sm">
+              {next.cta}
+            </Link>
+          </CardFooter>
+        </Card>
       )}
       {!access.hasAccess && access.product && (
         <div className="mt-4 flex items-center justify-between rounded-lg bg-bg p-4">
