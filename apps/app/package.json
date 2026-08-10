@@ -18,6 +18,7 @@
     "@homeroom/runner-apex": "workspace:*",
     "@homeroom/runner-sandbox": "workspace:*",
     "@homeroom/ui": "workspace:*",
+    "@sentry/nextjs": "^10.70.0",
     "@vercel/connect": "^0.6.1",
     "@vercel/oidc": "^3.8.2",
     "@vercel/sandbox": "^3.0.0",

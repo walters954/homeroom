@@ -1,4 +1,5 @@
 import { db, type Prisma } from "@homeroom/db";
+import { withHeartbeat } from "@/lib/heartbeat";
 import { APP_URL } from "@/lib/notify";
 
 export const maxDuration = 300;
@@ -14,10 +15,17 @@ export async function GET(request: Request) {
   if (secret) {
     const auth = request.headers.get("authorization");
     if (auth !== `Bearer ${secret}`) {
+      // Not a job failure — no check-in, so a probe can't mark the cron red.
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
   }
 
+  // Weekly, so this is the one worth watching: left unmonitored it could stop
+  // filing nudges for a month before anyone wondered why.
+  return withHeartbeat(process.env.HEARTBEAT_ENGAGEMENT_URL, run);
+}
+
+async function run(): Promise<Response> {
   const cutoff = new Date(Date.now() - INACTIVE_DAYS * 24 * 60 * 60 * 1000);
   const members = await db.user.findMany({
     where: { role: "MEMBER" },

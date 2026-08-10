@@ -5,6 +5,7 @@ import { getBranding } from "@/lib/settings";
 import { buildGrounding } from "@/lib/tutor/grounding";
 import { parseScope, scopeKey, type AgentScope } from "@/lib/agent/scope";
 import { getCurrentUser } from "@/lib/session";
+import { report } from "@/lib/observe";
 
 export const maxDuration = 120;
 
@@ -140,6 +141,10 @@ export async function POST(request: Request) {
         }
         controller.close();
       } catch (err) {
+        // The member sees the stream break and the pane apologises. Nothing
+        // upstream of here would ever hear about it otherwise — this route is
+        // where the gateway outage in #52 hid for days.
+        report("tutor.stream", err, { scope: scope.kind, conversationId });
         controller.error(err);
       }
     },

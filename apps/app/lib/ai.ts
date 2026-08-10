@@ -27,6 +27,25 @@ async function gatewayAuth(): Promise<{ apiKey?: string; authToken?: string } | 
   return null;
 }
 
+/**
+ * Which auth path model calls would take right now, without making one.
+ *
+ * `/api/health` asserts this is not "none" in production. That is the whole
+ * of the outage in #52: `gatewayAuth()` resolved to nothing in a deployed
+ * function, every model call fell through to a keyless direct API, and the
+ * only symptom was the tutor apologising. A model call would catch it too,
+ * but a health check is not a good place to spend tokens.
+ */
+export async function gatewayAuthMode(): Promise<"api-key" | "oidc" | "none"> {
+  if (process.env.AI_GATEWAY_API_KEY) return "api-key";
+  try {
+    if (await getVercelOidcToken()) return "oidc";
+  } catch {
+    // Same fall-through as gatewayAuth().
+  }
+  return "none";
+}
+
 export async function defaultModel(): Promise<string> {
   return (
     process.env.TUTOR_MODEL ??

@@ -1,4 +1,5 @@
 import { db } from "@homeroom/db";
+import { withHeartbeat } from "@/lib/heartbeat";
 import { APP_URL, sendEmail } from "@/lib/notify";
 
 export const maxDuration = 300;
@@ -9,10 +10,18 @@ export async function GET(request: Request) {
   if (secret) {
     const auth = request.headers.get("authorization");
     if (auth !== `Bearer ${secret}`) {
+      // Not a job failure — no check-in, so a probe can't mark the cron red.
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
   }
 
+  // The schedule lives with the monitor, not here — this file only says the
+  // job ran. Keeping the crontab in one place (vercel.json) rather than
+  // repeating it in code is worth more than the monitor auto-creating itself.
+  return withHeartbeat(process.env.HEARTBEAT_EVENT_REMINDERS_URL, run);
+}
+
+async function run(): Promise<Response> {
   const now = new Date();
   const cutoff = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const events = await db.event.findMany({

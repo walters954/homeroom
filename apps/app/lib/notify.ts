@@ -3,6 +3,8 @@
  * integration isn't configured, so features degrade gracefully.
  */
 
+import { report } from "./observe";
+
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 /**
@@ -27,8 +29,10 @@ export async function postToSlack(text: string): Promise<void> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
     });
-  } catch {
-    // Notifications never break the main flow.
+  } catch (err) {
+    // Notifications never break the main flow — but a Slack channel that has
+    // silently stopped delivering is how an alert gets missed, so it reports.
+    report("notify.slack", err);
   }
 }
 
@@ -41,7 +45,7 @@ export async function sendEmail(
   const key = process.env.RESEND_API_KEY;
   if (!key) return;
   try {
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${key}`,
@@ -54,8 +58,16 @@ export async function sendEmail(
         html,
       }),
     });
-  } catch {
-    // ignore
+    // A rejected send is a 422, not a throw. Event reminders and magic links
+    // both ride on this, so "quietly delivered nothing" has to be reportable.
+    if (!res.ok) {
+      report("notify.email", new Error(`Resend responded ${res.status}`), {
+        status: res.status,
+        body: await res.text().catch(() => "<unreadable>"),
+      });
+    }
+  } catch (err) {
+    report("notify.email", err);
   }
 }
 
@@ -75,7 +87,7 @@ export async function kitSubscribe(
       },
       body: JSON.stringify({ email_address: email, first_name: firstName }),
     });
-  } catch {
-    // ignore
+  } catch (err) {
+    report("notify.kit", err);
   }
 }
