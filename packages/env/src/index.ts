@@ -16,6 +16,13 @@ const schema = z.object({
   KIT_API_KEY: z.string().optional(),
   SLACK_WEBHOOK_URL: z.string().url().optional(),
 
+  // Bring-your-own Salesforce org (#29). An External Client App, since
+  // connected app creation is restricted from Spring '26.
+  SALESFORCE_CLIENT_ID: z.string().optional(),
+  SALESFORCE_CLIENT_SECRET: z.string().optional(),
+  // Encrypts the stored refresh token. 32+ chars: openssl rand -base64 32
+  SALESFORCE_TOKEN_KEY: z.string().min(16).optional(),
+
   AI_GATEWAY_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
   TUTOR_MODEL: z.string().optional(),
