@@ -6,6 +6,7 @@ import { ExerciseEditor } from "@/components/exercise-editor";
 import { Markdown } from "@/components/markdown";
 import { Page, PageHeader } from "@/components/page-header";
 import { AgentScope } from "@/components/agent/provider";
+import { ConnectOrg } from "@/components/connect-org";
 import { getCourseAccess } from "@/lib/access";
 import {
   markPassedManual,
@@ -57,10 +58,13 @@ export async function generateMetadata({
 
 export default async function ExercisePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ org?: string; orgType?: string }>;
 }) {
   const { slug } = await params;
+  const { org, orgType } = await searchParams;
   const user = await requireUser();
   const exercise = await getExercise(slug);
   if (!exercise) notFound();
@@ -111,6 +115,15 @@ export default async function ExercisePage({
         title={exercise.title}
         subtitle="Video teaches; this proves it. Progress moves when the tests pass — nothing here advances by marking it complete."
       />
+
+      {exercise.language === "APEX" && (
+        <ConnectOrg
+          userId={user.id}
+          returnTo={`/exercises/${slug}`}
+          status={org}
+          refusedType={orgType}
+        />
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <AttemptPips

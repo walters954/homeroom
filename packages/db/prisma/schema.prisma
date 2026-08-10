@@ -40,6 +40,7 @@ model User {
   skillStates        SkillState[]
   recallItems        RecallItem[]
   agentBriefs        AgentBrief[]
+  salesforceConnection SalesforceConnection?
 
   @@map("user")
 }
@@ -455,6 +456,26 @@ model AgentBrief {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, scopeKey])
+}
+
+/// The Salesforce org a learner brought, so Apex exercises can run somewhere
+/// real. One per member; reconnecting replaces it.
+model SalesforceConnection {
+  id          String @id @default(cuid())
+  userId      String @unique
+  orgId       String
+  instanceUrl String
+  username    String
+  /// Organization.OrganizationType, as reported at connect time
+  orgType     String
+  isSandbox   Boolean @default(false)
+  /// AES-256-GCM. The access token is deliberately not stored: it is
+  /// short-lived and cheap to mint again from this.
+  refreshToken String
+  connectedAt  DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum TutorRole {
