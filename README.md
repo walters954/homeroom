@@ -1,4 +1,4 @@
-v1.1
+v1.2
 # Homeroom
 
 **Open-source, agent-first course + community platform.** The Kajabi / Teachable / Circle alternative where an AI agent is the operating model, not a feature — *the LMS is where the teaching agent keeps its notes.*
