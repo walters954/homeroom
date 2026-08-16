@@ -8,6 +8,7 @@
     "generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
+    "migrate:status": "prisma migrate status",
     "studio": "prisma studio",
     "seed:practice": "node --env-file=.env prisma/seed-practice.ts",
     "build": "prisma generate",
