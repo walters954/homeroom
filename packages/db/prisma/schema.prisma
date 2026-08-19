@@ -1,10 +1,15 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/client"
+  // moduleResolution is "Bundler" everywhere here, so generated imports must
+  // carry no file extension.
+  importFileExtension = ""
 }
 
+// v7: no `url` here. Migrate reads it from prisma.config.ts; the client gets a
+// driver adapter from packages/db/src/index.ts.
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ---------------------------------------------------------------------------
