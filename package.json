@@ -9,8 +9,10 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
     "db:generate": "pnpm --filter @homeroom/db generate",
-    "db:migrate": "pnpm --filter @homeroom/db migrate:dev"
+    "db:migrate": "pnpm --filter @homeroom/db migrate:dev",
+    "db:migrate:status": "pnpm --filter @homeroom/db migrate:status"
   },
   "devDependencies": {
     "turbo": "^2.5.0",

@@ -69,7 +69,11 @@ pnpm turbo run build --filter=@homeroom/agent   # needs Node 24
 pnpm typecheck
 pnpm turbo run test                              # all packages, Node 24
 pnpm db:migrate                                  # prisma migrate dev
+pnpm db:migrate:status                           # what CI checks — drift / pending
 ```
+
+`pnpm typecheck` and `pnpm turbo run test` also run on every pull request, so
+they no longer depend on someone remembering.
 
 - **`apps/agent` requires Node 24** (`export PATH="/opt/homebrew/opt/node@24/bin:$PATH"`,
   or `nvm use` — see `.nvmrc`). The Next.js app does not.
@@ -190,9 +194,13 @@ deliberately doesn't ping, so a probe can't mark a job red.
 gateway auth. It reports *which* check failed and never why — it's public, and
 the reasons carry connection strings, so those go to Sentry.
 
-Still open, as #68: `prisma migrate status` in CI. The health check only catches
-a migration that started and never finished, not one that was never run — the
-migrations directory isn't in the serverless bundle.
+`prisma migrate status` runs in CI (`.github/workflows/ci.yml`), because the
+health check only catches a migration that started and never finished, not one
+that was never run — the migrations directory isn't in the serverless bundle, so
+the running app has no repo to compare against. CI is the only place that holds
+both. It needs the `DATABASE_URL` repository secret; without it the job emits a
+warning annotation and skips, since fork pull requests never receive secrets and
+a drift check that silently reads green is the failure this job exists to stop.
 
 When touching the migration check, note that `_prisma_migrations` **keeps failed
 attempts as rows**: a migration that failed, was resolved and re-applied leaves
