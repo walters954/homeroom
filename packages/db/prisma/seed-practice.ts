@@ -13,9 +13,13 @@
  * Idempotent: re-running updates in place.
  */
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const db = new PrismaClient();
+import { PrismaClient } from "../generated/client/client";
+
+const db = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 
 const ORDERING_STARTER = `public with sharing class AccountRanking {
     /**

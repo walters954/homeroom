@@ -59,6 +59,19 @@ packages/runner-apex/      Apex in the learner's own org, incl. its OAuth flow
   there is no API key to manage. Per-task model choice lives in `/admin/settings`
   (`lib/ai.ts` → `modelFor("simple" | "complex")`).
 - **Single-tenant by design.** One deployment = one school. No `organizationId`.
+- **Prisma 7.** The client no longer owns the connection: `packages/db/src/index.ts`
+  hands `PrismaClient` a `@prisma/adapter-pg` adapter built from `DATABASE_URL`.
+  The schema's `datasource` block carries **no `url`** (v7 rejects it) — the CLI
+  reads the connection from `packages/db/prisma.config.ts` instead. That file
+  uses `process.env` rather than prisma's `env()` helper on purpose: it is
+  evaluated for every command including `generate`, which runs in `postinstall`,
+  and `env()` throws on a missing variable, so `env()` would break `pnpm install`
+  on any machine without a database.
+- **The generated client is a build artifact.** `prisma-client` (not the retired
+  `prisma-client-js`) emits TypeScript to `packages/db/generated/`, which is
+  gitignored and rebuilt by `postinstall`. Import from **`@homeroom/db`**, never
+  from the generated path — that single re-export is why swapping the client
+  touched two files instead of forty.
 
 ## Commands
 
